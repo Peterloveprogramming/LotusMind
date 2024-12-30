@@ -1,0 +1,72 @@
+-- Table users as u {
+--   id bigserial [pk]
+--   email varchar(50) [not null,unique]
+--   first_name varchar(50) [not null]
+--   last_name varchar(50) [not null]
+--   gender varchar(50) [not null]
+--   birth_date date [not null]
+--   country varchar(50) [not null]
+--   hashed_password varchar [not null]
+--   goals varchar (500) [not null]
+--   platform varchar(20) [not null,note:'can be mobile, MR or both'] 
+--   password_changed_at timestamptz [not null, default: '0001-01-01 00:00:00Z']
+--   created_at timestamptz [not null, default: `now()`]
+--   deleted_at timestamptz
+--   Indexes {
+--     email
+--     platform
+--     country
+--     gender
+--     birth_date
+--   }
+-- }
+
+-- Table session_logs as sl {
+--   uuid UUID [pk,not null]
+--   user_id bigint [ref: >u.id, not null]
+--   session_type varchar(50) [not null,note:'references the name of the table of the session']
+--   session_platform varchar(20) [not null,note:'either mr or mobile'] 
+--   created_at timestamptz [not null, default: `now()`]
+--   deleted_at timestamptz
+--   Indexes {
+--     (uuid, session_type) [unique] 
+--     session_type
+--     session_platform
+--   } 
+-- }
+
+-- Table tibetan_singing_bowl_mr as tsbm {
+--   unique_id UUID [pk,not null]
+--   uuid UUID [not null, unique, ref: >session_logs.uuid]
+--   start_mood_rating smallint [not null, note:'between 1-10']
+--   start_mood varchar(20) [not null]
+--   finish_mood_rating smallint [not null, note:'between 1-10']
+--   finish_mood varchar(20) [not null]
+--   session_completed smallint [not null, default: 0, note:'0 = incomplete. 1 = complete']
+--   started_at timestamptz [not null, default: `now()`]
+--   ends_at timestamptz 
+--   deleted_at timestamptz
+--   Indexes {
+--     uuid
+--     session_completed
+--     finish_mood_rating
+--   }
+-- }
+
+-- Table tummo_breathing_mr as tbm {
+--   unique_id UUID [pk,not null]
+--   uuid UUID [not null, unique, ref: >session_logs.uuid]
+--   start_mood_rating smallint [not null, note:'between 1-10']
+--   start_mood varchar(20) [not null]
+--   finish_mood_rating smallint [not null, note:'between 1-10']
+--   finish_mood varchar(20) [not null]
+--   session_completed smallint [not null, default: 0, note:'0 = incomplete. 1 = complete']
+--   started_at timestamptz [not null, default: `now()`]
+--   ends_at timestamptz 
+--   deleted_at timestamptz
+--     Indexes {
+--     uuid
+--     session_completed
+--     finish_mood_rating
+--   }
+-- }
