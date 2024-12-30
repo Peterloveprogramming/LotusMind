@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -36,6 +37,9 @@ func (server *Server) createSession(ctx *gin.Context) {
 	sessionLogResult, err := server.store.CreateSessionLogTransaction(ctx, createSessionLogArgs)
 
 	if err != nil {
+		if strings.Contains(err.Error(), "foreign_key_violation") {
+			ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		}
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 	}
 

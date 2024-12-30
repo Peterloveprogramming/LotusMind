@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/lotusMind/meditation/util"
 )
 
@@ -56,6 +57,13 @@ func (store *Store) CreateSessionLogTransaction(ctx context.Context, args Create
 	err := store.execTx(ctx, func(q *Queries) error {
 		sessionLog, err := q.CreateSessionLog(ctx, args)
 		if err != nil {
+			if prErr, ok := err.(*pq.Error); ok {
+				switch prErr.Code.Name() {
+				case "foreign_key_violation":
+					return fmt.Errorf("foreign_key_violation")
+				}
+				// log.Println(prErr.Code.Name())
+			}
 			return fmt.Errorf("failed to create session log: %w", err)
 		}
 

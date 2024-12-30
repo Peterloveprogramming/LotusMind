@@ -8,6 +8,7 @@ CREATE TABLE "users" (
   "country" varchar(50) NOT NULL,
   "hashed_password" varchar NOT NULL,
   "goals" varchar(500) NOT NULL,
+  "total_time_spent_in_mins" int NOT NULL DEFAULT 0,
   "platform" varchar(20) NOT NULL,
   "password_changed_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
   "created_at" timestamptz NOT NULL DEFAULT (now()),
@@ -95,11 +96,11 @@ COMMENT ON COLUMN "tummo_breathing_mr"."finish_mood_rating" IS 'between 1-10';
 
 COMMENT ON COLUMN "tummo_breathing_mr"."session_completed" IS '0 = incomplete. 1 = complete';
 
-ALTER TABLE "session_logs" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
+ALTER TABLE "session_logs" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id")  ON DELETE CASCADE;
 
-ALTER TABLE "tibetan_singing_bowl_mr" ADD FOREIGN KEY ("uuid") REFERENCES "session_logs" ("uuid") ON DELETE CASCADE;
+ALTER TABLE "tibetan_singing_bowl_mr" ADD FOREIGN KEY ("uuid") REFERENCES "session_logs" ("uuid")  ON DELETE CASCADE;
 
-ALTER TABLE "tummo_breathing_mr" ADD FOREIGN KEY ("uuid") REFERENCES "session_logs" ("uuid") ON DELETE CASCADE;
+ALTER TABLE "tummo_breathing_mr" ADD FOREIGN KEY ("uuid") REFERENCES "session_logs" ("uuid")  ON DELETE CASCADE;
 
 
 -- ALTER TABLE "session_logs" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;

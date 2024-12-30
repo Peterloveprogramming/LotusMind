@@ -8,6 +8,7 @@
 --   country varchar(50) [not null]
 --   hashed_password varchar [not null]
 --   goals varchar (500) [not null]
+--   total_time_spent_in_mins int [not null,  default:0]
 --   platform varchar(20) [not null,note:'can be mobile, MR or both'] 
 --   password_changed_at timestamptz [not null, default: '0001-01-01 00:00:00Z']
 --   created_at timestamptz [not null, default: `now()`]

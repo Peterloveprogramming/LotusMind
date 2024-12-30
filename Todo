@@ -5,9 +5,10 @@ Todos:
 api
 Pre-Launch: - make api
 Pre-Launch: - add token authentication to api routes
-Pre-Launch: - add a more easy to read error messgae to return if runnign into database error - currently "error": "failed to create session log: pq: insert or update on table \"session_logs\" violates foreign key constraint \"session_logs_user_id_fkey\"" if no user exists in data when trying to create session.
+Pre-Launch: - write documentation for getting total time spent for users and implement api
+Pre-Launch: - write custom rules for valiadting params, like email and password.
 
-Pre-Launch: - add total_time_spent in users table. - when sending post-session data, if there is timestamp, calculate it and update users table
+Pre-Launch: - update total_time_spent_in_mins in users table everytime user finish or quites a session. basically when there is a valid timestamp.
 
 notify team
 Pre-Launch: store the uuid returned when creating session, as its used for later update.

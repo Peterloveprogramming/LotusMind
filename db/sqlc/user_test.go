@@ -10,10 +10,15 @@ import (
 )
 
 func createRandomUser(t *testing.T) User {
+	// parse date
 	format := "2006-01-02"
 	birthDate, err := time.Parse(format, "1990-01-01")
 	require.NoError(t, err)
 
+	// hashing the password
+	hashedPassword, err := util.HashPassword(util.RandomString(6))
+	require.NoError(t, err)
+	require.NotEmpty(t, hashedPassword)
 	args := CreateUserParams{
 		Email:          util.RandomString(10) + "@example.com", // Generate a random email
 		FirstName:      util.RandomString(5),                   // Generate a random first name
@@ -21,7 +26,7 @@ func createRandomUser(t *testing.T) User {
 		Gender:         util.RandomGender(),                    // Randomly choose gender
 		BirthDate:      birthDate,                              // Generate a random birth date
 		Country:        util.RandomCountryCode(),               // Randomly choose a country code
-		HashedPassword: util.RandomString(12),                  // Assuming a random string for hashed password
+		HashedPassword: hashedPassword,                         // Assuming a random string for hashed password
 		Goals:          "I want to learn meditation!",          // Static goals
 		Platform:       util.RandomPlatform(),                  // Randomly choose platform
 	}

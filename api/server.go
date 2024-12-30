@@ -11,6 +11,7 @@ var (
 	InvalidSessionType     = errors.New("the session type is invalid")
 	UnsupportedSessionType = errors.New("unsupported session type")
 	InvalidUuid            = errors.New("uuid is invalid")
+	DatabaseIntegrityError = errors.New("database integrity has been violated")
 )
 
 // servers all the http requests for lotus mind
@@ -28,6 +29,12 @@ func NewServer(store *db.Store) *Server {
 	router.POST("/session/update/start/:session_uuid/:session_type", server.updateSessionStartingMood)
 	router.POST("/session/update/finish/:session_uuid/:session_type", server.updateSessionFinishingMood)
 	router.POST("/session/update/quit/:session_uuid/:session_type", server.updateSessionQuit)
+
+	// Route definition for User
+	// router.POST("/user/create", server.createUser)
+	// router.POST("/session/update/start/:session_uuid/:session_type", server.updateSessionStartingMood)
+	// router.POST("/session/update/finish/:session_uuid/:session_type", server.updateSessionFinishingMood)
+	// router.POST("/session/update/quit/:session_uuid/:session_type", server.updateSessionQuit)
 
 	server.router = router
 	return server

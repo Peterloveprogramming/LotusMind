@@ -24,7 +24,7 @@ INSERT INTO users (
 ) VALUES (
   $1, $2, $3, $4, $5, $6, $7, $8, $9
 )
-RETURNING id, email, first_name, last_name, gender, birth_date, country, hashed_password, goals, platform, password_changed_at, created_at, deleted_at
+RETURNING id, email, first_name, last_name, gender, birth_date, country, hashed_password, goals, total_time_spent_in_mins, platform, password_changed_at, created_at, deleted_at
 `
 
 type CreateUserParams struct {
@@ -62,6 +62,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Country,
 		&i.HashedPassword,
 		&i.Goals,
+		&i.TotalTimeSpentInMins,
 		&i.Platform,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
@@ -81,7 +82,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, first_name, last_name, gender, birth_date, country, hashed_password, goals, platform, password_changed_at, created_at, deleted_at FROM users
+SELECT id, email, first_name, last_name, gender, birth_date, country, hashed_password, goals, total_time_spent_in_mins, platform, password_changed_at, created_at, deleted_at FROM users
 WHERE email = $1
 `
 
@@ -98,6 +99,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.Country,
 		&i.HashedPassword,
 		&i.Goals,
+		&i.TotalTimeSpentInMins,
 		&i.Platform,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
@@ -107,7 +109,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const getUserById = `-- name: GetUserById :one
-SELECT id, email, first_name, last_name, gender, birth_date, country, hashed_password, goals, platform, password_changed_at, created_at, deleted_at FROM users
+SELECT id, email, first_name, last_name, gender, birth_date, country, hashed_password, goals, total_time_spent_in_mins, platform, password_changed_at, created_at, deleted_at FROM users
 WHERE id = $1
 `
 
@@ -124,6 +126,7 @@ func (q *Queries) GetUserById(ctx context.Context, id int64) (User, error) {
 		&i.Country,
 		&i.HashedPassword,
 		&i.Goals,
+		&i.TotalTimeSpentInMins,
 		&i.Platform,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
@@ -133,7 +136,7 @@ func (q *Queries) GetUserById(ctx context.Context, id int64) (User, error) {
 }
 
 const getUsersByCountry = `-- name: GetUsersByCountry :many
-SELECT id, email, first_name, last_name, gender, birth_date, country, hashed_password, goals, platform, password_changed_at, created_at, deleted_at FROM users
+SELECT id, email, first_name, last_name, gender, birth_date, country, hashed_password, goals, total_time_spent_in_mins, platform, password_changed_at, created_at, deleted_at FROM users
 where country = $1
 ORDER BY created_at
 `
@@ -157,6 +160,7 @@ func (q *Queries) GetUsersByCountry(ctx context.Context, country string) ([]User
 			&i.Country,
 			&i.HashedPassword,
 			&i.Goals,
+			&i.TotalTimeSpentInMins,
 			&i.Platform,
 			&i.PasswordChangedAt,
 			&i.CreatedAt,
@@ -176,7 +180,7 @@ func (q *Queries) GetUsersByCountry(ctx context.Context, country string) ([]User
 }
 
 const getUsersByPlatform = `-- name: GetUsersByPlatform :many
-SELECT id, email, first_name, last_name, gender, birth_date, country, hashed_password, goals, platform, password_changed_at, created_at, deleted_at FROM users
+SELECT id, email, first_name, last_name, gender, birth_date, country, hashed_password, goals, total_time_spent_in_mins, platform, password_changed_at, created_at, deleted_at FROM users
 where platform = $1
 ORDER BY created_at
 `
@@ -200,6 +204,7 @@ func (q *Queries) GetUsersByPlatform(ctx context.Context, platform string) ([]Us
 			&i.Country,
 			&i.HashedPassword,
 			&i.Goals,
+			&i.TotalTimeSpentInMins,
 			&i.Platform,
 			&i.PasswordChangedAt,
 			&i.CreatedAt,
@@ -232,7 +237,7 @@ SET
     platform = COALESCE($10, platform), 
     password_changed_at = COALESCE($11, password_changed_at)
 WHERE id = $1
-RETURNING id, email, first_name, last_name, gender, birth_date, country, hashed_password, goals, platform, password_changed_at, created_at, deleted_at
+RETURNING id, email, first_name, last_name, gender, birth_date, country, hashed_password, goals, total_time_spent_in_mins, platform, password_changed_at, created_at, deleted_at
 `
 
 type UpdateUserParams struct {
@@ -274,6 +279,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.Country,
 		&i.HashedPassword,
 		&i.Goals,
+		&i.TotalTimeSpentInMins,
 		&i.Platform,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,

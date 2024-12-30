@@ -29,8 +29,8 @@
             }
     Success:
         201 - Session successfully created
-    Failure:
-        400 - Bad request, one of the params are invalid. 
+    Failure:(
+        400 - Bad request, one of the params are invalid - for example, user does not exist in database. 
         401 - Unauthorized (token incorrect or expired)
         500 - Server Error
 

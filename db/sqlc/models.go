@@ -55,15 +55,16 @@ type TummoBreathingMr struct {
 }
 
 type User struct {
-	ID             int64     `json:"id"`
-	Email          string    `json:"email"`
-	FirstName      string    `json:"first_name"`
-	LastName       string    `json:"last_name"`
-	Gender         string    `json:"gender"`
-	BirthDate      time.Time `json:"birth_date"`
-	Country        string    `json:"country"`
-	HashedPassword string    `json:"hashed_password"`
-	Goals          string    `json:"goals"`
+	ID                   int64     `json:"id"`
+	Email                string    `json:"email"`
+	FirstName            string    `json:"first_name"`
+	LastName             string    `json:"last_name"`
+	Gender               string    `json:"gender"`
+	BirthDate            time.Time `json:"birth_date"`
+	Country              string    `json:"country"`
+	HashedPassword       string    `json:"hashed_password"`
+	Goals                string    `json:"goals"`
+	TotalTimeSpentInMins int32     `json:"total_time_spent_in_mins"`
 	// can be mobile, MR or both
 	Platform          string       `json:"platform"`
 	PasswordChangedAt time.Time    `json:"password_changed_at"`
