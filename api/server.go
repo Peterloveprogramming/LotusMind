@@ -8,7 +8,9 @@ import (
 )
 
 var (
-	InvalidSessionType = errors.New("the session type is invalid")
+	InvalidSessionType     = errors.New("the session type is invalid")
+	UnsupportedSessionType = errors.New("unsupported session type")
+	InvalidUuid            = errors.New("uuid is invalid")
 )
 
 // servers all the http requests for lotus mind
@@ -21,8 +23,10 @@ type Server struct {
 func NewServer(store *db.Store) *Server {
 	server := &Server{store: store}
 	router := gin.Default()
-	// Route definition
+	// Route definition for Session
 	router.POST("/session/create/:user_id/:session_type", server.createSession)
+	router.POST("/session/update/start/:session_uuid/:session_type", server.updateSessionStartingMood)
+	router.POST("/session/update/finish/:session_uuid/:session_type", server.updateSessionFinishingMood)
 
 	server.router = router
 	return server

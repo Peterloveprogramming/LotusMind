@@ -26,6 +26,46 @@ SET
 WHERE unique_id = $1
 RETURNING *;
 
+-- name: UpdateTummoBreathingMrByUuid :one
+UPDATE tummo_breathing_mr
+SET
+  start_mood_rating = COALESCE($2, start_mood_rating),
+  start_mood = COALESCE($3, start_mood),
+  finish_mood_rating = COALESCE($4, finish_mood_rating),
+  finish_mood = COALESCE($5, finish_mood),
+  session_completed = COALESCE($6, session_completed),
+  started_at = COALESCE($7, started_at),
+  ends_at = COALESCE($8, ends_at),
+  deleted_at = COALESCE($9, deleted_at)
+WHERE uuid = $1
+RETURNING *;
+
+-- name: UpdateTummoBreathingMrStartingMoodByUuid :exec
+UPDATE tummo_breathing_mr
+SET
+  start_mood_rating = COALESCE($2, start_mood_rating),
+  start_mood = COALESCE($3, start_mood)
+WHERE uuid = $1
+RETURNING *;
+
+-- name: UpdateTummoBreathingMrFinishingMoodByUuid :exec
+UPDATE tummo_breathing_mr
+SET
+ finish_mood_rating = COALESCE($2, finish_mood_rating),
+  finish_mood = COALESCE($3, finish_mood),
+  session_completed = COALESCE($4, session_completed),
+  ends_at = COALESCE($5, ends_at)
+WHERE uuid = $1
+RETURNING *;
+
+-- name: UpdateTummoBreathingMrQuitByUuid :exec
+UPDATE tummo_breathing_mr
+SET
+  session_completed = COALESCE($2, session_completed),
+  ends_at = COALESCE($3, ends_at)
+WHERE uuid = $1
+RETURNING *;
+
 -- name: GetTummoBreathingMrByUniqueID :one
 SELECT * 
 FROM tummo_breathing_mr 

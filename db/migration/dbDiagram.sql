@@ -44,7 +44,7 @@
 --   finish_mood varchar(20) [not null]
 --   session_completed smallint [not null, default: 0, note:'0 = incomplete. 1 = complete']
 --   started_at timestamptz [not null, default: `now()`]
---   ends_at timestamptz 
+--   ends_at timestamptz  [not null, default: '0001-01-01 00:00:00Z']
 --   deleted_at timestamptz
 --   Indexes {
 --     uuid
@@ -62,7 +62,7 @@
 --   finish_mood varchar(20) [not null]
 --   session_completed smallint [not null, default: 0, note:'0 = incomplete. 1 = complete']
 --   started_at timestamptz [not null, default: `now()`]
---   ends_at timestamptz 
+--   ends_at timestamptz [not null, default: '0001-01-01 00:00:00Z']
 --   deleted_at timestamptz
 --     Indexes {
 --     uuid

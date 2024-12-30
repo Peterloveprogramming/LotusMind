@@ -49,25 +49,22 @@
                 `Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
             }
     Request Parameters:
-        1.  session_uuid | string | required
-        2.  session_type | string | required
+        1.  session_uuid | string | required | min1 
+        2.  session_type | string | required | min1 | max50
         Example:
                 /session/update/e89b-12d3-a456-426614174000/tibetan_singing_bowl_mr
     Request Body (JSON):
-        1. start_mood_rating | int | required
-        2. start_mood | string | required
+        1. start_mood_rating | int16 | required | min1 
+        2. start_mood | string | required | min1 | max20
         Example:
             {
                 "start_mood_rating": 3,
                 "start_mood": "angry"
             }
     Result Body (JSON):
-        {
-            "session_uuid": "e89b-12d3-a456-426614174000",
-            "update_status": "success"
-        }
+        None
     Success:
-        200 - session updated successfully
+        204 - Updated succesful and no content 
     Failure:
         401 - Unauthorized (token incorrect or expired)
         404 - session does not exist in the database
@@ -98,8 +95,8 @@
         2. ends_at | string | required | (ISO 8601 format)
         Example:
             {
-                "finish_mood_rating": 7,
-                "finish_mood": "happy"
+                "finish_mood_rating": 5,
+                "finish_mood": "happy",
                 "ends_at": "2024-12-28T12:34:56.789Z"
             }
     Result Body (JSON):

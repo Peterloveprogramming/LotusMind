@@ -203,7 +203,7 @@ type UpdateTibetanSingingBowlMrByUniqueIDParams struct {
 	FinishMood       string       `json:"finish_mood"`
 	SessionCompleted int16        `json:"session_completed"`
 	StartedAt        time.Time    `json:"started_at"`
-	EndsAt           sql.NullTime `json:"ends_at"`
+	EndsAt           time.Time    `json:"ends_at"`
 	DeletedAt        sql.NullTime `json:"deleted_at"`
 }
 
@@ -234,4 +234,129 @@ func (q *Queries) UpdateTibetanSingingBowlMrByUniqueID(ctx context.Context, arg 
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const updateTibetanSingingBowlMrByUuid = `-- name: UpdateTibetanSingingBowlMrByUuid :one
+UPDATE tibetan_singing_bowl_mr
+SET
+  start_mood_rating = COALESCE($2, start_mood_rating),
+  start_mood = COALESCE($3, start_mood),
+  finish_mood_rating = COALESCE($4, finish_mood_rating),
+  finish_mood = COALESCE($5, finish_mood),
+  session_completed = COALESCE($6, session_completed),
+  started_at = COALESCE($7, started_at),
+  ends_at = COALESCE($8, ends_at),
+  deleted_at = COALESCE($9, deleted_at)
+WHERE uuid = $1
+RETURNING unique_id, uuid, start_mood_rating, start_mood, finish_mood_rating, finish_mood, session_completed, started_at, ends_at, deleted_at
+`
+
+type UpdateTibetanSingingBowlMrByUuidParams struct {
+	Uuid             uuid.UUID    `json:"uuid"`
+	StartMoodRating  int16        `json:"start_mood_rating"`
+	StartMood        string       `json:"start_mood"`
+	FinishMoodRating int16        `json:"finish_mood_rating"`
+	FinishMood       string       `json:"finish_mood"`
+	SessionCompleted int16        `json:"session_completed"`
+	StartedAt        time.Time    `json:"started_at"`
+	EndsAt           time.Time    `json:"ends_at"`
+	DeletedAt        sql.NullTime `json:"deleted_at"`
+}
+
+func (q *Queries) UpdateTibetanSingingBowlMrByUuid(ctx context.Context, arg UpdateTibetanSingingBowlMrByUuidParams) (TibetanSingingBowlMr, error) {
+	row := q.db.QueryRowContext(ctx, updateTibetanSingingBowlMrByUuid,
+		arg.Uuid,
+		arg.StartMoodRating,
+		arg.StartMood,
+		arg.FinishMoodRating,
+		arg.FinishMood,
+		arg.SessionCompleted,
+		arg.StartedAt,
+		arg.EndsAt,
+		arg.DeletedAt,
+	)
+	var i TibetanSingingBowlMr
+	err := row.Scan(
+		&i.UniqueID,
+		&i.Uuid,
+		&i.StartMoodRating,
+		&i.StartMood,
+		&i.FinishMoodRating,
+		&i.FinishMood,
+		&i.SessionCompleted,
+		&i.StartedAt,
+		&i.EndsAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const updateTibetanSingingBowlMrFinishingMoodByUuid = `-- name: UpdateTibetanSingingBowlMrFinishingMoodByUuid :exec
+UPDATE tibetan_singing_bowl_mr
+SET
+ finish_mood_rating = COALESCE($2, finish_mood_rating),
+  finish_mood = COALESCE($3, finish_mood),
+  session_completed = COALESCE($4, session_completed),
+  ends_at = COALESCE($5, ends_at)
+WHERE uuid = $1
+RETURNING unique_id, uuid, start_mood_rating, start_mood, finish_mood_rating, finish_mood, session_completed, started_at, ends_at, deleted_at
+`
+
+type UpdateTibetanSingingBowlMrFinishingMoodByUuidParams struct {
+	Uuid             uuid.UUID `json:"uuid"`
+	FinishMoodRating int16     `json:"finish_mood_rating"`
+	FinishMood       string    `json:"finish_mood"`
+	SessionCompleted int16     `json:"session_completed"`
+	EndsAt           time.Time `json:"ends_at"`
+}
+
+func (q *Queries) UpdateTibetanSingingBowlMrFinishingMoodByUuid(ctx context.Context, arg UpdateTibetanSingingBowlMrFinishingMoodByUuidParams) error {
+	_, err := q.db.ExecContext(ctx, updateTibetanSingingBowlMrFinishingMoodByUuid,
+		arg.Uuid,
+		arg.FinishMoodRating,
+		arg.FinishMood,
+		arg.SessionCompleted,
+		arg.EndsAt,
+	)
+	return err
+}
+
+const updateTibetanSingingBowlMrQuitByUuid = `-- name: UpdateTibetanSingingBowlMrQuitByUuid :exec
+UPDATE tibetan_singing_bowl_mr
+SET
+  session_completed = COALESCE($2, session_completed),
+  ends_at = COALESCE($3, ends_at)
+WHERE uuid = $1
+RETURNING unique_id, uuid, start_mood_rating, start_mood, finish_mood_rating, finish_mood, session_completed, started_at, ends_at, deleted_at
+`
+
+type UpdateTibetanSingingBowlMrQuitByUuidParams struct {
+	Uuid             uuid.UUID `json:"uuid"`
+	SessionCompleted int16     `json:"session_completed"`
+	EndsAt           time.Time `json:"ends_at"`
+}
+
+func (q *Queries) UpdateTibetanSingingBowlMrQuitByUuid(ctx context.Context, arg UpdateTibetanSingingBowlMrQuitByUuidParams) error {
+	_, err := q.db.ExecContext(ctx, updateTibetanSingingBowlMrQuitByUuid, arg.Uuid, arg.SessionCompleted, arg.EndsAt)
+	return err
+}
+
+const updateTibetanSingingBowlMrStartingMoodByUuid = `-- name: UpdateTibetanSingingBowlMrStartingMoodByUuid :exec
+UPDATE tibetan_singing_bowl_mr
+SET
+  start_mood_rating = COALESCE($2, start_mood_rating),
+  start_mood = COALESCE($3, start_mood)
+WHERE uuid = $1
+RETURNING unique_id, uuid, start_mood_rating, start_mood, finish_mood_rating, finish_mood, session_completed, started_at, ends_at, deleted_at
+`
+
+type UpdateTibetanSingingBowlMrStartingMoodByUuidParams struct {
+	Uuid            uuid.UUID `json:"uuid"`
+	StartMoodRating int16     `json:"start_mood_rating"`
+	StartMood       string    `json:"start_mood"`
+}
+
+func (q *Queries) UpdateTibetanSingingBowlMrStartingMoodByUuid(ctx context.Context, arg UpdateTibetanSingingBowlMrStartingMoodByUuidParams) error {
+	_, err := q.db.ExecContext(ctx, updateTibetanSingingBowlMrStartingMoodByUuid, arg.Uuid, arg.StartMoodRating, arg.StartMood)
+	return err
 }

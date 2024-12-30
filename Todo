@@ -2,11 +2,17 @@ Urgent:
 
 Todos:
 
+api
 Pre-Launch: - make api
-
 Pre-Launch: - add token authentication to api routes
+Pre-Launch: - add a more easy to read error messgae to return if runnign into database error - currently "error": "failed to create session log: pq: insert or update on table \"session_logs\" violates foreign key constraint \"session_logs_user_id_fkey\"" if no user exists in data when trying to create session.
 
 Pre-Launch: - add total_time_spent in users table. - when sending post-session data, if there is timestamp, calculate it and update users table
+
+notify team
+Pre-Launch: store the uuid returned when creating session, as its used for later update.
+Pre-Launch: store session_type in constants as they will need this along with uuid for updating session data.
+Pre-Launch: make sure the time being passed is uk time
 
 Pre-Launch: - add vyper to manage constants etc
 

@@ -2,4 +2,4 @@ check in databse if soft delete rules have been applied
     SELECT * FROM pg_rules WHERE rulename LIKE '%soft_deletion%';
 
 run specific test with the option to override test
-    go test -timeout 30s -run ^TestCreateSessionLogTransaction$ github.com/lotusMind/meditation/db/sqlc -count=1
+    go test -timeout 30s -run ^TestCreateUser$ github.com/lotusMind/meditation/db/sqlc -count=1

@@ -1,5 +1,5 @@
 package db
 
-// func createRandomTibetanSingingBowlMrTest(t *testing.T) {
+// func updateTibetanSingingBowlMrTest(t *testing.T) {
 
 // }

@@ -32,7 +32,7 @@ CREATE TABLE "tibetan_singing_bowl_mr" (
   "finish_mood" varchar(20) NOT NULL,
   "session_completed" smallint NOT NULL DEFAULT 0,
   "started_at" timestamptz NOT NULL DEFAULT (now()),
-  "ends_at" timestamptz,
+  "ends_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
   "deleted_at" timestamptz
 );
 
@@ -45,7 +45,7 @@ CREATE TABLE "tummo_breathing_mr" (
   "finish_mood" varchar(20) NOT NULL,
   "session_completed" smallint NOT NULL DEFAULT 0,
   "started_at" timestamptz NOT NULL DEFAULT (now()),
-  "ends_at" timestamptz,
+  "ends_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
   "deleted_at" timestamptz
 );
 
@@ -100,6 +100,7 @@ ALTER TABLE "session_logs" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id")
 ALTER TABLE "tibetan_singing_bowl_mr" ADD FOREIGN KEY ("uuid") REFERENCES "session_logs" ("uuid") ON DELETE CASCADE;
 
 ALTER TABLE "tummo_breathing_mr" ADD FOREIGN KEY ("uuid") REFERENCES "session_logs" ("uuid") ON DELETE CASCADE;
+
 
 -- ALTER TABLE "session_logs" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 

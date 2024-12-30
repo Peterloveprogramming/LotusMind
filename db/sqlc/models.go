@@ -34,7 +34,7 @@ type TibetanSingingBowlMr struct {
 	// 0 = incomplete. 1 = complete
 	SessionCompleted int16        `json:"session_completed"`
 	StartedAt        time.Time    `json:"started_at"`
-	EndsAt           sql.NullTime `json:"ends_at"`
+	EndsAt           time.Time    `json:"ends_at"`
 	DeletedAt        sql.NullTime `json:"deleted_at"`
 }
 
@@ -50,7 +50,7 @@ type TummoBreathingMr struct {
 	// 0 = incomplete. 1 = complete
 	SessionCompleted int16        `json:"session_completed"`
 	StartedAt        time.Time    `json:"started_at"`
-	EndsAt           sql.NullTime `json:"ends_at"`
+	EndsAt           time.Time    `json:"ends_at"`
 	DeletedAt        sql.NullTime `json:"deleted_at"`
 }
 
