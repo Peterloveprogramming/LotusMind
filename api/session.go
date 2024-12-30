@@ -144,3 +144,54 @@ func (server *Server) updateSessionFinishingMood(ctx *gin.Context) {
 
 	ctx.Status(http.StatusNoContent)
 }
+
+// updateSessionQuit
+type sessionQuitParams struct {
+	SessionUuid string `uri:"session_uuid"  binding:"required,min=1"`
+	SessionType string `uri:"session_type"  binding:"required,min=1,max=50"`
+}
+type sessionQuitBody struct {
+	EndsAt string `json:"ends_at" binding:"required,min=1`
+}
+
+func (server *Server) updateSessionQuit(ctx *gin.Context) {
+
+	//verify params
+	var reqParam sessionQuitParams
+	if err := ctx.ShouldBindUri(&reqParam); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+	}
+
+	//verify body
+	var reqBody sessionQuitBody
+	if err := ctx.ShouldBindJSON(&reqBody); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+	}
+
+	// convert uuid from stirng to uuid type
+	sessionUuid, err := uuid.Parse(reqParam.SessionUuid)
+	if err != nil {
+		// Handle the error, e.g., return or log it
+		ctx.JSON(http.StatusBadRequest, errorResponse(InvalidUuid))
+	}
+
+	// convert ends at to time.Time format
+	time, err := time.Parse(time.RFC3339, reqBody.EndsAt)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+	}
+
+	updateSessionQuitArgs := updateSessionQuitParams{
+		Uuid:        sessionUuid,
+		sessionType: reqParam.SessionType,
+		EndsAt:      time,
+	}
+
+	err = updateSessionQuit(server, ctx, updateSessionQuitArgs)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+
+	ctx.Status(http.StatusNoContent)
+}

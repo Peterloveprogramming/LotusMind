@@ -62,8 +62,7 @@ RETURNING *;
 -- name: UpdateTibetanSingingBowlMrQuitByUuid :exec
 UPDATE tibetan_singing_bowl_mr
 SET
-  session_completed = COALESCE($2, session_completed),
-  ends_at = COALESCE($3, ends_at)
+  ends_at = COALESCE($2, ends_at)
 WHERE uuid = $1
 RETURNING *;
 

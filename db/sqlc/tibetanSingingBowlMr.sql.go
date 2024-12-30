@@ -324,20 +324,18 @@ func (q *Queries) UpdateTibetanSingingBowlMrFinishingMoodByUuid(ctx context.Cont
 const updateTibetanSingingBowlMrQuitByUuid = `-- name: UpdateTibetanSingingBowlMrQuitByUuid :exec
 UPDATE tibetan_singing_bowl_mr
 SET
-  session_completed = COALESCE($2, session_completed),
-  ends_at = COALESCE($3, ends_at)
+  ends_at = COALESCE($2, ends_at)
 WHERE uuid = $1
 RETURNING unique_id, uuid, start_mood_rating, start_mood, finish_mood_rating, finish_mood, session_completed, started_at, ends_at, deleted_at
 `
 
 type UpdateTibetanSingingBowlMrQuitByUuidParams struct {
-	Uuid             uuid.UUID `json:"uuid"`
-	SessionCompleted int16     `json:"session_completed"`
-	EndsAt           time.Time `json:"ends_at"`
+	Uuid   uuid.UUID `json:"uuid"`
+	EndsAt time.Time `json:"ends_at"`
 }
 
 func (q *Queries) UpdateTibetanSingingBowlMrQuitByUuid(ctx context.Context, arg UpdateTibetanSingingBowlMrQuitByUuidParams) error {
-	_, err := q.db.ExecContext(ctx, updateTibetanSingingBowlMrQuitByUuid, arg.Uuid, arg.SessionCompleted, arg.EndsAt)
+	_, err := q.db.ExecContext(ctx, updateTibetanSingingBowlMrQuitByUuid, arg.Uuid, arg.EndsAt)
 	return err
 }
 

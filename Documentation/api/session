@@ -100,17 +100,15 @@
                 "ends_at": "2024-12-28T12:34:56.789Z"
             }
     Result Body (JSON):
-        {
-            "session_uuid": "e89b-12d3-a456-426614174000",
-            "update_status": "success"
-        }
+        null
     How to send Timestamp from unity?:
         1. generate timestamp in unity
             DateTime timestamp = DateTime.UtcNow; // Current time in UTC
         2. convert timestamp to string
             string iso8601Timestamp = timestamp.ToString("o"); // Format: "2024-12-28T12:34:56.789Z"
+            make sure the time is in utc 
     Success:
-        200 - session updated successfully
+        204 - Updated succesful and no content 
     Failure:
         401 - Unauthorized (token incorrect or expired)
         404 - session does not exist in the database
@@ -121,7 +119,7 @@
     Purpose:
         Update session data when user quits a session without finishing it
     Endpoint:
-        /session/quite/{session_uuid}/{session_type}
+        /session/update/quit/{session_uuid}/{session_type}
     Request Method:
         POST
     Request Parameters:
@@ -142,17 +140,14 @@
                 "ends_at": "2024-12-28T12:34:56.789Z"
             }
     Result Body (JSON):
-        {
-            "session_uuid": "e89b-12d3-a456-426614174000",
-            "update_status": "success"
-        }
     How to send Timestamp from unity?:
         1. generate timestamp in unity
             DateTime timestamp = DateTime.UtcNow; // Current time in UTC
         2. convert timestamp to string
             string iso8601Timestamp = timestamp.ToString("o"); // Format: "2024-12-28T12:34:56.789Z"
+            make sure the time is in utc 
     Success:
-        200 - session updated successfully
+        204 - session updated successfully
     Failure:
         401 - Unauthorized (token incorrect or expired)
         404 - session does not exist in the database

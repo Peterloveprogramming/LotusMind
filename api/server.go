@@ -27,6 +27,7 @@ func NewServer(store *db.Store) *Server {
 	router.POST("/session/create/:user_id/:session_type", server.createSession)
 	router.POST("/session/update/start/:session_uuid/:session_type", server.updateSessionStartingMood)
 	router.POST("/session/update/finish/:session_uuid/:session_type", server.updateSessionFinishingMood)
+	router.POST("/session/update/quit/:session_uuid/:session_type", server.updateSessionQuit)
 
 	server.router = router
 	return server

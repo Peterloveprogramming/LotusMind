@@ -1,7 +1,6 @@
 package api
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -95,8 +94,36 @@ func updateSessionFinishMood(server *Server, ctx *gin.Context, args updateSessio
 
 // updateSessionQuit
 type updateSessionQuitParams struct {
-	Uuid             uuid.UUID
-	sessionType      string
-	SessionCompleted int16
-	EndsAt           sql.NullTime
+	Uuid        uuid.UUID
+	sessionType string
+	EndsAt      time.Time
+}
+
+func updateSessionQuit(server *Server, ctx *gin.Context, args updateSessionQuitParams) error {
+	switch args.sessionType {
+	case "tibetan_singing_bowl_mr":
+		TSBparams := db.UpdateTibetanSingingBowlMrQuitByUuidParams{
+			Uuid:   args.Uuid,
+			EndsAt: args.EndsAt,
+		}
+		err := server.store.UpdateTibetanSingingBowlMrQuitByUuid(ctx, TSBparams)
+
+		if err != nil {
+			return err
+		}
+		return nil
+	case "tummo_breathing_mr":
+		TBparams := db.UpdateTummoBreathingMrQuitByUuidParams{
+			Uuid:   args.Uuid,
+			EndsAt: args.EndsAt,
+		}
+		err := server.store.UpdateTummoBreathingMrQuitByUuid(ctx, TBparams)
+
+		if err != nil {
+			return err
+		}
+		return nil
+	default:
+		return InvalidSessionType
+	}
 }
