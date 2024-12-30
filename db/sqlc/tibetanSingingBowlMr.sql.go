@@ -126,7 +126,7 @@ func (q *Queries) GetTibetanSingingBowlMrByUserID(ctx context.Context, userID in
 		return nil, err
 	}
 	defer rows.Close()
-	var items []TibetanSingingBowlMr
+	items := []TibetanSingingBowlMr{}
 	for rows.Next() {
 		var i TibetanSingingBowlMr
 		if err := rows.Scan(

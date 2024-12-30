@@ -82,7 +82,7 @@ func (q *Queries) GetSessionsLogByUserId(ctx context.Context, userID int64) ([]S
 		return nil, err
 	}
 	defer rows.Close()
-	var items []SessionLog
+	items := []SessionLog{}
 	for rows.Next() {
 		var i SessionLog
 		if err := rows.Scan(
@@ -125,7 +125,7 @@ func (q *Queries) GetSessionsLogByUserIdWithOffset(ctx context.Context, arg GetS
 		return nil, err
 	}
 	defer rows.Close()
-	var items []SessionLog
+	items := []SessionLog{}
 	for rows.Next() {
 		var i SessionLog
 		if err := rows.Scan(

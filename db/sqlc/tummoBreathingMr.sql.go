@@ -126,7 +126,7 @@ func (q *Queries) GetTummoBreathingMrByUserID(ctx context.Context, userID int64)
 		return nil, err
 	}
 	defer rows.Close()
-	var items []TummoBreathingMr
+	items := []TummoBreathingMr{}
 	for rows.Next() {
 		var i TummoBreathingMr
 		if err := rows.Scan(

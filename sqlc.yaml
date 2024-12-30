@@ -10,3 +10,4 @@ packages:
     emit_interface: false
     # if false, this will be singular 
     emit_exact_table_names: false
+    emit_empty_slices: true

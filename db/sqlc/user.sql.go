@@ -144,7 +144,7 @@ func (q *Queries) GetUsersByCountry(ctx context.Context, country string) ([]User
 		return nil, err
 	}
 	defer rows.Close()
-	var items []User
+	items := []User{}
 	for rows.Next() {
 		var i User
 		if err := rows.Scan(
@@ -187,7 +187,7 @@ func (q *Queries) GetUsersByPlatform(ctx context.Context, platform string) ([]Us
 		return nil, err
 	}
 	defer rows.Close()
-	var items []User
+	items := []User{}
 	for rows.Next() {
 		var i User
 		if err := rows.Scan(
