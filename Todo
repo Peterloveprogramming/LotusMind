@@ -4,6 +4,8 @@ Todos:
 
 Pre-Launch: - make api
 
+Pre-Launch: - add token authentication to api routes
+
 Pre-Launch: - add total_time_spent in users table. - when sending post-session data, if there is timestamp, calculate it and update users table
 
 Pre-Launch: - add vyper to manage constants etc

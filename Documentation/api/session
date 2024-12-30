@@ -7,8 +7,8 @@
     Request Method:
         POST
     Request Parameters:
-        1. user_id | int | required
-        2. session_type | string | required
+        1. user_id | int | required | min1 
+        2. session_type | string | required | min1 | max50
         Example:
             POST /session/create/1/tibetan_singing_bowl_mr
     Request Header:
@@ -23,13 +23,14 @@
         3. uuid | string | required
         Exmaple:
             {
-                "userId": 1,
+                "user_id": 1,
                 "session_type": "tibetan_singing_bowl_mr",
                 "uuid": "e89b-12d3-a456-426614174000"
             }
     Success:
         201 - Session successfully created
     Failure:
+        400 - Bad request, one of the params are invalid. 
         401 - Unauthorized (token incorrect or expired)
         500 - Server Error
 

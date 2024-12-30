@@ -18,6 +18,8 @@ testV:
 	go test -v -cover ./...
 test:
 	go test ./...
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc testV
+server:
+	go run main.go
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc testV test server
 
 
