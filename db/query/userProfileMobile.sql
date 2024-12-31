@@ -13,3 +13,8 @@ WHERE user_id = $1;
 -- name: GetUserProfileMobileTime :one
 SELECT total_time_spent_in_mins FROM users_profile_mobile
 WHERE user_id = $1;
+
+-- name: UpdateUserProfileMobilerTime :exec
+UPDATE users_profile_mobile
+SET total_time_spent_in_mins = $1
+WHERE user_id = $2;

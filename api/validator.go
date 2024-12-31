@@ -21,7 +21,7 @@ var validateDate validator.Func = func(fieldLevel validator.FieldLevel) bool {
 
 var validateSessionType validator.Func = func(fieldLevel validator.FieldLevel) bool {
 	if sessionType, ok := fieldLevel.Field().Interface().(string); ok {
-		return util.IsSupportedPlatform(sessionType)
+		return util.IsSessionTypeSupported(sessionType)
 	}
 	return false
 }

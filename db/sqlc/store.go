@@ -108,11 +108,11 @@ func (store *Store) CreateSessionLogTransaction(ctx context.Context, args Create
 }
 
 // update the time for total_time_spent_in_min in users table everytime user finishes or quites a session
-type UpdateMeditationTimeParams struct {
-	UserId      int64  `json:"user_id"`
-	SessionType string `json:"session_type"`
-	UUID        string `json:"uuid"`
-}
+// type UpdateMeditationTimeParams struct {
+// 	UserId      int64  `json:"user_id"`
+// 	SessionType string `json:"session_type"`
+// 	UUID        string `json:"uuid"`
+// }
 
 // create a user
 type CreateUserTransactiontArgs struct {
@@ -197,6 +197,118 @@ func (store *Store) CreateUserTransaction(ctx context.Context, args CreateUserTr
 	}
 
 	return result, nil
+}
+
+// create a user
+type UpdateSessionFinishTransactionParams struct {
+	Uuid             uuid.UUID
+	SessionType      string
+	FinishMoodRating int16
+	FinishMood       string
+	SessionCompleted int16
+	EndsAt           time.Time
+}
+
+// CreateUserTransaction handles the creation of a user transaction based on the platform.
+func (store *Store) UpdateSessionFinishTransaction(ctx context.Context, args UpdateSessionFinishTransactionParams) error {
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		var sessionStartTime time.Time
+		var sessionFinishTime time.Time
+
+		switch args.SessionType {
+		case util.TIBETAN_SINGING_BOWL_MR:
+			TSBparams := UpdateTibetanSingingBowlMrFinishingMoodByUuidParams{
+				Uuid:             args.Uuid,
+				FinishMoodRating: args.FinishMoodRating,
+				FinishMood:       args.FinishMood,
+				SessionCompleted: args.SessionCompleted,
+				EndsAt:           args.EndsAt,
+			}
+			TSBLog, err := q.UpdateTibetanSingingBowlMrFinishingMoodByUuid(ctx, TSBparams)
+
+			if err != nil {
+				return err
+			}
+			if !TSBLog.DeletedAt.IsZero() {
+				return fmt.Errorf("can not update a session that has already been deleted. uuid is %v", args.Uuid)
+			}
+			sessionStartTime = TSBLog.StartedAt
+			sessionFinishTime = TSBLog.EndsAt
+		case util.TUMMO_BREATHING_MR:
+			TBparams := UpdateTummoBreathingMrFinishingMoodByUuidParams{
+				Uuid:             args.Uuid,
+				FinishMoodRating: args.FinishMoodRating,
+				FinishMood:       args.FinishMood,
+				SessionCompleted: args.SessionCompleted,
+				EndsAt:           args.EndsAt,
+			}
+			TBLog, err := q.UpdateTummoBreathingMrFinishingMoodByUuid(ctx, TBparams)
+			if err != nil {
+				return err
+			}
+			if !TBLog.DeletedAt.IsZero() {
+				return fmt.Errorf("can not update a session that has already been deleted. uuid is %v", args.Uuid)
+			}
+			sessionStartTime = TBLog.StartedAt
+			sessionFinishTime = TBLog.EndsAt
+		default:
+			return fmt.Errorf("unsupported session type")
+		}
+
+		// Calculate the difference between the two times
+		duration := int64(sessionFinishTime.Sub(sessionStartTime).Minutes())
+
+		platform := util.GetPlatformTypeBasedOnSessionType(args.SessionType)
+
+		//now get the user
+		userId, err := q.GetUserIdFromSessionLogUuid(ctx, args.Uuid)
+
+		if err != nil {
+			return err
+		}
+
+		// create a variable to store the time user has already meditated before
+		var existingMeditatedTime int64
+		switch platform {
+		case util.MR:
+
+			existingMeditatedTime, err = q.GetUserProfileMrTime(ctx, userId)
+			if err != nil {
+				return err
+			}
+
+			updateArgs := UpdateUserProfileMrTimeParams{
+				UserID:               userId,
+				TotalTimeSpentInMins: existingMeditatedTime + duration,
+			}
+			err = q.UpdateUserProfileMrTime(ctx, updateArgs)
+			if err != nil {
+				return err
+			}
+		case util.MOBILE:
+			existingMeditatedTime, err = q.GetUserProfileMobileTime(ctx, userId)
+			if err != nil {
+				return err
+			}
+			updateArgs := UpdateUserProfileMobilerTimeParams{
+				UserID:               userId,
+				TotalTimeSpentInMins: existingMeditatedTime + duration,
+			}
+			err := q.UpdateUserProfileMobilerTime(ctx, updateArgs)
+			if err != nil {
+				return err
+			}
+		default:
+			return fmt.Errorf("platform type is not supported")
+		}
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // testing only

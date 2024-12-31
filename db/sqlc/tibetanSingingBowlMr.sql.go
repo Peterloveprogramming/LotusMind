@@ -290,7 +290,7 @@ func (q *Queries) UpdateTibetanSingingBowlMrByUuid(ctx context.Context, arg Upda
 	return i, err
 }
 
-const updateTibetanSingingBowlMrFinishingMoodByUuid = `-- name: UpdateTibetanSingingBowlMrFinishingMoodByUuid :exec
+const updateTibetanSingingBowlMrFinishingMoodByUuid = `-- name: UpdateTibetanSingingBowlMrFinishingMoodByUuid :one
 UPDATE tibetan_singing_bowl_mr
 SET
  finish_mood_rating = COALESCE($2, finish_mood_rating),
@@ -309,15 +309,28 @@ type UpdateTibetanSingingBowlMrFinishingMoodByUuidParams struct {
 	EndsAt           time.Time `json:"ends_at"`
 }
 
-func (q *Queries) UpdateTibetanSingingBowlMrFinishingMoodByUuid(ctx context.Context, arg UpdateTibetanSingingBowlMrFinishingMoodByUuidParams) error {
-	_, err := q.db.ExecContext(ctx, updateTibetanSingingBowlMrFinishingMoodByUuid,
+func (q *Queries) UpdateTibetanSingingBowlMrFinishingMoodByUuid(ctx context.Context, arg UpdateTibetanSingingBowlMrFinishingMoodByUuidParams) (TibetanSingingBowlMr, error) {
+	row := q.db.QueryRowContext(ctx, updateTibetanSingingBowlMrFinishingMoodByUuid,
 		arg.Uuid,
 		arg.FinishMoodRating,
 		arg.FinishMood,
 		arg.SessionCompleted,
 		arg.EndsAt,
 	)
-	return err
+	var i TibetanSingingBowlMr
+	err := row.Scan(
+		&i.UniqueID,
+		&i.Uuid,
+		&i.StartMoodRating,
+		&i.StartMood,
+		&i.FinishMoodRating,
+		&i.FinishMood,
+		&i.SessionCompleted,
+		&i.StartedAt,
+		&i.EndsAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
 
 const updateTibetanSingingBowlMrQuitByUuid = `-- name: UpdateTibetanSingingBowlMrQuitByUuid :exec

@@ -49,7 +49,7 @@ SET
 WHERE uuid = $1
 RETURNING *;
 
--- name: UpdateTibetanSingingBowlMrFinishingMoodByUuid :exec
+-- name: UpdateTibetanSingingBowlMrFinishingMoodByUuid :one
 UPDATE tibetan_singing_bowl_mr
 SET
  finish_mood_rating = COALESCE($2, finish_mood_rating),

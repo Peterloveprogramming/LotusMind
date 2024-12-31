@@ -74,12 +74,12 @@ type User struct {
 
 type UsersProfileMobile struct {
 	UserID               int64     `json:"user_id"`
-	TotalTimeSpentInMins int32     `json:"total_time_spent_in_mins"`
+	TotalTimeSpentInMins int64     `json:"total_time_spent_in_mins"`
 	DeletedAt            time.Time `json:"deleted_at"`
 }
 
 type UsersProfileMr struct {
 	UserID               int64     `json:"user_id"`
-	TotalTimeSpentInMins int32     `json:"total_time_spent_in_mins"`
+	TotalTimeSpentInMins int64     `json:"total_time_spent_in_mins"`
 	DeletedAt            time.Time `json:"deleted_at"`
 }

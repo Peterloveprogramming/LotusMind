@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -129,31 +128,17 @@ func (server *Server) updateSessionFinishingMood(ctx *gin.Context) {
 		return
 	}
 
-	// convert uuid from stirng to uuid type
-	sessionUuid, err := uuid.Parse(reqParam.SessionUuid)
-	if err != nil {
-		// Handle the error, e.g., return or log it
-		ctx.JSON(http.StatusBadRequest, errorResponse(InvalidUuid))
-		return
-	}
-
-	// convert ends at to time.Time format
-	time, err := time.Parse(time.RFC3339, reqBody.EndsAt)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
 	updateSessionFinishMoodArgs := updateSessionFinishMoodParams{
-		Uuid:             sessionUuid,
+		Uuid:             reqParam.SessionUuid,
 		sessionType:      reqParam.SessionType,
 		FinishMoodRating: reqBody.FinishMoodRating,
 		FinishMood:       reqBody.FinishMood,
-		EndsAt:           time,
+		EndsAt:           reqBody.EndsAt,
 		SessionCompleted: 1,
+		Status:           util.FINISH,
 	}
 
-	err = updateSessionFinishMood(server, ctx, updateSessionFinishMoodArgs)
+	err := updateSessionFinishMood(server, ctx, updateSessionFinishMoodArgs)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -188,28 +173,17 @@ func (server *Server) updateSessionQuit(ctx *gin.Context) {
 		return
 	}
 
-	// convert uuid from stirng to uuid type
-	sessionUuid, err := uuid.Parse(reqParam.SessionUuid)
-	if err != nil {
-		// Handle the error, e.g., return or log it
-		ctx.JSON(http.StatusBadRequest, errorResponse(InvalidUuid))
-		return
+	updateSessionFinishMoodArgs := updateSessionFinishMoodParams{
+		Uuid:             reqParam.SessionUuid,
+		sessionType:      reqParam.SessionType,
+		FinishMoodRating: 0,
+		FinishMood:       "N/A",
+		EndsAt:           reqBody.EndsAt,
+		SessionCompleted: 0,
+		Status:           util.QUIT,
 	}
 
-	// convert ends at to time.Time format
-	time, err := time.Parse(time.RFC3339, reqBody.EndsAt)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	updateSessionQuitArgs := updateSessionQuitParams{
-		Uuid:        sessionUuid,
-		sessionType: reqParam.SessionType,
-		EndsAt:      time,
-	}
-
-	err = updateSessionQuit(server, ctx, updateSessionQuitArgs)
+	err := updateSessionFinishMood(server, ctx, updateSessionFinishMoodArgs)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

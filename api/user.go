@@ -137,7 +137,7 @@ func (server *Server) fetchUserTime(ctx *gin.Context) {
 		return
 	}
 	var err error
-	var userTime int32
+	var userTime int64
 	switch reqParam.Platform {
 	case "mobile":
 		userTime, err = server.store.GetUserProfileMobileTime(ctx, reqParam.ID)

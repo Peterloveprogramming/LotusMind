@@ -40,9 +40,25 @@ SELECT total_time_spent_in_mins FROM users_profile_mr
 WHERE user_id = $1
 `
 
-func (q *Queries) GetUserProfileMrTime(ctx context.Context, userID int64) (int32, error) {
+func (q *Queries) GetUserProfileMrTime(ctx context.Context, userID int64) (int64, error) {
 	row := q.db.QueryRowContext(ctx, getUserProfileMrTime, userID)
-	var total_time_spent_in_mins int32
+	var total_time_spent_in_mins int64
 	err := row.Scan(&total_time_spent_in_mins)
 	return total_time_spent_in_mins, err
+}
+
+const updateUserProfileMrTime = `-- name: UpdateUserProfileMrTime :exec
+UPDATE users_profile_mr
+SET total_time_spent_in_mins = $1
+WHERE user_id = $2
+`
+
+type UpdateUserProfileMrTimeParams struct {
+	TotalTimeSpentInMins int64 `json:"total_time_spent_in_mins"`
+	UserID               int64 `json:"user_id"`
+}
+
+func (q *Queries) UpdateUserProfileMrTime(ctx context.Context, arg UpdateUserProfileMrTimeParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserProfileMrTime, arg.TotalTimeSpentInMins, arg.UserID)
+	return err
 }

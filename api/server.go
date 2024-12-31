@@ -2,11 +2,14 @@ package api
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	db "github.com/lotusMind/meditation/db/sqlc"
+	"github.com/lotusMind/meditation/token"
+	"github.com/lotusMind/meditation/util"
 )
 
 var (
@@ -18,13 +21,23 @@ var (
 
 // servers all the http requests for lotus mind
 type Server struct {
-	store  *db.Store
-	router *gin.Engine
+	config     util.Config
+	store      *db.Store
+	router     *gin.Engine
+	tokenMater token.Maker
 }
 
 // set up api routes for that server
-func NewServer(store *db.Store) *Server {
-	server := &Server{store: store}
+func NewServer(config util.Config, store *db.Store) (*Server, error) {
+	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("can not create token maker: %w", err)
+	}
+	server := &Server{
+		store:      store,
+		tokenMater: tokenMaker,
+		config:     config,
+	}
 
 	//register validator
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
@@ -48,7 +61,7 @@ func NewServer(store *db.Store) *Server {
 	// router.POST("/session/update/quit/:session_uuid/:session_type", server.updateSessionQuit)
 
 	server.router = router
-	return server
+	return server, nil
 }
 
 // Start runs the HTTP server on a specific address

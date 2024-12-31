@@ -10,12 +10,6 @@ import (
 	"github.com/lotusMind/meditation/util"
 )
 
-const (
-	dbDriver = "postgres"
-	dbSource = "postgresql://root:secret@localhost:5432/meditation?sslmode=disable"
-)
-
-// can be either transaction or connection
 var testQueries *Queries
 var testDB *sql.DB
 

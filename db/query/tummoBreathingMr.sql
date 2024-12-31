@@ -48,7 +48,7 @@ SET
 WHERE uuid = $1
 RETURNING *;
 
--- name: UpdateTummoBreathingMrFinishingMoodByUuid :exec
+-- name: UpdateTummoBreathingMrFinishingMoodByUuid :one
 UPDATE tummo_breathing_mr
 SET
  finish_mood_rating = COALESCE($2, finish_mood_rating),

@@ -12,6 +12,10 @@ RETURNING *;
 SELECT * FROM session_logs
 WHERE uuid = $1;
 
+-- name: GetUserIdFromSessionLogUuid :one
+SELECT user_id FROM session_logs
+WHERE uuid = $1;
+
 -- name: GetSessionsLogByUserIdWithOffset :many
 SELECT * FROM session_logs
 WHERE user_id = $1

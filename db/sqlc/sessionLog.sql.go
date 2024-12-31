@@ -148,3 +148,15 @@ func (q *Queries) GetSessionsLogByUserIdWithOffset(ctx context.Context, arg GetS
 	}
 	return items, nil
 }
+
+const getUserIdFromSessionLogUuid = `-- name: GetUserIdFromSessionLogUuid :one
+SELECT user_id FROM session_logs
+WHERE uuid = $1
+`
+
+func (q *Queries) GetUserIdFromSessionLogUuid(ctx context.Context, argUuid uuid.UUID) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getUserIdFromSessionLogUuid, argUuid)
+	var user_id int64
+	err := row.Scan(&user_id)
+	return user_id, err
+}
