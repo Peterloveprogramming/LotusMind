@@ -3,10 +3,8 @@ Urgent:
 Todos:
 
 api
-Pre-Launch: - make api
 Pre-Launch: - add token authentication to api routes
-Pre-Launch: - write documentation for getting total time spent for users and implement api
-Pre-Launch: - write custom rules for valiadting params, like email and password.
+Pre-Launch: - add api for logging in.
 
 Pre-Launch: - update total_time_spent_in_mins in users table everytime user finish or quites a session. basically when there is a valid timestamp.
 
@@ -14,9 +12,13 @@ notify team
 Pre-Launch: store the uuid returned when creating session, as its used for later update.
 Pre-Launch: store session_type in constants as they will need this along with uuid for updating session data.
 Pre-Launch: make sure the time being passed is uk time
+Pre-Launch: in update information screen, fetch information first.
 
 Pre-Launch: - add vyper to manage constants etc
 
 Pre-Launch: - deploy to aws - write deployment script
 
 Post-Launch - add email verification to users table - add verified field.
+Post-Launch - add forgot password function and api
+Post-Launch - add delete user api
+Post-Launch - add update user user api

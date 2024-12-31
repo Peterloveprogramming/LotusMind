@@ -19,3 +19,7 @@ func GetPlatformTypeBasedOnSessionType(sessionType string) string {
 
 	return "" // Return empty if the sessionType is an empty string
 }
+
+func GetDateFormat() string {
+	return "2006-01-02"
+}

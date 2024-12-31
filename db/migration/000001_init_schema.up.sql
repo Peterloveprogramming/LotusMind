@@ -9,7 +9,6 @@ CREATE TABLE "users" (
   "is_mr_user" smallint NOT NULL,
   "is_mobile_user" smallint NOT NULL,
   "hashed_password" varchar NOT NULL,
-  "total_time_spent_in_mins" int NOT NULL DEFAULT 0,
   "password_changed_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
   "goals" varchar(500) NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
@@ -18,13 +17,13 @@ CREATE TABLE "users" (
 
 CREATE TABLE "users_profile_mr" (
   "user_id" bigint UNIQUE NOT NULL,
-  "total_time_spent_in_mins" int NOT NULL DEFAULT 0,
+  "total_time_spent_in_mins" bigint NOT NULL DEFAULT 0,
   "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
 );
 
 CREATE TABLE "users_profile_mobile" (
   "user_id" bigint UNIQUE NOT NULL,
-  "total_time_spent_in_mins" int NOT NULL DEFAULT 0,
+  "total_time_spent_in_mins" bigint NOT NULL DEFAULT 0,
   "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
 );
 

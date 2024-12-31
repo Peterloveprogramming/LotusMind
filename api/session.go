@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -14,7 +15,7 @@ import (
 // createSession
 type createSessionRequestParams struct {
 	ID          int64  `uri:"user_id"  binding:"required,min=1"`
-	SessionType string `uri:"session_type"  binding:"required,min=1,max=50"`
+	SessionType string `uri:"session_type"  binding:"required,session_type"`
 }
 
 func (server *Server) createSession(ctx *gin.Context) {
@@ -22,11 +23,13 @@ func (server *Server) createSession(ctx *gin.Context) {
 	var req createSessionRequestParams
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
 	// verify session platform
 	sessionPlatform := util.GetPlatformTypeBasedOnSessionType(req.SessionType)
 	if len(sessionPlatform) <= 1 {
 		ctx.JSON(http.StatusBadRequest, errorResponse(InvalidSessionType))
+		return
 	}
 
 	createSessionLogArgs := db.CreateSessionLogParams{
@@ -38,9 +41,11 @@ func (server *Server) createSession(ctx *gin.Context) {
 
 	if err != nil {
 		if strings.Contains(err.Error(), "foreign_key_violation") {
-			ctx.JSON(http.StatusBadRequest, errorResponse(err))
+			ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("user does not exist in database")))
+			return
 		}
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
 
 	ctx.JSON(http.StatusCreated, sessionLogResult)
@@ -49,7 +54,7 @@ func (server *Server) createSession(ctx *gin.Context) {
 // updateSessionStartingMood
 type updateSessionStartingMoodParams struct {
 	SessionUuid string `uri:"session_uuid"  binding:"required,min=1"`
-	SessionType string `uri:"session_type"  binding:"required,min=1,max=50"`
+	SessionType string `uri:"session_type"  binding:"required,session_type"`
 }
 type updateSessionStartingMoodBody struct {
 	StartingMoodRating int16  `json:"start_mood_rating" binding:"required,min=1"`
@@ -62,12 +67,14 @@ func (server *Server) updateSessionStartingMood(ctx *gin.Context) {
 	var reqParam updateSessionStartingMoodParams
 	if err := ctx.ShouldBindUri(&reqParam); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
 
 	//verify body
 	var reqBody updateSessionStartingMoodBody
 	if err := ctx.ShouldBindJSON(&reqBody); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
 
 	// convert uuid from stirng to uuid type
@@ -75,6 +82,7 @@ func (server *Server) updateSessionStartingMood(ctx *gin.Context) {
 	if err != nil {
 		// Handle the error, e.g., return or log it
 		ctx.JSON(http.StatusBadRequest, errorResponse(InvalidUuid))
+		return
 	}
 
 	updateSessionStartMoodArgs := updateSessionStartMoodParams{
@@ -88,6 +96,7 @@ func (server *Server) updateSessionStartingMood(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	ctx.Status(http.StatusNoContent)
@@ -96,7 +105,7 @@ func (server *Server) updateSessionStartingMood(ctx *gin.Context) {
 // updateSessionFinishingMood
 type updateSessionFinishingMoodParams struct {
 	SessionUuid string `uri:"session_uuid"  binding:"required,min=1"`
-	SessionType string `uri:"session_type"  binding:"required,min=1,max=50"`
+	SessionType string `uri:"session_type"  binding:"required,session_type"`
 }
 type updateSessionFinishingMoodBody struct {
 	FinishMoodRating int16  `json:"finish_mood_rating" binding:"required,min=1"`
@@ -110,12 +119,14 @@ func (server *Server) updateSessionFinishingMood(ctx *gin.Context) {
 	var reqParam updateSessionFinishingMoodParams
 	if err := ctx.ShouldBindUri(&reqParam); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
 
 	//verify body
 	var reqBody updateSessionFinishingMoodBody
 	if err := ctx.ShouldBindJSON(&reqBody); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
 
 	// convert uuid from stirng to uuid type
@@ -123,12 +134,14 @@ func (server *Server) updateSessionFinishingMood(ctx *gin.Context) {
 	if err != nil {
 		// Handle the error, e.g., return or log it
 		ctx.JSON(http.StatusBadRequest, errorResponse(InvalidUuid))
+		return
 	}
 
 	// convert ends at to time.Time format
 	time, err := time.Parse(time.RFC3339, reqBody.EndsAt)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
 
 	updateSessionFinishMoodArgs := updateSessionFinishMoodParams{
@@ -144,6 +157,7 @@ func (server *Server) updateSessionFinishingMood(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	ctx.Status(http.StatusNoContent)
@@ -152,7 +166,7 @@ func (server *Server) updateSessionFinishingMood(ctx *gin.Context) {
 // updateSessionQuit
 type sessionQuitParams struct {
 	SessionUuid string `uri:"session_uuid"  binding:"required,min=1"`
-	SessionType string `uri:"session_type"  binding:"required,min=1,max=50"`
+	SessionType string `uri:"session_type"  binding:"required,session_type"`
 }
 type sessionQuitBody struct {
 	EndsAt string `json:"ends_at" binding:"required,min=1`
@@ -164,12 +178,14 @@ func (server *Server) updateSessionQuit(ctx *gin.Context) {
 	var reqParam sessionQuitParams
 	if err := ctx.ShouldBindUri(&reqParam); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
 
 	//verify body
 	var reqBody sessionQuitBody
 	if err := ctx.ShouldBindJSON(&reqBody); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
 
 	// convert uuid from stirng to uuid type
@@ -177,12 +193,14 @@ func (server *Server) updateSessionQuit(ctx *gin.Context) {
 	if err != nil {
 		// Handle the error, e.g., return or log it
 		ctx.JSON(http.StatusBadRequest, errorResponse(InvalidUuid))
+		return
 	}
 
 	// convert ends at to time.Time format
 	time, err := time.Parse(time.RFC3339, reqBody.EndsAt)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
 
 	updateSessionQuitArgs := updateSessionQuitParams{
@@ -195,6 +213,7 @@ func (server *Server) updateSessionQuit(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	ctx.Status(http.StatusNoContent)

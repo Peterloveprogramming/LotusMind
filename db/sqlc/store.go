@@ -114,6 +114,91 @@ type UpdateMeditationTimeParams struct {
 	UUID        string `json:"uuid"`
 }
 
+// create a user
+type CreateUserTransactiontArgs struct {
+	Email          string
+	FirstName      string
+	LastName       string
+	Gender         string
+	Birthdate      time.Time
+	Country        string
+	Goal           string
+	Platform       string
+	Password       string
+	HashedPassword string
+}
+
+type CreateUserResult struct {
+	ID int64
+}
+
+// CreateUserTransaction handles the creation of a user transaction based on the platform.
+func (store *Store) CreateUserTransaction(ctx context.Context, args CreateUserTransactiontArgs) (CreateUserResult, error) {
+	var result CreateUserResult
+
+	err := store.execTx(ctx, func(q *Queries) error {
+		existsOnMr := 0
+		existsOnMobile := 0
+
+		// Determine if the user is from MR or Mobile
+		switch args.Platform {
+		case "mobile":
+			existsOnMobile = 1
+		case "mr":
+			existsOnMr = 1
+		}
+
+		// Create user parameters
+		createUserArgs := CreateUserParams{
+			Email:          args.Email,
+			FirstName:      args.FirstName,
+			LastName:       args.LastName,
+			Gender:         args.Gender,
+			BirthDate:      args.Birthdate,
+			Country:        args.Country,
+			Goals:          args.Goal,
+			IsMrUser:       int16(existsOnMr),
+			IsMobileUser:   int16(existsOnMobile),
+			HashedPassword: args.HashedPassword,
+		}
+
+		user, err := q.CreateUser(ctx, createUserArgs)
+		if err != nil {
+			if prErr, ok := err.(*pq.Error); ok {
+				fmt.Println(prErr.Code.Name())
+				switch prErr.Code.Name() {
+				case "unique_violation":
+					return fmt.Errorf("unique_violation")
+				}
+				// log.Println(prErr.Code.Name())
+			}
+			return fmt.Errorf("error occurred while creating a user: %w", err)
+		}
+
+		// now create user in its respective profile table
+		switch args.Platform {
+		case "mobile":
+			err := q.CreateUserProfileMobile(ctx, user.ID)
+			if err != nil {
+				return fmt.Errorf("error occurred while creating a user mobile profile: %w", err)
+			}
+		case "mr":
+			err := q.CreateUserProfileMr(ctx, user.ID)
+			if err != nil {
+				return fmt.Errorf("error occurred while creating a user mr profile: %w", err)
+			}
+		}
+		result.ID = user.ID
+		return nil
+	})
+
+	if err != nil {
+		return CreateUserResult{}, err
+	}
+
+	return result, nil
+}
+
 // testing only
 type CreateUserForTestingDeletionResult struct {
 	UserId                               int64

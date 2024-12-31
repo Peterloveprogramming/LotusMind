@@ -58,3 +58,8 @@ func RandomPlatform() string {
 	platforms := []string{"mobile", "mr"}
 	return platforms[rand.Intn(len(platforms))]
 }
+
+// RandomEmail
+func RandomEmail() string {
+	return RandomString(10) + "@example.com"
+}

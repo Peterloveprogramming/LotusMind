@@ -4,8 +4,10 @@ import (
 	"context"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/lotusMind/meditation/util"
 	"github.com/stretchr/testify/require"
 )
 
@@ -58,6 +60,41 @@ func TestCreateSessionLogTransaction(t *testing.T) {
 		require.NoError(t, err)
 		require.NotEmpty(t, SessionLog)
 	}
+}
+
+func TestCreateUserTransaction(t *testing.T) {
+	store := NewStore(testDB)
+
+	// parse date
+	format := "2006-01-02"
+	birthDate, err := time.Parse(format, "1990-01-01")
+	require.NoError(t, err)
+
+	// create a a mr user
+	args := CreateUserTransactiontArgs{
+		Email:          util.RandomEmail(),
+		FirstName:      util.RandomString(5),
+		LastName:       util.RandomString(5),
+		Gender:         util.RandomGender(),
+		Birthdate:      birthDate,
+		Country:        util.RandomCountryCode(),
+		Platform:       "mr",
+		Goal:           "I want improve my spiritual level",
+		HashedPassword: "1234567",
+	}
+	userResult, err := store.CreateUserTransaction(context.Background(), args)
+
+	require.NotEmpty(t, userResult)
+	require.NoError(t, err)
+
+	userMrProfile, err := store.GetUserProfileMrByUserId(context.Background(), userResult.ID)
+	require.NoError(t, err)
+	require.NotEmpty(t, userMrProfile)
+	require.Equal(t, userMrProfile.UserID, userResult.ID)
+
+	userMobileProfile, err := store.GetUserProfileMobileByUserId(context.Background(), userResult.ID)
+	require.Error(t, err)
+	require.Empty(t, userMobileProfile)
 }
 
 func TestCreateUserForTestingDeletion(t *testing.T) {

@@ -64,13 +64,12 @@ type User struct {
 	// 1 = yes. 0 = no
 	IsMrUser int16 `json:"is_mr_user"`
 	// 1 = yes. 0 = no
-	IsMobileUser         int16     `json:"is_mobile_user"`
-	HashedPassword       string    `json:"hashed_password"`
-	TotalTimeSpentInMins int32     `json:"total_time_spent_in_mins"`
-	PasswordChangedAt    time.Time `json:"password_changed_at"`
-	Goals                string    `json:"goals"`
-	CreatedAt            time.Time `json:"created_at"`
-	DeletedAt            time.Time `json:"deleted_at"`
+	IsMobileUser      int16     `json:"is_mobile_user"`
+	HashedPassword    string    `json:"hashed_password"`
+	PasswordChangedAt time.Time `json:"password_changed_at"`
+	Goals             string    `json:"goals"`
+	CreatedAt         time.Time `json:"created_at"`
+	DeletedAt         time.Time `json:"deleted_at"`
 }
 
 type UsersProfileMobile struct {
