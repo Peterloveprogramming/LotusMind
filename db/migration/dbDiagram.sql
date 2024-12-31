@@ -11,6 +11,7 @@
 --   hashed_password varchar [not null]
 --   total_time_spent_in_mins int [not null,  default:0]
 --   password_changed_at timestamptz [not null, default: '0001-01-01 00:00:00Z']
+--   goals varchar(500) [not null]
 --   created_at timestamptz [not null, default: `now()`]
 --   deleted_at timestamptz [not null, default: '0001-01-01 00:00:00Z']
 --   Indexes {
@@ -26,14 +27,12 @@
 -- Table users_profile_mr as upr {
 --   user_id bigint [ref: >u.id, not null, unique] // Ensure uniqueness for one-to-one relationship
 --   total_time_spent_in_mins int [not null,  default:0]
---   goals varchar(500) [not null]
 --   deleted_at timestamptz [not null, default: '0001-01-01 00:00:00Z']
 -- }
 
 -- Table users_profile_mobile as upm {
 --   user_id bigint [ref: >u.id, not null, unique] // Ensure uniqueness for one-to-one relationship
 --   total_time_spent_in_mins int [not null,  default:0]
---   goals varchar(500) [not null]
 --   deleted_at timestamptz [not null, default: '0001-01-01 00:00:00Z']
 -- }
 

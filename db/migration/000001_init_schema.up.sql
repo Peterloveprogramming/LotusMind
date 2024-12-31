@@ -11,6 +11,7 @@ CREATE TABLE "users" (
   "hashed_password" varchar NOT NULL,
   "total_time_spent_in_mins" int NOT NULL DEFAULT 0,
   "password_changed_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
+  "goals" varchar(500) NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
 );
@@ -18,14 +19,12 @@ CREATE TABLE "users" (
 CREATE TABLE "users_profile_mr" (
   "user_id" bigint UNIQUE NOT NULL,
   "total_time_spent_in_mins" int NOT NULL DEFAULT 0,
-  "goals" varchar(500) NOT NULL,
   "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
 );
 
 CREATE TABLE "users_profile_mobile" (
   "user_id" bigint UNIQUE NOT NULL,
   "total_time_spent_in_mins" int NOT NULL DEFAULT 0,
-  "goals" varchar(500) NOT NULL,
   "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
 );
 
@@ -114,15 +113,16 @@ COMMENT ON COLUMN "tummo_breathing_mr"."finish_mood_rating" IS 'between 1-10';
 
 COMMENT ON COLUMN "tummo_breathing_mr"."session_completed" IS '0 = incomplete. 1 = complete';
 
-ALTER TABLE "users_profile_mr" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id")  ON DELETE CASCADE;
+ALTER TABLE "users_profile_mr" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "users_profile_mobile" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id")  ON DELETE CASCADE;
+ALTER TABLE "users_profile_mobile" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "session_logs" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id")  ON DELETE CASCADE;
+ALTER TABLE "session_logs" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
-ALTER TABLE "tibetan_singing_bowl_mr" ADD FOREIGN KEY ("uuid") REFERENCES "session_logs" ("uuid")  ON DELETE CASCADE;
+ALTER TABLE "tibetan_singing_bowl_mr" ADD FOREIGN KEY ("uuid") REFERENCES "session_logs" ("uuid") ON DELETE CASCADE;
 
-ALTER TABLE "tummo_breathing_mr" ADD FOREIGN KEY ("uuid") REFERENCES "session_logs" ("uuid")  ON DELETE CASCADE;
+ALTER TABLE "tummo_breathing_mr" ADD FOREIGN KEY ("uuid") REFERENCES "session_logs" ("uuid") ON DELETE CASCADE;
+
 
 -- ALTER TABLE "session_logs" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 

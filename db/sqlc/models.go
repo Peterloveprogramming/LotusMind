@@ -5,7 +5,6 @@
 package db
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,9 +16,9 @@ type SessionLog struct {
 	// references the name of the table of the session
 	SessionType string `json:"session_type"`
 	// either mr or mobile
-	SessionPlatform string       `json:"session_platform"`
-	CreatedAt       time.Time    `json:"created_at"`
-	DeletedAt       sql.NullTime `json:"deleted_at"`
+	SessionPlatform string    `json:"session_platform"`
+	CreatedAt       time.Time `json:"created_at"`
+	DeletedAt       time.Time `json:"deleted_at"`
 }
 
 type TibetanSingingBowlMr struct {
@@ -32,10 +31,10 @@ type TibetanSingingBowlMr struct {
 	FinishMoodRating int16  `json:"finish_mood_rating"`
 	FinishMood       string `json:"finish_mood"`
 	// 0 = incomplete. 1 = complete
-	SessionCompleted int16        `json:"session_completed"`
-	StartedAt        time.Time    `json:"started_at"`
-	EndsAt           time.Time    `json:"ends_at"`
-	DeletedAt        sql.NullTime `json:"deleted_at"`
+	SessionCompleted int16     `json:"session_completed"`
+	StartedAt        time.Time `json:"started_at"`
+	EndsAt           time.Time `json:"ends_at"`
+	DeletedAt        time.Time `json:"deleted_at"`
 }
 
 type TummoBreathingMr struct {
@@ -48,26 +47,40 @@ type TummoBreathingMr struct {
 	FinishMoodRating int16  `json:"finish_mood_rating"`
 	FinishMood       string `json:"finish_mood"`
 	// 0 = incomplete. 1 = complete
-	SessionCompleted int16        `json:"session_completed"`
-	StartedAt        time.Time    `json:"started_at"`
-	EndsAt           time.Time    `json:"ends_at"`
-	DeletedAt        sql.NullTime `json:"deleted_at"`
+	SessionCompleted int16     `json:"session_completed"`
+	StartedAt        time.Time `json:"started_at"`
+	EndsAt           time.Time `json:"ends_at"`
+	DeletedAt        time.Time `json:"deleted_at"`
 }
 
 type User struct {
-	ID                   int64     `json:"id"`
-	Email                string    `json:"email"`
-	FirstName            string    `json:"first_name"`
-	LastName             string    `json:"last_name"`
-	Gender               string    `json:"gender"`
-	BirthDate            time.Time `json:"birth_date"`
-	Country              string    `json:"country"`
+	ID        int64     `json:"id"`
+	Email     string    `json:"email"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	Gender    string    `json:"gender"`
+	BirthDate time.Time `json:"birth_date"`
+	Country   string    `json:"country"`
+	// 1 = yes. 0 = no
+	IsMrUser int16 `json:"is_mr_user"`
+	// 1 = yes. 0 = no
+	IsMobileUser         int16     `json:"is_mobile_user"`
 	HashedPassword       string    `json:"hashed_password"`
-	Goals                string    `json:"goals"`
 	TotalTimeSpentInMins int32     `json:"total_time_spent_in_mins"`
-	// can be mobile, MR or both
-	Platform          string       `json:"platform"`
-	PasswordChangedAt time.Time    `json:"password_changed_at"`
-	CreatedAt         time.Time    `json:"created_at"`
-	DeletedAt         sql.NullTime `json:"deleted_at"`
+	PasswordChangedAt    time.Time `json:"password_changed_at"`
+	Goals                string    `json:"goals"`
+	CreatedAt            time.Time `json:"created_at"`
+	DeletedAt            time.Time `json:"deleted_at"`
+}
+
+type UsersProfileMobile struct {
+	UserID               int64     `json:"user_id"`
+	TotalTimeSpentInMins int32     `json:"total_time_spent_in_mins"`
+	DeletedAt            time.Time `json:"deleted_at"`
+}
+
+type UsersProfileMr struct {
+	UserID               int64     `json:"user_id"`
+	TotalTimeSpentInMins int32     `json:"total_time_spent_in_mins"`
+	DeletedAt            time.Time `json:"deleted_at"`
 }

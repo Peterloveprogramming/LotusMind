@@ -27,8 +27,6 @@ func createRandomUser(t *testing.T) User {
 		BirthDate:      birthDate,                              // Generate a random birth date
 		Country:        util.RandomCountryCode(),               // Randomly choose a country code
 		HashedPassword: hashedPassword,                         // Assuming a random string for hashed password
-		Goals:          "I want to learn meditation!",          // Static goals
-		Platform:       util.RandomPlatform(),                  // Randomly choose platform
 	}
 
 	user, err := testQueries.CreateUser(context.Background(), args)

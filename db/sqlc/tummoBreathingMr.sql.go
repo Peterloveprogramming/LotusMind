@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -195,16 +194,16 @@ RETURNING unique_id, uuid, start_mood_rating, start_mood, finish_mood_rating, fi
 `
 
 type UpdateTummoBreathingMrByUniqueIDParams struct {
-	UniqueID         uuid.UUID    `json:"unique_id"`
-	Uuid             uuid.UUID    `json:"uuid"`
-	StartMoodRating  int16        `json:"start_mood_rating"`
-	StartMood        string       `json:"start_mood"`
-	FinishMoodRating int16        `json:"finish_mood_rating"`
-	FinishMood       string       `json:"finish_mood"`
-	SessionCompleted int16        `json:"session_completed"`
-	StartedAt        time.Time    `json:"started_at"`
-	EndsAt           time.Time    `json:"ends_at"`
-	DeletedAt        sql.NullTime `json:"deleted_at"`
+	UniqueID         uuid.UUID `json:"unique_id"`
+	Uuid             uuid.UUID `json:"uuid"`
+	StartMoodRating  int16     `json:"start_mood_rating"`
+	StartMood        string    `json:"start_mood"`
+	FinishMoodRating int16     `json:"finish_mood_rating"`
+	FinishMood       string    `json:"finish_mood"`
+	SessionCompleted int16     `json:"session_completed"`
+	StartedAt        time.Time `json:"started_at"`
+	EndsAt           time.Time `json:"ends_at"`
+	DeletedAt        time.Time `json:"deleted_at"`
 }
 
 func (q *Queries) UpdateTummoBreathingMrByUniqueID(ctx context.Context, arg UpdateTummoBreathingMrByUniqueIDParams) (TummoBreathingMr, error) {
@@ -252,15 +251,15 @@ RETURNING unique_id, uuid, start_mood_rating, start_mood, finish_mood_rating, fi
 `
 
 type UpdateTummoBreathingMrByUuidParams struct {
-	Uuid             uuid.UUID    `json:"uuid"`
-	StartMoodRating  int16        `json:"start_mood_rating"`
-	StartMood        string       `json:"start_mood"`
-	FinishMoodRating int16        `json:"finish_mood_rating"`
-	FinishMood       string       `json:"finish_mood"`
-	SessionCompleted int16        `json:"session_completed"`
-	StartedAt        time.Time    `json:"started_at"`
-	EndsAt           time.Time    `json:"ends_at"`
-	DeletedAt        sql.NullTime `json:"deleted_at"`
+	Uuid             uuid.UUID `json:"uuid"`
+	StartMoodRating  int16     `json:"start_mood_rating"`
+	StartMood        string    `json:"start_mood"`
+	FinishMoodRating int16     `json:"finish_mood_rating"`
+	FinishMood       string    `json:"finish_mood"`
+	SessionCompleted int16     `json:"session_completed"`
+	StartedAt        time.Time `json:"started_at"`
+	EndsAt           time.Time `json:"ends_at"`
+	DeletedAt        time.Time `json:"deleted_at"`
 }
 
 func (q *Queries) UpdateTummoBreathingMrByUuid(ctx context.Context, arg UpdateTummoBreathingMrByUuidParams) (TummoBreathingMr, error) {

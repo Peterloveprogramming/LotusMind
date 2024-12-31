@@ -37,7 +37,7 @@ func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
 	err = fn(q)
 	if err != nil {
 		if rbErr := tx.Rollback(); rbErr != nil {
-			return fmt.Errorf("Tx err: %v,rb err: %v", err, rbErr)
+			return fmt.Errorf("tx err: %v,rb err: %v", err, rbErr)
 		}
 		return err
 	}
@@ -145,8 +145,6 @@ func (store *Store) CreateUserForTestingDeletion(ctx context.Context) (CreateUse
 			BirthDate:      birthDate,                              // Generate a random birth date
 			Country:        util.RandomCountryCode(),               // Randomly choose a country code
 			HashedPassword: util.RandomString(12),                  // Assuming a random string for hashed password
-			Goals:          "I want to learn meditation!",          // Static goals
-			Platform:       util.RandomPlatform(),                  // Randomly choose platform
 		}
 
 		createdUser, err := q.CreateUser(ctx, createUserArgs)
