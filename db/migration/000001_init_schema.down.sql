@@ -14,6 +14,9 @@ DROP TABLE IF EXISTS tummo_breathing_mr;
 
 -- Drop session_logs table
 DROP TABLE IF EXISTS session_logs;
+DROP TABLE IF EXISTS users_profile_mr;
+DROP TABLE IF EXISTS users_profile_mobile;
+
 
 -- Drop users table
 DROP TABLE IF EXISTS users;

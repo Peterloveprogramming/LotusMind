@@ -107,6 +107,13 @@ func (store *Store) CreateSessionLogTransaction(ctx context.Context, args Create
 	return result, err
 }
 
+// update the time for total_time_spent_in_min in users table everytime user finishes or quites a session
+type UpdateMeditationTimeParams struct {
+	UserId      int64  `json:"user_id"`
+	SessionType string `json:"session_type"`
+	UUID        string `json:"uuid"`
+}
+
 // testing only
 type CreateUserForTestingDeletionResult struct {
 	UserId                               int64

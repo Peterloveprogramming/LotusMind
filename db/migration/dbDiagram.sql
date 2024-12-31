@@ -6,21 +6,39 @@
 --   gender varchar(50) [not null]
 --   birth_date date [not null]
 --   country varchar(50) [not null]
+--   is_mr_user smallint [not null, note:'1 = yes. 0 = no']
+--   is_mobile_user smallint [not null, note:'1 = yes. 0 = no']
 --   hashed_password varchar [not null]
---   goals varchar (500) [not null]
 --   total_time_spent_in_mins int [not null,  default:0]
---   platform varchar(20) [not null,note:'can be mobile, MR or both'] 
 --   password_changed_at timestamptz [not null, default: '0001-01-01 00:00:00Z']
 --   created_at timestamptz [not null, default: `now()`]
---   deleted_at timestamptz
+--   deleted_at timestamptz [not null, default: '0001-01-01 00:00:00Z']
 --   Indexes {
 --     email
---     platform
 --     country
+--     is_mr_user
+--     is_mobile_user
 --     gender
 --     birth_date
 --   }
 -- }
+
+-- Table users_profile_mr as upr {
+--   user_id bigint [ref: >u.id, not null, unique] // Ensure uniqueness for one-to-one relationship
+--   total_time_spent_in_mins int [not null,  default:0]
+--   goals varchar(500) [not null]
+--   deleted_at timestamptz [not null, default: '0001-01-01 00:00:00Z']
+-- }
+
+-- Table users_profile_mobile as upm {
+--   user_id bigint [ref: >u.id, not null, unique] // Ensure uniqueness for one-to-one relationship
+--   total_time_spent_in_mins int [not null,  default:0]
+--   goals varchar(500) [not null]
+--   deleted_at timestamptz [not null, default: '0001-01-01 00:00:00Z']
+-- }
+
+
+
 
 -- Table session_logs as sl {
 --   uuid UUID [pk,not null]
@@ -28,7 +46,7 @@
 --   session_type varchar(50) [not null,note:'references the name of the table of the session']
 --   session_platform varchar(20) [not null,note:'either mr or mobile'] 
 --   created_at timestamptz [not null, default: `now()`]
---   deleted_at timestamptz
+--   deleted_at timestamptz [not null, default: '0001-01-01 00:00:00Z']
 --   Indexes {
 --     (uuid, session_type) [unique] 
 --     session_type
@@ -46,7 +64,7 @@
 --   session_completed smallint [not null, default: 0, note:'0 = incomplete. 1 = complete']
 --   started_at timestamptz [not null, default: `now()`]
 --   ends_at timestamptz  [not null, default: '0001-01-01 00:00:00Z']
---   deleted_at timestamptz
+--   deleted_at timestamptz [not null, default: '0001-01-01 00:00:00Z']
 --   Indexes {
 --     uuid
 --     session_completed
@@ -64,7 +82,7 @@
 --   session_completed smallint [not null, default: 0, note:'0 = incomplete. 1 = complete']
 --   started_at timestamptz [not null, default: `now()`]
 --   ends_at timestamptz [not null, default: '0001-01-01 00:00:00Z']
---   deleted_at timestamptz
+--   deleted_at timestamptz [not null, default: '0001-01-01 00:00:00Z']
 --     Indexes {
 --     uuid
 --     session_completed

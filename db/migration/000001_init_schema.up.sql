@@ -6,13 +6,27 @@ CREATE TABLE "users" (
   "gender" varchar(50) NOT NULL,
   "birth_date" date NOT NULL,
   "country" varchar(50) NOT NULL,
+  "is_mr_user" smallint NOT NULL,
+  "is_mobile_user" smallint NOT NULL,
   "hashed_password" varchar NOT NULL,
-  "goals" varchar(500) NOT NULL,
   "total_time_spent_in_mins" int NOT NULL DEFAULT 0,
-  "platform" varchar(20) NOT NULL,
   "password_changed_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
   "created_at" timestamptz NOT NULL DEFAULT (now()),
-  "deleted_at" timestamptz
+  "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
+);
+
+CREATE TABLE "users_profile_mr" (
+  "user_id" bigint UNIQUE NOT NULL,
+  "total_time_spent_in_mins" int NOT NULL DEFAULT 0,
+  "goals" varchar(500) NOT NULL,
+  "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
+);
+
+CREATE TABLE "users_profile_mobile" (
+  "user_id" bigint UNIQUE NOT NULL,
+  "total_time_spent_in_mins" int NOT NULL DEFAULT 0,
+  "goals" varchar(500) NOT NULL,
+  "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
 );
 
 CREATE TABLE "session_logs" (
@@ -21,7 +35,7 @@ CREATE TABLE "session_logs" (
   "session_type" varchar(50) NOT NULL,
   "session_platform" varchar(20) NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
-  "deleted_at" timestamptz
+  "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
 );
 
 CREATE TABLE "tibetan_singing_bowl_mr" (
@@ -34,7 +48,7 @@ CREATE TABLE "tibetan_singing_bowl_mr" (
   "session_completed" smallint NOT NULL DEFAULT 0,
   "started_at" timestamptz NOT NULL DEFAULT (now()),
   "ends_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
-  "deleted_at" timestamptz
+  "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
 );
 
 CREATE TABLE "tummo_breathing_mr" (
@@ -47,14 +61,16 @@ CREATE TABLE "tummo_breathing_mr" (
   "session_completed" smallint NOT NULL DEFAULT 0,
   "started_at" timestamptz NOT NULL DEFAULT (now()),
   "ends_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z',
-  "deleted_at" timestamptz
+  "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
 );
 
 CREATE INDEX ON "users" ("email");
 
-CREATE INDEX ON "users" ("platform");
-
 CREATE INDEX ON "users" ("country");
+
+CREATE INDEX ON "users" ("is_mr_user");
+
+CREATE INDEX ON "users" ("is_mobile_user");
 
 CREATE INDEX ON "users" ("gender");
 
@@ -78,7 +94,9 @@ CREATE INDEX ON "tummo_breathing_mr" ("session_completed");
 
 CREATE INDEX ON "tummo_breathing_mr" ("finish_mood_rating");
 
-COMMENT ON COLUMN "users"."platform" IS 'can be mobile, MR or both';
+COMMENT ON COLUMN "users"."is_mr_user" IS '1 = yes. 0 = no';
+
+COMMENT ON COLUMN "users"."is_mobile_user" IS '1 = yes. 0 = no';
 
 COMMENT ON COLUMN "session_logs"."session_type" IS 'references the name of the table of the session';
 
@@ -96,12 +114,15 @@ COMMENT ON COLUMN "tummo_breathing_mr"."finish_mood_rating" IS 'between 1-10';
 
 COMMENT ON COLUMN "tummo_breathing_mr"."session_completed" IS '0 = incomplete. 1 = complete';
 
+ALTER TABLE "users_profile_mr" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id")  ON DELETE CASCADE;
+
+ALTER TABLE "users_profile_mobile" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id")  ON DELETE CASCADE;
+
 ALTER TABLE "session_logs" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id")  ON DELETE CASCADE;
 
 ALTER TABLE "tibetan_singing_bowl_mr" ADD FOREIGN KEY ("uuid") REFERENCES "session_logs" ("uuid")  ON DELETE CASCADE;
 
 ALTER TABLE "tummo_breathing_mr" ADD FOREIGN KEY ("uuid") REFERENCES "session_logs" ("uuid")  ON DELETE CASCADE;
-
 
 -- ALTER TABLE "session_logs" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE CASCADE;
 
@@ -131,6 +152,18 @@ BEGIN
     UPDATE session_logs 
     SET deleted_at = NOW() 
     WHERE user_id = OLD.id AND deleted_at IS NULL;
+
+    -- Soft delete related users_profile_mr
+    UPDATE users_profile_mr 
+    SET deleted_at = NOW() 
+    WHERE user_id IN (SELECT user_id FROM users_profile_mr WHERE user_id = OLD.id) 
+      AND deleted_at IS NULL;
+
+    -- Soft delete related users_profile_mobile
+    UPDATE users_profile_mobile
+    SET deleted_at = NOW() 
+    WHERE user_id IN (SELECT user_id FROM users_profile_mobile WHERE user_id = OLD.id) 
+      AND deleted_at IS NULL;
 
     -- Soft delete related tibetan singing bowl entries
     UPDATE tibetan_singing_bowl_mr 
