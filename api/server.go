@@ -24,7 +24,7 @@ type Server struct {
 	config     util.Config
 	store      *db.Store
 	router     *gin.Engine
-	tokenMater token.Maker
+	tokenMaker token.Maker
 }
 
 // set up api routes for that server
@@ -35,7 +35,7 @@ func NewServer(config util.Config, store *db.Store) (*Server, error) {
 	}
 	server := &Server{
 		store:      store,
-		tokenMater: tokenMaker,
+		tokenMaker: tokenMaker,
 		config:     config,
 	}
 
@@ -45,23 +45,30 @@ func NewServer(config util.Config, store *db.Store) (*Server, error) {
 		v.RegisterValidation("date", validateDate)
 		v.RegisterValidation("session_type", validateSessionType)
 	}
+
+	server.setupRouter()
+	return server, nil
+}
+
+func (server *Server) setupRouter() {
 	router := gin.Default()
 
-	// Route definition for Session
-	router.POST("/session/create/:user_id/:session_type", server.createSession)
-	router.POST("/session/update/start/:session_uuid/:session_type", server.updateSessionStartingMood)
-	router.POST("/session/update/finish/:session_uuid/:session_type", server.updateSessionFinishingMood)
-	router.POST("/session/update/quit/:session_uuid/:session_type", server.updateSessionQuit)
-
-	// Route definition for User
+	router.POST("/user/login", server.loginUser)
 	router.POST("/user/create", server.createUser)
-	router.GET("/user/get_info/:id", server.fetchUserInfoById)
-	router.GET("/user/get_time/:platform/:id", server.fetchUserTime)
-	// router.POST("/session/update/finish/:session_uuid/:session_type", server.updateSessionFinishingMood)
-	// router.POST("/session/update/quit/:session_uuid/:session_type", server.updateSessionQuit)
+
+	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
+	// Route definition for User
+	authRoutes.GET("/user/get_info/:id", server.fetchUserInfoById)
+	authRoutes.GET("/user/get_time/:platform/:id", server.fetchUserTime)
+
+	// Route definition for Session
+	authRoutes.POST("/session/create/:user_id/:session_type", server.createSession)
+	authRoutes.POST("/session/update/start/:session_uuid/:session_type", server.updateSessionStartingMood)
+	authRoutes.POST("/session/update/finish/:session_uuid/:session_type", server.updateSessionFinishingMood)
+	authRoutes.POST("/session/update/quit/:session_uuid/:session_type", server.updateSessionQuit)
 
 	server.router = router
-	return server, nil
+
 }
 
 // Start runs the HTTP server on a specific address

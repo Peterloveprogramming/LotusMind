@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"errors"
 	"net/http"
 	"strings"
@@ -48,15 +49,15 @@ func (server *Server) createUser(ctx *gin.Context) {
 	}
 
 	args := db.CreateUserTransactiontArgs{
-		Email:     req.Email,
-		FirstName: req.FirstName,
-		LastName:  req.LastName,
-		Gender:    req.Gender,
-		Birthdate: parsedBirthDate,
-		Country:   req.Country,
-		Goal:      req.Goal,
-		Platform:  req.Platform,
-		Password:  hashedPassword,
+		Email:          req.Email,
+		FirstName:      req.FirstName,
+		LastName:       req.LastName,
+		Gender:         req.Gender,
+		Birthdate:      parsedBirthDate,
+		Country:        req.Country,
+		Goal:           req.Goal,
+		Platform:       req.Platform,
+		HashedPassword: hashedPassword,
 	}
 
 	userResult, err := server.store.CreateUserTransaction(ctx, args)
@@ -159,4 +160,57 @@ func (server *Server) fetchUserTime(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"total_time_spent_in_mins": userTime,
 	})
+}
+
+// login user
+type loginUserRequestBody struct {
+	Email    string `json:"email" binding:"required,min=1,max=50"`
+	Password string `json:"password" binding:"required,min=8"`
+}
+
+type loginUserRequestResult struct {
+	ID          int64  `json:"id"`
+	AccessToken string `json:"access_token"`
+}
+
+func (server *Server) loginUser(ctx *gin.Context) {
+	//verify request body
+	var req loginUserRequestBody
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	user, err := server.store.GetUserByEmail(ctx, req.Email)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+	err = util.CheckPassword(req.Password, user.HashedPassword)
+	if err != nil {
+		println("error in byscrypt")
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
+	accessToken, err := server.tokenMaker.CreateToken(
+		req.Email,
+		server.config.AccessTokenDuration,
+	)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	rsp := loginUserRequestResult{
+		AccessToken: accessToken,
+		ID:          user.ID,
+	}
+	ctx.JSON(http.StatusCreated, rsp)
 }

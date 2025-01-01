@@ -124,7 +124,6 @@ type CreateUserTransactiontArgs struct {
 	Country        string
 	Goal           string
 	Platform       string
-	Password       string
 	HashedPassword string
 }
 
