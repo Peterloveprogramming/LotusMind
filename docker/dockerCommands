@@ -1,0 +1,20 @@
+build docker image
+docker build -t lotusmind:latest .
+
+run docker image
+docker run --name lotusmind --network lotusmind-network -p 8080:8080 -e GIN_MODE=release -e DB_SOURCE="postgresql://root:secret@postgres17:5432/meditation?sslmode=disable" lotusmind:latest
+
+check the network of the container
+docker container inspect [CONTAINERNAME]
+
+check list of network
+docker network ls
+
+check containers running inside this network
+docker network inspect bridge
+
+create own network so containers can call each other using names
+docker network create lotusmind-network
+
+connect container to the network
+docker network connect lotusmind-network [CONTAINERNAME]
