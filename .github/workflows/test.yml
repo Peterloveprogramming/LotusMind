@@ -1,4 +1,4 @@
-name: ci-test
+name: Test golang migrate and run unit tests
 
 on:
   push:
