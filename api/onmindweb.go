@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -13,15 +14,21 @@ import (
 
 // createUser
 type createUserEmailRequestBody struct {
-	Email string `json:"email" binding:"required,min=1,max=50"`
+	Email   string         `json:"email" binding:"required,min=1,max=50"`
+	Answers map[string]int `json:"answers"`
 }
 
 func (server *Server) registEmail(ctx *gin.Context) {
-	//verify request body
 	var req createUserEmailRequestBody
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
+	}
+
+	fmt.Printf("Email: %s\n", req.Email)
+	fmt.Println("Answers:")
+	for question, score := range req.Answers {
+		fmt.Printf("Question: %s, Score: %d\n", question, score)
 	}
 
 	args := db.CreateUserEmailTransactiontArgs{
