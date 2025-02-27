@@ -62,6 +62,23 @@ CREATE TABLE "tummo_breathing_mr" (
   "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
 );
 
+CREATE TABLE "email_registrations" (
+  "unique_id" UUID PRIMARY KEY NOT NULL,
+  "email" VARCHAR(50) NOT NULL UNIQUE,
+  "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
+);
+
+CREATE TABLE "chakra_test_results" (
+    "unique_id" UUID PRIMARY KEY NOT NULL,
+    "email" VARCHAR(50) NOT NULL,
+    "chakra_name" VARCHAR(50) NOT NULL,
+    "chakra_score" INTEGER NOT NULL DEFAULT 0,
+    "chakra_status" VARCHAR(20) NOT NULL DEFAULT 'inactive',
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
+);
+
 CREATE INDEX ON "users" ("email");
 
 CREATE INDEX ON "users" ("country");

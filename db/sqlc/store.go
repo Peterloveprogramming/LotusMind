@@ -44,6 +44,25 @@ func (store *Store) execTx(ctx context.Context, fn func(*Queries) error) error {
 	return tx.Commit()
 }
 
+// ExecTx executes a function within a database transaction
+func (store *Store) ExecTx(ctx context.Context, fn func(*Queries) error) error {
+	tx, err := store.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	q := New(tx)
+	err = fn(q)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return fmt.Errorf("tx err: %v, rb err: %v", err, rbErr)
+		}
+		return err
+	}
+
+	return tx.Commit()
+}
+
 type CreateSessionLogTransactionResult struct {
 	UserId      int64  `json:"user_id"`
 	SessionType string `json:"session_type"`
@@ -415,4 +434,28 @@ func (store *Store) CreateUserForTestingDeletion(ctx context.Context) (CreateUse
 	})
 
 	return result, err
+}
+
+type CreateUserEmailTransactiontArgs struct {
+	Email string
+}
+
+func (store *Store) CreateUserEmailTransaction(ctx context.Context, args CreateUserEmailTransactiontArgs) error {
+	err := store.execTx(ctx, func(q *Queries) error {
+		params := CreateUserEmailParams{
+			UniqueId: uuid.New(),
+			Email:    args.Email,
+		}
+		_, err := q.CreateUserEmail(ctx, params)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
+	return err
+}
+
+func (store *Store) CreateChakraTestResult(ctx context.Context, arg CreateChakraTestResultParams) (ChakraTestResult, error) {
+	return store.Queries.CreateChakraTestResult(ctx, arg)
 }

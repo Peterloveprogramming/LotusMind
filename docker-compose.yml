@@ -1,7 +1,8 @@
-version: "3.9"
+# version: "3.9"
 services:
   postgres:
     image: postgres:17-alpine
+    # network_mode: "host"  # 使用主机网络模式
     # ports:
     #   - "5432:5432"
     environment:

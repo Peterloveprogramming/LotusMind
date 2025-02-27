@@ -55,6 +55,12 @@ func (server *Server) setupRouter() {
 
 	router.POST("/user/login", server.loginUser)
 	router.POST("/user/create", server.createUser)
+	router.POST("/user/register_email", server.registEmail)
+	// 添加获取脉轮测试结果的路由
+	router.GET("/chakra/results/:email", server.getChakraTestResults)
+	// 添加创建脉轮测试结果的路由
+	// router.POST("/chakra/results/create", server.createChakraTestResult)
+	router.POST("/chakra/results/create_batch", server.createChakraTestResults)
 
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
 	// Route definition for User
@@ -68,7 +74,6 @@ func (server *Server) setupRouter() {
 	authRoutes.POST("/session/update/quit/:session_uuid/:session_type", server.updateSessionQuit)
 
 	server.router = router
-
 }
 
 // Start runs the HTTP server on a specific address
