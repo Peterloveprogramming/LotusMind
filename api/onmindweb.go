@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -12,10 +13,54 @@ import (
 	db "github.com/lotusMind/meditation/db/sqlc"
 )
 
+// var chakraQuestions = map[int]string{
+// 	1:  "You usually feel present in the moment and grounded in life.",
+// 	2:  "You always feel a strong sense of security.",
+// 	3:  "You worry about your financial situation and the safety of your home.",
+// 	4:  "You feel comfortable no matter where you are.",
+// 	5:  "You feel comfortable with intimacy and physical desires.",
+// 	6:  "You can express your feelings about sexuality.",
+// 	7:  "You are an emotional and passionate person.",
+// 	8:  "You have a strong need to establish emotional connections with others.",
+// 	9:  "You express yourself through some form of artistic creation (music, painting, singing, or other).",
+// 	10: "You often cultivate self-discipline.",
+// 	11: "You can stand firm and confident when necessary.",
+// 	12: "You have a strong desire to be in control of situations.",
+// 	13: "You feel capable of influencing the course of events in a team.",
+// 	14: "You take action toward what you want.",
+// 	15: "You are a confident person.",
+// 	16: "You tend to plan ahead rather than go with the flow.",
+// 	17: "You genuinely like most people.",
+// 	18: "You feel at ease working in a team.",
+// 	19: "You trust most people.",
+// 	20: "You strive for harmony in your relationships.",
+// 	21: "You easily show compassion to both yourself and others.",
+// 	22: "When conflicts arise, you consider others' feelings.",
+// 	23: "You give a lot to others, sometimes even neglecting your own needs.",
+// 	24: "You enjoy talking.",
+// 	25: "You are good at communication, both listening to others and expressing yourself.",
+// 	26: "Your voice is loud and clear when you speak.",
+// 	27: "You express your emotions openly and without hesitation.",
+// 	28: "You are skilled at writing as a form of communication.",
+// 	29: "You are good at developing awareness and insight.",
+// 	30: "You often have a sense of what will happen in the future.",
+// 	31: "You believe coincidences usually have meaning rather than being purely random.",
+// 	32: "You rely heavily on your intuition.",
+// 	33: "You can easily recall your dreams.",
+// 	34: "You instinctively perceive the deeper connections between all things.",
+// 	35: "You frequently engage in daydreaming or imagination.",
+// 	36: "You are a creative person.",
+// 	37: "You are aware of your likes, dislikes, and needs.",
+// 	38: "You accept whatever happens to you with ease.",
+// 	39: "You see life experiences as opportunities to learn.",
+// 	40: "You think effectively using words, symbols, and abstract concepts.",
+// 	41: "You feel a deep connection with everything, from the vast universe to the small things around you.",
+// }
+
 // createUser
 type createUserEmailRequestBody struct {
-	Email   string         `json:"email" binding:"required,min=1,max=50"`
-	Answers map[string]int `json:"answers"`
+	Email   string            `json:"email" binding:"required,min=1,max=50"`
+	Answers map[string]string `json:"answers"`
 }
 
 func (server *Server) registEmail(ctx *gin.Context) {
@@ -25,11 +70,81 @@ func (server *Server) registEmail(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Printf("Email: %s\n", req.Email)
-	fmt.Println("Answers:")
-	for question, score := range req.Answers {
-		fmt.Printf("Question: %s, Score: %d\n", question, score)
+	// 创建问题分数映射
+	questionAnswers := make(map[string]string)
+	for question, answer := range req.Answers {
+		questionAnswers[question] = answer
 	}
+
+	// 创建一个切片用于存放所有 value
+	values := make([]string, 0, len(questionAnswers))
+
+	// 遍历 map，将每个 value 添加到切片中
+	for _, value := range questionAnswers {
+		values = append(values, value)
+	}
+	// 打印结果
+	fmt.Println("Values:", values)
+	fmt.Printf("Email: %s\n", req.Email)
+	// fmt.Println("Question Scores Map:")
+
+	var rootScores int
+	var sacralScores int
+	var solarPlexusScores int
+	var heartScores int
+	var throatScores int
+	var thirdEyeScores int
+	var crownScores int
+
+	for i, answer := range values {
+
+		fmt.Printf("index: %d,answer: %s\n", i, answer)
+
+		parts := strings.Split(answer, "||")
+
+		setIndex, err := strconv.Atoi(parts[0])
+		if err != nil {
+			fmt.Println("转换失败:", err)
+			return
+		}
+		score, err := strconv.Atoi(parts[2])
+		if err != nil {
+			fmt.Println("转换失败:", err)
+			return
+		}
+
+		switch setIndex {
+		case 1:
+			rootScores += score
+		case 2:
+			sacralScores += score
+		case 3:
+			solarPlexusScores += score
+		case 4:
+			heartScores += score
+		case 5:
+			throatScores += score
+		case 6:
+			thirdEyeScores += score
+		case 7:
+			crownScores += score
+		}
+	}
+
+	rootScores = (rootScores - 3*8) / (8 * 2) * 100
+	sacralScores = (sacralScores - 3*8) / (8 * 2) * 100
+	solarPlexusScores = (solarPlexusScores - 3*8) / (8 * 2) * 100
+	heartScores = (heartScores - 3*9) / (9 * 2) * 100
+	throatScores = (throatScores - 3*8) / (8 * 2) * 100
+	thirdEyeScores = (thirdEyeScores - 3*9) / (9 * 2) * 100
+	crownScores = (crownScores - 3*7) * 100 / (7 * 2)
+	fmt.Printf("RootScores: %d\n", rootScores)
+	fmt.Printf("sacralScores : %d\n", sacralScores)
+	fmt.Printf("solarPlexusScores: %d\n", solarPlexusScores)
+	fmt.Printf("heartScores: %d\n", heartScores)
+	fmt.Printf("throatScores: %d\n", throatScores)
+	fmt.Printf("thirdEyeScores: %d\n", thirdEyeScores)
+	fmt.Printf("CrownChakra Score: %d\n", crownScores)
 
 	args := db.CreateUserEmailTransactiontArgs{
 		Email: req.Email,
