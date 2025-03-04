@@ -88,17 +88,17 @@ func (server *Server) registEmail(ctx *gin.Context) {
 	fmt.Printf("Email: %s\n", req.Email)
 	// fmt.Println("Question Scores Map:")
 
-	var rootScores int
-	var sacralScores int
-	var solarPlexusScores int
-	var heartScores int
-	var throatScores int
-	var thirdEyeScores int
-	var crownScores int
+	var rootScores float32
+	var sacralScores float32
+	var solarPlexusScores float32
+	var heartScores float32
+	var throatScores float32
+	var thirdEyeScores float32
+	var crownScores float32
 
-	for i, answer := range values {
+	for _, answer := range values {
 
-		fmt.Printf("index: %d,answer: %s\n", i, answer)
+		// fmt.Printf("index: %d,answer: %s\n", i, answer)
 
 		parts := strings.Split(answer, "||")
 
@@ -115,21 +115,29 @@ func (server *Server) registEmail(ctx *gin.Context) {
 
 		switch setIndex {
 		case 1:
-			rootScores += score
+			rootScores += float32(score)
 		case 2:
-			sacralScores += score
+			sacralScores += float32(score)
 		case 3:
-			solarPlexusScores += score
+			solarPlexusScores += float32(score)
 		case 4:
-			heartScores += score
+			heartScores += float32(score)
 		case 5:
-			throatScores += score
+			throatScores += float32(score)
 		case 6:
-			thirdEyeScores += score
+			thirdEyeScores += float32(score)
 		case 7:
-			crownScores += score
+			crownScores += float32(score)
 		}
 	}
+
+	fmt.Printf("original scoreRootScores: %f\n", rootScores)
+	fmt.Printf("original sacralScores : %f\n", sacralScores)
+	fmt.Printf("original solarPlexusScores: %f\n", solarPlexusScores)
+	fmt.Printf("original heartScores: %f\n", heartScores)
+	fmt.Printf("original throatScores: %f\n", throatScores)
+	fmt.Printf("original thirdEyeScores: %f\n", thirdEyeScores)
+	fmt.Printf("original CrownChakra Score: %f\n", crownScores)
 
 	rootScores = (rootScores - 3*8) / (8 * 2) * 100
 	sacralScores = (sacralScores - 3*8) / (8 * 2) * 100
@@ -138,13 +146,13 @@ func (server *Server) registEmail(ctx *gin.Context) {
 	throatScores = (throatScores - 3*8) / (8 * 2) * 100
 	thirdEyeScores = (thirdEyeScores - 3*9) / (9 * 2) * 100
 	crownScores = (crownScores - 3*7) * 100 / (7 * 2)
-	fmt.Printf("RootScores: %d\n", rootScores)
-	fmt.Printf("sacralScores : %d\n", sacralScores)
-	fmt.Printf("solarPlexusScores: %d\n", solarPlexusScores)
-	fmt.Printf("heartScores: %d\n", heartScores)
-	fmt.Printf("throatScores: %d\n", throatScores)
-	fmt.Printf("thirdEyeScores: %d\n", thirdEyeScores)
-	fmt.Printf("CrownChakra Score: %d\n", crownScores)
+	fmt.Printf("scoreRootScores: %f\n", rootScores)
+	fmt.Printf("sacralScores : %f\n", sacralScores)
+	fmt.Printf("solarPlexusScores: %f\n", solarPlexusScores)
+	fmt.Printf("heartScores: %f\n", heartScores)
+	fmt.Printf("throatScores: %f\n", throatScores)
+	fmt.Printf("thirdEyeScores: %f\n", thirdEyeScores)
+	fmt.Printf("CrownChakra Score: %f\n", crownScores)
 
 	args := db.CreateUserEmailTransactiontArgs{
 		Email: req.Email,
