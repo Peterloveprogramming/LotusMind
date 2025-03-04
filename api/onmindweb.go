@@ -131,14 +131,6 @@ func (server *Server) registEmail(ctx *gin.Context) {
 		}
 	}
 
-	fmt.Printf("original scoreRootScores: %f\n", rootScores)
-	fmt.Printf("original sacralScores : %f\n", sacralScores)
-	fmt.Printf("original solarPlexusScores: %f\n", solarPlexusScores)
-	fmt.Printf("original heartScores: %f\n", heartScores)
-	fmt.Printf("original throatScores: %f\n", throatScores)
-	fmt.Printf("original thirdEyeScores: %f\n", thirdEyeScores)
-	fmt.Printf("original CrownChakra Score: %f\n", crownScores)
-
 	rootScores = (rootScores - 3*8) / (8 * 2) * 100
 	sacralScores = (sacralScores - 3*8) / (8 * 2) * 100
 	solarPlexusScores = (solarPlexusScores - 3*8) / (8 * 2) * 100
@@ -154,6 +146,7 @@ func (server *Server) registEmail(ctx *gin.Context) {
 	fmt.Printf("thirdEyeScores: %f\n", thirdEyeScores)
 	fmt.Printf("CrownChakra Score: %f\n", crownScores)
 
+	// 创建用户注册邮箱
 	args := db.CreateUserEmailTransactiontArgs{
 		Email: req.Email,
 	}
@@ -170,13 +163,67 @@ func (server *Server) registEmail(ctx *gin.Context) {
 		return
 	}
 
+	// 保存脉轮测试结果
+	var results []db.ChakraTestResult
+	err = server.store.ExecTx(ctx, func(q *db.Queries) error {
+		// 定义脉轮数据
+		chakras := []struct {
+			name   string
+			score  float32
+			status string
+		}{
+			{"Root Chakra", rootScores, getChakraStatus(rootScores)},
+			{"Sacral Chakra", sacralScores, getChakraStatus(sacralScores)},
+			{"Solar Plexus Chakra", solarPlexusScores, getChakraStatus(solarPlexusScores)},
+			{"Heart Chakra", heartScores, getChakraStatus(heartScores)},
+			{"Throat Chakra", throatScores, getChakraStatus(throatScores)},
+			{"Third Eye Chakra", thirdEyeScores, getChakraStatus(thirdEyeScores)},
+			{"Crown Chakra", crownScores, getChakraStatus(crownScores)},
+		}
+
+		for _, chakra := range chakras {
+			arg := db.CreateChakraTestResultParams{
+				UniqueId:     uuid.New(),
+				Email:        req.Email,
+				ChakraName:   chakra.name,
+				ChakraScore:  int32(chakra.score),
+				ChakraStatus: chakra.status,
+			}
+			result, err := q.CreateChakraTestResult(ctx, arg)
+			if err != nil {
+				return err
+			}
+			results = append(results, result)
+		}
+		return nil
+	})
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
 	// 添加返回结果
 	result := gin.H{
-		"email":   req.Email,
-		"message": "Email registered successfully",
+		"email":          req.Email,
+		"message":        "Email registered successfully",
+		"chakra_results": results,
 	}
 
 	ctx.JSON(http.StatusCreated, result)
+}
+
+// 根据分数确定脉轮状态
+func getChakraStatus(score float32) string {
+	if score >= 70 && score <= 100 {
+		return "Overactive"
+	} else if score >= 10 && score < 70 {
+		return "Open"
+	} else if score >= -50 && score < 10 {
+		return "Partially Blocked"
+	} else {
+		return "Severely Blocked"
+	}
 }
 
 // // fetchuserInformation
