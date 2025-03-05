@@ -131,13 +131,21 @@ func (server *Server) registEmail(ctx *gin.Context) {
 		}
 	}
 
-	rootScores = (rootScores - 3*8) / (8 * 2) * 100
-	sacralScores = (sacralScores - 3*8) / (8 * 2) * 100
-	solarPlexusScores = (solarPlexusScores - 3*8) / (8 * 2) * 100
-	heartScores = (heartScores - 3*9) / (9 * 2) * 100
-	throatScores = (throatScores - 3*8) / (8 * 2) * 100
-	thirdEyeScores = (thirdEyeScores - 3*9) / (9 * 2) * 100
-	crownScores = (crownScores - 3*7) * 100 / (7 * 2)
+	// rootScores = (rootScores - 3*8) / (8 * 2) * 100
+	// sacralScores = (sacralScores - 3*8) / (8 * 2) * 100
+	// solarPlexusScores = (solarPlexusScores - 3*8) / (8 * 2) * 100
+	// heartScores = (heartScores - 3*9) / (9 * 2) * 100
+	// throatScores = (throatScores - 3*8) / (8 * 2) * 100
+	// thirdEyeScores = (thirdEyeScores - 3*9) / (9 * 2) * 100
+	// crownScores = (crownScores - 3*7) * 100 / (7 * 2)
+	rootScores = rootScores * 100 / (8 * 2)
+	sacralScores = sacralScores * 100 / (8 * 2)
+	solarPlexusScores = solarPlexusScores * 100 / (8 * 2)
+	heartScores = heartScores * 100 / (9 * 2)
+	throatScores = throatScores * 100 / (8 * 2)
+	thirdEyeScores = thirdEyeScores * 100 / (9 * 2)
+	crownScores = crownScores * 100 / (7 * 2)
+
 	fmt.Printf("scoreRootScores: %f\n", rootScores)
 	fmt.Printf("sacralScores : %f\n", sacralScores)
 	fmt.Printf("solarPlexusScores: %f\n", solarPlexusScores)
