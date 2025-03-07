@@ -2,7 +2,7 @@ name: Test golang migrate and run unit tests
 
 on:
   push:
-    branches: ["main", "fix-tests"]
+    branches: ["main"]
   pull_request:
     branches: ["main"]
 
