@@ -9,7 +9,9 @@ import (
 )
 
 func createRandomSessionLog(t *testing.T) SessionLog {
-	// needs to make sure userid 1 exists in user stable
+	// first create a user otherwise it will throw an error
+	createRandomMrUser(t)
+
 	sessionType := util.RandomSessionType()
 	sessionPlatform := util.GetPlatformTypeBasedOnSessionType(sessionType)
 	arg := CreateSessionLogParams{

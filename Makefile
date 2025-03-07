@@ -1,6 +1,8 @@
 # create docker contianer
 postgres:
-	docker run --name postgres17 --network lotusmind-network -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:17-alpine
+	docker run --name postgres17 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:17-alpine
+connectDb:
+	docker exec -it postgres17 psql -U root
 # create database inside the container
 createdb:
 	docker exec -it postgres17 createdb --username=root --owner=root meditation
@@ -18,8 +20,10 @@ testV:
 	go test -v -cover ./...
 test:
 	go test ./...
+cleanCache:
+	go clean -testcache
 server:
 	go run main.go
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc testV test server
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc testV test server cleanCache
 
 
