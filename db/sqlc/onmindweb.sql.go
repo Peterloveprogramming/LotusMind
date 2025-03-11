@@ -120,3 +120,19 @@ func (q *Queries) CreateChakraTestResult(ctx context.Context, arg CreateChakraTe
 	return i, err
 }
 
+const getByEmail = `-- name: GetByEmail :one
+SELECT id, email, created_at, deleted_at FROM users
+WHERE email = $1
+`
+
+func (q *Queries) GetByEmail(ctx context.Context, email string) (EmailRegistrations, error) {
+	row := q.db.QueryRowContext(ctx, getByEmail, email)
+	var i EmailRegistrations
+	err := row.Scan(
+		&i.UniqueId,
+		&i.Email,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}

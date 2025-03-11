@@ -138,9 +138,9 @@ func (server *Server) registEmail(ctx *gin.Context) {
 	// throatScores = (throatScores - 3*8) / (8 * 2) * 100
 	// thirdEyeScores = (thirdEyeScores - 3*9) / (9 * 2) * 100
 	// crownScores = (crownScores - 3*7) * 100 / (7 * 2)
-	rootScores = rootScores * 100 / (8 * 2)
+	rootScores = rootScores * 100 / (9 * 2)
 	sacralScores = sacralScores * 100 / (8 * 2)
-	solarPlexusScores = solarPlexusScores * 100 / (8 * 2)
+	solarPlexusScores = solarPlexusScores * 100 / (9 * 2)
 	heartScores = heartScores * 100 / (9 * 2)
 	throatScores = throatScores * 100 / (8 * 2)
 	thirdEyeScores = thirdEyeScores * 100 / (9 * 2)
@@ -153,6 +153,18 @@ func (server *Server) registEmail(ctx *gin.Context) {
 	fmt.Printf("throatScores: %f\n", throatScores)
 	fmt.Printf("thirdEyeScores: %f\n", thirdEyeScores)
 	fmt.Printf("CrownChakra Score: %f\n", crownScores)
+
+	// // 先检查邮箱是否已存在
+	// existingUser, err := server.store.GetByEmail(ctx, req.Email)
+	// if err == nil && existingUser.Email != "" {
+	// 	// 邮箱已存在
+	// 	ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("邮箱已注册")))
+	// 	return
+	// } else if err != nil && !errors.Is(err, sql.ErrNoRows) {
+	// 	// 查询过程中出现其他错误
+	// 	ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	// 	return
+	// }
 
 	// 创建用户注册邮箱
 	args := db.CreateUserEmailTransactiontArgs{
@@ -211,6 +223,8 @@ func (server *Server) registEmail(ctx *gin.Context) {
 		return
 	}
 
+	//调用AI接口获取报告
+
 	// 添加返回结果
 	result := gin.H{
 		"email":          req.Email,
@@ -223,11 +237,13 @@ func (server *Server) registEmail(ctx *gin.Context) {
 
 // 根据分数确定脉轮状态
 func getChakraStatus(score float32) string {
-	if score >= 70 && score <= 100 {
+	if score >= 80 && score <= 100 {
 		return "Overactive"
-	} else if score >= 10 && score < 70 {
+	} else if score >= 20 && score < 80 {
 		return "Open"
-	} else if score >= -50 && score < 10 {
+	} else if score >= 0 && score < 20 {
+		return "Underactive"
+	} else if score >= -50 && score < 0 {
 		return "Partially Blocked"
 	} else {
 		return "Severely Blocked"

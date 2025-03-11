@@ -100,3 +100,10 @@ type ChakraTestResult struct {
 	DeletedAt    time.Time `json:"deleted_at"`
 }
 
+type EmailRegistrations struct {
+	UniqueId        uuid.UUID     `json:"unique_id"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+	DeletedAt time.Time `json:"deleted_at"`
+}
+

@@ -459,3 +459,7 @@ func (store *Store) CreateUserEmailTransaction(ctx context.Context, args CreateU
 func (store *Store) CreateChakraTestResult(ctx context.Context, arg CreateChakraTestResultParams) (ChakraTestResult, error) {
 	return store.Queries.CreateChakraTestResult(ctx, arg)
 }
+
+func (store *Store) GetByEmail(ctx context.Context, email string) (EmailRegistrations, error) {
+	return store.Queries.GetByEmail(ctx, email)
+}
