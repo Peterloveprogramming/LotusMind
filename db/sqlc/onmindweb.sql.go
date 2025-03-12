@@ -14,27 +14,31 @@ import (
 const createUserEmail = `-- name: CreateUserEmail :one
 INSERT INTO email_registrations  (
   unique_id,
-  email
+  email,
+  chakra_info	
 ) VALUES (
-  $1, $2
+  $1, $2, $3
 )
-RETURNING unique_id, email, created_at, deleted_at
+RETURNING unique_id, email, chakra_info, created_at, deleted_at
 `
 
 type CreateUserEmailParams struct {
 	UniqueId       uuid.UUID `json:"unique_id"`
 	Email          string    `json:"email"`
+	ChakraInfo     string    `json:"chakra_info"`
 }
 
 func (q *Queries) CreateUserEmail(ctx context.Context, arg CreateUserEmailParams) (UserEmail, error) {
 	row := q.db.QueryRowContext(ctx, createUserEmail,
 		arg.UniqueId,
 		arg.Email,
+		arg.ChakraInfo,
 	)
 	var i UserEmail
 	err := row.Scan(
 		&i.UniqueId,
 		&i.Email,
+		&i.ChakraInfo,
 		&i.CreatedAt,
 		&i.DeletedAt,
 	)
@@ -136,3 +140,60 @@ func (q *Queries) GetByEmail(ctx context.Context, email string) (EmailRegistrati
 	)
 	return i, err
 }
+
+
+const getLatestEmailRegistration = `-- name: GetLatestEmailRegistration :one
+SELECT unique_id, email, chakra_report, created_at, deleted_at FROM email_registrations
+WHERE email = $1
+ORDER BY created_at DESC
+LIMIT 1;
+`
+
+func (q *Queries) GetLatestEmailRegistration(ctx context.Context, email string) (EmailRegistrations, error) {
+	row := q.db.QueryRowContext(ctx, getLatestEmailRegistration, email)
+	var i EmailRegistrations
+	err := row.Scan(
+		&i.UniqueId,
+		&i.Email,
+		&i.ChakraReport,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+
+const updateChakraReportByUniqueId = `-- name: UpdateChakraReportByUniqueId :exec
+UPDATE email_registrations
+SET chakra_report = $1
+WHERE unique_id = $2
+`
+
+func (q *Queries) UpdateChakraReportByUniqueId(ctx context.Context, chakraReport string, uniqueId uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, updateChakraReportByUniqueId, chakraReport, uniqueId)
+	return err
+}
+
+
+const getEmailRegistrationByTestNum = `-- name: GetEmailRegistrationByTestNum :one
+SELECT unique_id, email, chakra_info, chakra_report, created_at, deleted_at
+FROM email_registrations
+WHERE email = $1
+ORDER BY created_at
+OFFSET $2 LIMIT 1;
+`
+
+func (q *Queries) GetEmailRegistrationByTestNum(ctx context.Context, email string, testNum int) (EmailRegistrations, error) {
+	row := q.db.QueryRowContext(ctx, getEmailRegistrationByTestNum, email, testNum)
+	var i EmailRegistrations
+	err := row.Scan(
+		&i.UniqueId,
+		&i.Email,
+		&i.ChakraInfo,
+		&i.ChakraReport,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+

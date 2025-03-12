@@ -437,14 +437,16 @@ func (store *Store) CreateUserForTestingDeletion(ctx context.Context) (CreateUse
 }
 
 type CreateUserEmailTransactiontArgs struct {
-	Email string
+	Email      string
+	ChakraInfo string
 }
 
 func (store *Store) CreateUserEmailTransaction(ctx context.Context, args CreateUserEmailTransactiontArgs) error {
 	err := store.execTx(ctx, func(q *Queries) error {
 		params := CreateUserEmailParams{
-			UniqueId: uuid.New(),
-			Email:    args.Email,
+			UniqueId:   uuid.New(),
+			Email:      args.Email,
+			ChakraInfo: args.ChakraInfo,
 		}
 		_, err := q.CreateUserEmail(ctx, params)
 		if err != nil {
@@ -462,4 +464,16 @@ func (store *Store) CreateChakraTestResult(ctx context.Context, arg CreateChakra
 
 func (store *Store) GetByEmail(ctx context.Context, email string) (EmailRegistrations, error) {
 	return store.Queries.GetByEmail(ctx, email)
+}
+
+func (store *Store) GetLatestEmailRegistration(ctx context.Context, email string) (EmailRegistrations, error) {
+	return store.Queries.GetLatestEmailRegistration(ctx, email)
+}
+
+func (store *Store) UpdateChakraReportByUniqueId(ctx context.Context, chakraReport string, uniqueId uuid.UUID) error {
+	return store.Queries.UpdateChakraReportByUniqueId(ctx, chakraReport, uniqueId)
+}
+
+func (store *Store) GetEmailRegistrationByTestNum(ctx context.Context, email string, testNum int) (EmailRegistrations, error) {
+	return store.Queries.GetEmailRegistrationByTestNum(ctx, email, testNum)
 }

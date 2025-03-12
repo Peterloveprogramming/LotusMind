@@ -5,6 +5,7 @@
 package db
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -75,6 +76,7 @@ type User struct {
 type UserEmail struct {
 	UniqueId        uuid.UUID     `json:"unique_id"`
 	Email     string    `json:"email"`
+	ChakraInfo string    `json:"chakra_info"`
 	CreatedAt time.Time `json:"created_at"`
 	DeletedAt time.Time `json:"deleted_at"`
 }
@@ -101,9 +103,11 @@ type ChakraTestResult struct {
 }
 
 type EmailRegistrations struct {
-	UniqueId        uuid.UUID     `json:"unique_id"`
-	Email     string    `json:"email"`
-	CreatedAt time.Time `json:"created_at"`
-	DeletedAt time.Time `json:"deleted_at"`
+	UniqueId     uuid.UUID      `json:"unique_id"`
+	Email        string         `json:"email"`
+	ChakraInfo   sql.NullString `json:"chakra_info"`
+	ChakraReport sql.NullString `json:"chakra_report"`
+	CreatedAt    time.Time      `json:"created_at"`
+	DeletedAt    time.Time      `json:"deleted_at"`
 }
 

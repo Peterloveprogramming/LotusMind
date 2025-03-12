@@ -1,8 +1,11 @@
 package api
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -88,13 +91,7 @@ func (server *Server) registEmail(ctx *gin.Context) {
 	fmt.Printf("Email: %s\n", req.Email)
 	// fmt.Println("Question Scores Map:")
 
-	var rootScores float32
-	var sacralScores float32
-	var solarPlexusScores float32
-	var heartScores float32
-	var throatScores float32
-	var thirdEyeScores float32
-	var crownScores float32
+	var rootScores, sacralScores, solarPlexusScores, heartScores, throatScores, thirdEyeScores, crownScores float32
 
 	for _, answer := range values {
 
@@ -166,15 +163,36 @@ func (server *Server) registEmail(ctx *gin.Context) {
 	// 	return
 	// }
 
-	// 创建用户注册邮箱
-	args := db.CreateUserEmailTransactiontArgs{
-		Email: req.Email,
+	// 定义脉轮数据
+	chakras := []struct {
+		ChakraName   string `json:"chakra_name"`
+		ChakraScore  int32  `json:"chakra_score"`
+		ChakraStatus string `json:"chakra_status"`
+	}{
+		{"Root Chakra", int32(rootScores), getChakraStatus(rootScores)},
+		{"Sacral Chakra", int32(sacralScores), getChakraStatus(sacralScores)},
+		{"Solar Plexus Chakra", int32(solarPlexusScores), getChakraStatus(solarPlexusScores)},
+		{"Heart Chakra", int32(heartScores), getChakraStatus(heartScores)},
+		{"Throat Chakra", int32(throatScores), getChakraStatus(throatScores)},
+		{"Third Eye Chakra", int32(thirdEyeScores), getChakraStatus(thirdEyeScores)},
+		{"Crown Chakra", int32(crownScores), getChakraStatus(crownScores)},
 	}
 
-	err := server.store.CreateUserEmailTransaction(ctx, args)
-
+	// 将脉轮数据转换为 JSON
+	chakraInfoJSON, err := json.Marshal(chakras)
 	if err != nil {
-		println("err is not nil!")
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	// 创建用户注册邮箱
+	args := db.CreateUserEmailTransactiontArgs{
+		Email:      req.Email,
+		ChakraInfo: string(chakraInfoJSON), // 将 JSON 字符串传递给 chakra_info 字段
+	}
+
+	err = server.store.CreateUserEmailTransaction(ctx, args)
+	if err != nil {
 		if strings.Contains(err.Error(), "unique_violation") {
 			ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("email exists already")))
 			return
@@ -183,53 +201,58 @@ func (server *Server) registEmail(ctx *gin.Context) {
 		return
 	}
 
-	// 保存脉轮测试结果
-	var results []db.ChakraTestResult
-	err = server.store.ExecTx(ctx, func(q *db.Queries) error {
-		// 定义脉轮数据
-		chakras := []struct {
-			name   string
-			score  float32
-			status string
-		}{
-			{"Root Chakra", rootScores, getChakraStatus(rootScores)},
-			{"Sacral Chakra", sacralScores, getChakraStatus(sacralScores)},
-			{"Solar Plexus Chakra", solarPlexusScores, getChakraStatus(solarPlexusScores)},
-			{"Heart Chakra", heartScores, getChakraStatus(heartScores)},
-			{"Throat Chakra", throatScores, getChakraStatus(throatScores)},
-			{"Third Eye Chakra", thirdEyeScores, getChakraStatus(thirdEyeScores)},
-			{"Crown Chakra", crownScores, getChakraStatus(crownScores)},
-		}
+	// 解析 JSON 为 ChakraResult 切片
+	// var chakraResults []ChakraResult
+	// if err := json.Unmarshal(chakraInfoJSON, &chakraResults); err != nil {
+	// 	ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	// 	return
+	// }
 
-		for _, chakra := range chakras {
-			arg := db.CreateChakraTestResultParams{
-				UniqueId:     uuid.New(),
-				Email:        req.Email,
-				ChakraName:   chakra.name,
-				ChakraScore:  int32(chakra.score),
-				ChakraStatus: chakra.status,
-			}
-			result, err := q.CreateChakraTestResult(ctx, arg)
-			if err != nil {
-				return err
-			}
-			results = append(results, result)
-		}
-		return nil
-	})
+	// // 保存脉轮测试结果
+	// var results []db.ChakraTestResult
+	// err = server.store.ExecTx(ctx, func(q *db.Queries) error {
+	// 	// 定义脉轮数据
+	// 	chakras := []struct {
+	// 		name   string
+	// 		score  float32
+	// 		status string
+	// 	}{
+	// 		{"Root Chakra", rootScores, getChakraStatus(rootScores)},
+	// 		{"Sacral Chakra", sacralScores, getChakraStatus(sacralScores)},
+	// 		{"Solar Plexus Chakra", solarPlexusScores, getChakraStatus(solarPlexusScores)},
+	// 		{"Heart Chakra", heartScores, getChakraStatus(heartScores)},
+	// 		{"Throat Chakra", throatScores, getChakraStatus(throatScores)},
+	// 		{"Third Eye Chakra", thirdEyeScores, getChakraStatus(thirdEyeScores)},
+	// 		{"Crown Chakra", crownScores, getChakraStatus(crownScores)},
+	// 	}
 
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
+	// 	for _, chakra := range chakras {
+	// 		arg := db.CreateChakraTestResultParams{
+	// 			UniqueId:     uuid.New(),
+	// 			Email:        req.Email,
+	// 			ChakraName:   chakra.name,
+	// 			ChakraScore:  int32(chakra.score),
+	// 			ChakraStatus: chakra.status,
+	// 		}
+	// 		result, err := q.CreateChakraTestResult(ctx, arg)
+	// 		if err != nil {
+	// 			return err
+	// 		}
+	// 		results = append(results, result)
+	// 	}
+	// 	return nil
+	// })
 
-	//调用AI接口获取报告
+	// if err != nil {
+	// 	ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	// 	return
+	// }
 
 	// 添加返回结果
 	result := gin.H{
 		"email":          req.Email,
 		"message":        "Email registered successfully",
-		"chakra_results": results,
+		"chakra_results": chakras, // 直接返回解析后的脉轮结果
 	}
 
 	ctx.JSON(http.StatusCreated, result)
@@ -250,55 +273,6 @@ func getChakraStatus(score float32) string {
 	}
 }
 
-// // fetchuserInformation
-// type fetchUserInfoByIdParams struct {
-// 	ID int64 `uri:"id"  binding:"required,min=1"`
-// }
-
-// type userInfoResult struct {
-// 	ID        int64  `json:"id"`
-// 	Email     string `json:"email"`
-// 	FirstName string `json:"first_name"`
-// 	LastName  string `json:"last_name"`
-// 	Gender    string `json:"gender"`
-// 	BirthDate string `json:"birth_date"`
-// 	Country   string `json:"country"`
-// 	// 1 = yes. 0 = no
-// 	IsMrUser int16 `json:"is_mr_user"`
-// 	// 1 = yes. 0 = no
-// 	IsMobileUser int16  `json:"is_mobile_user"`
-// 	Goals        string `json:"goals"`
-// }
-
-// func (server *Server) fetchUserInfoById(ctx *gin.Context) {
-// 	var result userInfoResult
-// 	//verify params
-// 	var reqParam fetchUserInfoByIdParams
-// 	if err := ctx.ShouldBindUri(&reqParam); err != nil {
-// 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-// 		return
-// 	}
-
-// 	user, err := server.store.GetUserById(ctx, reqParam.ID)
-
-// 	if err != nil {
-// 		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("user does not exists")))
-// 		return
-// 	}
-// 	result.ID = user.ID
-// 	result.Email = user.Email
-// 	result.FirstName = user.FirstName
-// 	result.LastName = user.LastName
-// 	result.Gender = user.Gender
-// 	result.BirthDate = user.Gender
-// 	result.Country = user.Country
-// 	result.IsMrUser = user.IsMrUser
-// 	result.IsMobileUser = user.IsMobileUser
-// 	result.Goals = user.Goals
-
-// 	ctx.JSON(http.StatusOK, result)
-// }
-
 type chakraTestResult struct {
 	UniqueID     string    `json:"unique_id"`
 	ChakraName   string    `json:"chakra_name"`
@@ -308,7 +282,8 @@ type chakraTestResult struct {
 }
 
 type getChakraTestResultsRequest struct {
-	Email string `uri:"email" binding:"required,email"`
+	Email   string `uri:"email" binding:"required,email"`
+	TestNum string `uri:"testNum" binding:"required"`
 }
 
 func (server *Server) getChakraTestResults(ctx *gin.Context) {
@@ -318,27 +293,41 @@ func (server *Server) getChakraTestResults(ctx *gin.Context) {
 		return
 	}
 
-	// 创建参数结构体
-	params := db.GetChakraTestResultsParams{
-		Email: req.Email,
+	// 将 TestNum 从字符串转换为整数
+	testNum, err := strconv.Atoi(req.TestNum)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(fmt.Errorf("invalid test_num: %v", err)))
+		return
 	}
 
-	results, err := server.store.GetChakraTestResults(ctx, params) // 传入结构体
+	// 获取特定的 email_registrations 记录
+	registration, err := server.getEmailRegistrationByTestNum(ctx, req.Email, testNum)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
 
+	var reportData []ChakraInfo
+	if registration.ChakraInfo.Valid {
+		if err := json.Unmarshal([]byte(registration.ChakraInfo.String), &reportData); err != nil {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+	} else {
+		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("No report available")))
+		return
+	}
+
 	var response []chakraTestResult
-	for _, r := range results {
+	for _, r := range reportData {
 		response = append(response, chakraTestResult{
-			UniqueID:     r.UniqueId.String(),
 			ChakraName:   r.ChakraName,
 			ChakraScore:  r.ChakraScore,
 			ChakraStatus: r.ChakraStatus,
-			CreatedAt:    r.CreatedAt,
 		})
 	}
+
+	fmt.Printf("response: %+v\n", response)
 
 	ctx.JSON(http.StatusOK, response)
 }
@@ -390,4 +379,138 @@ func (server *Server) createChakraTestResults(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, results)
+}
+
+type ChakraInfo struct {
+	ChakraName   string `json:"chakra_name" binding:"required"`
+	ChakraScore  int32  `json:"chakra_score" binding:"required"`
+	ChakraStatus string `json:"chakra_status" binding:"required"`
+}
+
+type GetChakraReportRequest struct {
+	Email      string       `json:"email" binding:"required,email"`
+	TestNum    string       `json:"test_num"`
+	ChakraInfo []ChakraInfo `json:"chakra_info" binding:"required"`
+}
+
+type GetChakraReportResponse struct {
+	Report string `json:"report"`
+}
+
+func (server *Server) getChakraReport(ctx *gin.Context) {
+	var req GetChakraReportRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	// 如果 TestNum 是空字符串，设置默认值
+	if req.TestNum == "" {
+		req.TestNum = "0" // 设置默认值为 1 或其他合适的值
+	}
+
+	// 将 TestNum 从字符串转换为整数
+	testNum, err := strconv.Atoi(req.TestNum)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(fmt.Errorf("invalid test_num: %v", err)))
+		return
+	}
+
+	// 打印接收到的 email, testNum 和 Chakra Info 的值
+	fmt.Printf("Received Email: %s\n", req.Email)
+	fmt.Printf("Received Test Number: %d\n", testNum)
+	fmt.Printf("Received Chakra Info: %+v\n", req.ChakraInfo)
+
+	var report []byte
+	if testNum > 0 {
+		// 获取特定的 email_registrations 记录
+		registration, err := server.getEmailRegistrationByTestNum(ctx, req.Email, testNum)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+		fmt.Printf("Registration for email %s: %+v\n", req.Email, registration)
+
+		// 使用数据库中的 chakra_report
+		if registration.ChakraReport.Valid {
+			report = []byte(registration.ChakraReport.String)
+		} else {
+			report = []byte("No report available")
+		}
+	} else {
+		// 生成报告的逻辑
+		report = generateChakraReport(req.ChakraInfo)
+
+		// 获取最新的 email_registrations 记录
+		latestRegistration, err := server.getLatestEmailRegistration(ctx, req.Email)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+		fmt.Printf("Latest registration for email %s: %+v\n", req.Email, latestRegistration)
+
+		// 更新 chakra_report 字段
+		if err := server.updateChakraReportByUniqueId(ctx, latestRegistration.UniqueId, report); err != nil {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+	}
+
+	// 直接返回报告
+	ctx.Data(http.StatusOK, "application/json", report)
+}
+
+func generateChakraReport(chakraInfo []ChakraInfo) []byte {
+	// 将 chakraInfo 转换为 JSON
+	jsonData, err := json.Marshal(map[string]interface{}{
+		"chakra_info": chakraInfo,
+	})
+	if err != nil {
+		fmt.Println("Error marshalling JSON:", err)
+		return []byte("Error generating report about json.Marshal")
+	}
+
+	// 发送 POST 请求到外部 API
+	resp, err := http.Post("http://host.docker.internal:8888/getChakraReport", "application/json", bytes.NewBuffer(jsonData))
+	if err != nil {
+		fmt.Println("Error making POST request:", err)
+		return []byte("Error generating report about http.Post")
+	}
+	defer resp.Body.Close()
+
+	// 读取响应
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Error reading response body:", err)
+		return []byte("Error generating report about ioutil.ReadAll")
+	}
+	fmt.Println("body:", body)
+
+	// 直接返回响应内容
+	return body
+}
+
+func (server *Server) getEmailRegistrationByTestNum(ctx *gin.Context, email string, testNum int) (db.EmailRegistrations, error) {
+	// OFFSET 从 0 开始，所以需要减去 1
+	registration, err := server.store.GetEmailRegistrationByTestNum(ctx, email, testNum-1)
+	if err != nil {
+		return db.EmailRegistrations{}, err
+	}
+	return registration, nil
+}
+
+func (server *Server) updateChakraReportByUniqueId(ctx *gin.Context, uniqueId uuid.UUID, report []byte) error {
+	err := server.store.UpdateChakraReportByUniqueId(ctx, string(report), uniqueId)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (server *Server) getLatestEmailRegistration(ctx *gin.Context, email string) (db.EmailRegistrations, error) {
+	latestRegistration, err := server.store.GetLatestEmailRegistration(ctx, email)
+	if err != nil {
+		return db.EmailRegistrations{}, err
+	}
+	return latestRegistration, nil
 }

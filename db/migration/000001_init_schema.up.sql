@@ -64,7 +64,9 @@ CREATE TABLE "tummo_breathing_mr" (
 
 CREATE TABLE "email_registrations" (
   "unique_id" UUID PRIMARY KEY NOT NULL,
-  "email" VARCHAR(50) NOT NULL UNIQUE,
+  "email" VARCHAR(50) NOT NULL,
+  "chakra_info" VARCHAR(3000),
+  "chakra_report" VARCHAR(8000),
   "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
 );
