@@ -10,7 +10,7 @@ import (
 
 func createRandomSessionLog(t *testing.T) SessionLog {
 	// first create a user otherwise it will throw an error
-	createRandomMrUser(t)
+	CreateRandomMrUser(t, testQueries)
 
 	sessionType := util.RandomSessionType()
 	sessionPlatform := util.GetPlatformTypeBasedOnSessionType(sessionType)

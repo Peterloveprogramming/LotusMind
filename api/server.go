@@ -22,13 +22,13 @@ var (
 // servers all the http requests for lotus mind
 type Server struct {
 	config     util.Config
-	store      *db.Store
+	store      db.Store
 	router     *gin.Engine
 	tokenMaker token.Maker
 }
 
 // set up api routes for that server
-func NewServer(config util.Config, store *db.Store) (*Server, error) {
+func NewServer(config util.Config, store db.Store) (*Server, error) {
 	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {
 		return nil, fmt.Errorf("can not create token maker: %w", err)

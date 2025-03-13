@@ -24,6 +24,9 @@ cleanCache:
 	go clean -testcache
 server:
 	go run main.go
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc testV test server cleanCache
+mock:
+	mockgen -package mockdb -destination db/mock/store.go github.com/lotusMind/meditation/db/sqlc Store
+
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc testV test server cleanCache mock
 
 

@@ -115,7 +115,7 @@ func (server *Server) fetchUserInfoById(ctx *gin.Context) {
 	result.FirstName = user.FirstName
 	result.LastName = user.LastName
 	result.Gender = user.Gender
-	result.BirthDate = user.Gender
+	result.BirthDate = user.BirthDate.Format(util.GetDateFormat())
 	result.Country = user.Country
 	result.IsMrUser = user.IsMrUser
 	result.IsMobileUser = user.IsMobileUser
