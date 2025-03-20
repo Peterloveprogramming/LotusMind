@@ -291,6 +291,7 @@ type ChakraInfo struct {
 type GetChakraReportRequest struct {
 	Email      string       `json:"email" binding:"required,email"`
 	TestNum    string       `json:"test_num"`
+	Language   string       `json:"language"`
 	ChakraInfo []ChakraInfo `json:"chakra_info" binding:"required"`
 }
 
@@ -307,7 +308,7 @@ func (server *Server) getChakraReport(ctx *gin.Context) {
 
 	// 如果 TestNum 是空字符串，设置默认值
 	if req.TestNum == "" {
-		req.TestNum = "0" // 设置默认值为 1 或其他合适的值
+		req.TestNum = "0" // 设置默认值为 0
 	}
 
 	// 将 TestNum 从字符串转换为整数
@@ -317,12 +318,14 @@ func (server *Server) getChakraReport(ctx *gin.Context) {
 		return
 	}
 
-	// 打印接收到的 email, testNum 和 Chakra Info 的值
+	// 打印接收到的 email, testNum, language 和 Chakra Info 的值
 	fmt.Printf("Received Email: %s\n", req.Email)
 	fmt.Printf("Received Test Number: %d\n", testNum)
+	fmt.Printf("Received Language: %s\n", req.Language)
 	fmt.Printf("Received Chakra Info: %+v\n", req.ChakraInfo)
 
 	var report []byte
+	var language string
 	if testNum > 0 {
 		// 获取特定的 email_registrations 记录
 		registration, err := server.getEmailRegistrationByTestNum(ctx, req.Email, testNum)
@@ -338,9 +341,15 @@ func (server *Server) getChakraReport(ctx *gin.Context) {
 		} else {
 			report = []byte("No report available")
 		}
+
+		// 获取 language
+		language = registration.Language
 	} else {
+		// 使用请求中的 language
+		language = req.Language
+
 		// 生成报告的逻辑
-		report = generateChakraReport(req.ChakraInfo)
+		report = generateChakraReport(req.ChakraInfo, language)
 
 		// 获取最新的 email_registrations 记录
 		latestRegistration, err := server.getLatestEmailRegistration(ctx, req.Email)
@@ -361,10 +370,13 @@ func (server *Server) getChakraReport(ctx *gin.Context) {
 	ctx.Data(http.StatusOK, "application/json", report)
 }
 
-func generateChakraReport(chakraInfo []ChakraInfo) []byte {
-	// 将 chakraInfo 转换为 JSON
+func generateChakraReport(chakraInfo []ChakraInfo, language string) []byte {
+	fmt.Printf("current language: %+v\n", language)
+
+	// 将 chakraInfo 和 language 转换为 JSON
 	jsonData, err := json.Marshal(map[string]interface{}{
 		"chakra_info": chakraInfo,
+		"language":    language,
 	})
 	if err != nil {
 		fmt.Println("Error marshalling JSON:", err)
