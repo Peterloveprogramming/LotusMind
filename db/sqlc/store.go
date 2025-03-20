@@ -439,6 +439,7 @@ func (store *Store) CreateUserForTestingDeletion(ctx context.Context) (CreateUse
 type CreateUserEmailTransactiontArgs struct {
 	Email      string
 	ChakraInfo string
+	Language   string
 }
 
 func (store *Store) CreateUserEmailTransaction(ctx context.Context, args CreateUserEmailTransactiontArgs) error {
@@ -447,6 +448,7 @@ func (store *Store) CreateUserEmailTransaction(ctx context.Context, args CreateU
 			UniqueId:   uuid.New(),
 			Email:      args.Email,
 			ChakraInfo: args.ChakraInfo,
+			Language:   args.Language,
 		}
 		_, err := q.CreateUserEmail(ctx, params)
 		if err != nil {

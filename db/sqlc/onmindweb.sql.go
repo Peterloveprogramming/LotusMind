@@ -15,17 +15,19 @@ const createUserEmail = `-- name: CreateUserEmail :one
 INSERT INTO email_registrations  (
   unique_id,
   email,
-  chakra_info	
+  chakra_info,
+  language
 ) VALUES (
-  $1, $2, $3
+  $1, $2, $3, $4
 )
-RETURNING unique_id, email, chakra_info, created_at, deleted_at
+RETURNING unique_id, email, chakra_info, language, created_at, deleted_at
 `
 
 type CreateUserEmailParams struct {
-	UniqueId       uuid.UUID `json:"unique_id"`
-	Email          string    `json:"email"`
-	ChakraInfo     string    `json:"chakra_info"`
+	UniqueId   uuid.UUID `json:"unique_id"`
+	Email      string    `json:"email"`
+	ChakraInfo string    `json:"chakra_info"`
+	Language   string    `json:"language"`
 }
 
 func (q *Queries) CreateUserEmail(ctx context.Context, arg CreateUserEmailParams) (UserEmail, error) {
@@ -33,11 +35,13 @@ func (q *Queries) CreateUserEmail(ctx context.Context, arg CreateUserEmailParams
 		arg.UniqueId,
 		arg.Email,
 		arg.ChakraInfo,
+		arg.Language,
 	)
 	var i UserEmail
 	err := row.Scan(
 		&i.UniqueId,
 		&i.Email,
+		&i.Language,
 		&i.ChakraInfo,
 		&i.CreatedAt,
 		&i.DeletedAt,
@@ -176,7 +180,7 @@ func (q *Queries) UpdateChakraReportByUniqueId(ctx context.Context, chakraReport
 
 
 const getEmailRegistrationByTestNum = `-- name: GetEmailRegistrationByTestNum :one
-SELECT unique_id, email, chakra_info, chakra_report, created_at, deleted_at
+SELECT unique_id, email, language, chakra_info, chakra_report, created_at, deleted_at
 FROM email_registrations
 WHERE email = $1
 ORDER BY created_at
@@ -189,6 +193,7 @@ func (q *Queries) GetEmailRegistrationByTestNum(ctx context.Context, email strin
 	err := row.Scan(
 		&i.UniqueId,
 		&i.Email,
+		&i.Language,
 		&i.ChakraInfo,
 		&i.ChakraReport,
 		&i.CreatedAt,
