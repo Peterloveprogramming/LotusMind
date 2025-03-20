@@ -54,3 +54,46 @@ func TestGetUserByID(t *testing.T) {
 	// make sure id match
 	require.Equal(t, createdUser.ID, retrievedUser.ID)
 }
+
+// func TestUpdateUser(t *testing.T) {
+// 	user := CreateRandomMrUser(t, testQueries)
+// 	updateParams := UpdateUserParams{
+// 		ID:           user.ID,
+// 		IsMobileUser: 1,
+// 		IsMrUser:     0,
+// 	}
+// 	updatedUser, err := testQueries.UpdateUser(context.Background(), updateParams)
+// 	require.NoError(t, err)
+// 	require.NotEmpty(t, updatedUser)
+
+// 	require.NoError(t, err)
+// 	require.NotEmpty(t, updatedUser)
+// 	// Verify that only is_mobile_user is updated
+// 	require.Equal(t, user.Email, updatedUser.Email)
+// 	require.Equal(t, user.FirstName, updatedUser.FirstName)
+// 	require.Equal(t, user.LastName, updatedUser.LastName)
+// 	require.Equal(t, user.Gender, updatedUser.Gender)
+// 	require.Equal(t, user.BirthDate.UTC(), updatedUser.BirthDate.UTC())
+// 	require.Equal(t, user.Country, updatedUser.Country)
+// 	require.Equal(t, user.HashedPassword, updatedUser.HashedPassword)
+// 	require.Equal(t, user.Goals, updatedUser.Goals)
+// 	require.Equal(t, user.IsMrUser, updatedUser.IsMrUser)
+// 	require.Equal(t, int16(1), updatedUser.IsMobileUser)
+// 	require.Equal(t, int16(0), updatedUser.IsMrUser)
+// }
+
+func TestDeleteUser(t *testing.T) {
+	createdUser := CreateRandomMrUser(t, testQueries)
+
+	//delete user
+	err := testQueries.DeleteUser(context.Background(), createdUser.ID)
+	require.NoError(t, err)
+
+	// now get the deleted suer.
+	deletedUser, err := testQueries.GetUserById(context.Background(), createdUser.ID)
+	require.NoError(t, err)
+	require.NotEmpty(t, deletedUser)
+
+	require.NotEmpty(t, deletedUser.DeletedAt)
+
+}

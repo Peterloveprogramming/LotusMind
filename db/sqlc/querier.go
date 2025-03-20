@@ -48,6 +48,7 @@ type Querier interface {
 	UpdateTummoBreathingMrFinishingMoodByUuid(ctx context.Context, arg UpdateTummoBreathingMrFinishingMoodByUuidParams) (TummoBreathingMr, error)
 	UpdateTummoBreathingMrQuitByUuid(ctx context.Context, arg UpdateTummoBreathingMrQuitByUuidParams) error
 	UpdateTummoBreathingMrStartingMoodByUuid(ctx context.Context, arg UpdateTummoBreathingMrStartingMoodByUuidParams) error
+	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
 	UpdateUserProfileMobilerTime(ctx context.Context, arg UpdateUserProfileMobilerTimeParams) error
 	UpdateUserProfileMrTime(ctx context.Context, arg UpdateUserProfileMrTimeParams) error
 }

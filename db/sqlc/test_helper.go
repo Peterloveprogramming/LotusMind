@@ -46,8 +46,31 @@ func CreateRandomMrUser(t *testing.T, q *Queries) User {
 	return user
 }
 
+// func CreateRandomMobileUser(t *testing.T, q *Queries) User {
+// 	user := CreateRandomMrUser(t,q)
+
+// }
+
 func CreateRandomUsers(t *testing.T, numberOfUsers int, q *Queries) {
 	for i := 0; i < numberOfUsers; i++ {
 		CreateRandomMrUser(t, q)
 	}
+}
+
+func CreateRandomMrProfile(t *testing.T, q *Queries) int64 {
+	user := CreateRandomMrUser(t, q)
+
+	err := q.CreateUserProfileMr(context.Background(), user.ID)
+	require.NoError(t, err)
+	require.NotEmpty(t, user.ID)
+	return user.ID
+}
+
+func CreateRandomMrMobile(t *testing.T, q *Queries) int64 {
+	user := CreateRandomMrUser(t, q)
+
+	err := q.CreateUserProfileMr(context.Background(), user.ID)
+	require.NoError(t, err)
+	require.NotEmpty(t, user.ID)
+	return user.ID
 }

@@ -145,36 +145,36 @@ CREATE OR REPLACE FUNCTION soft_delete_user()
 RETURNS TRIGGER AS $$
 BEGIN
     -- Soft delete user
-    UPDATE users SET deleted_at = NOW() WHERE id = OLD.id AND deleted_at IS NULL;
+    UPDATE users SET deleted_at = NOW() WHERE id = OLD.id AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     -- Soft delete session logs linked to the user
     UPDATE session_logs 
     SET deleted_at = NOW() 
-    WHERE user_id = OLD.id AND deleted_at IS NULL;
+    WHERE user_id = OLD.id AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     -- Soft delete related users_profile_mr
     UPDATE users_profile_mr 
     SET deleted_at = NOW() 
     WHERE user_id IN (SELECT user_id FROM users_profile_mr WHERE user_id = OLD.id) 
-      AND deleted_at IS NULL;
+      AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     -- Soft delete related users_profile_mobile
     UPDATE users_profile_mobile
     SET deleted_at = NOW() 
     WHERE user_id IN (SELECT user_id FROM users_profile_mobile WHERE user_id = OLD.id) 
-      AND deleted_at IS NULL;
+      AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     -- Soft delete related tibetan singing bowl entries
     UPDATE tibetan_singing_bowl_mr 
     SET deleted_at = NOW() 
     WHERE uuid IN (SELECT uuid FROM session_logs WHERE user_id = OLD.id) 
-      AND deleted_at IS NULL;
+      AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     -- Soft delete related tummo breathing entries
     UPDATE tummo_breathing_mr 
     SET deleted_at = NOW() 
     WHERE uuid IN (SELECT uuid FROM session_logs WHERE user_id = OLD.id) 
-      AND deleted_at IS NULL;
+      AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     RETURN NULL;  -- Indicate that the default action should not be taken
 END;
@@ -191,18 +191,18 @@ CREATE OR REPLACE FUNCTION soft_delete_session_logs_and_related_sessions_data()
 RETURNS TRIGGER AS $$
 BEGIN
     -- Soft delete session_logs
-    UPDATE session_logs SET deleted_at = NOW() WHERE uuid = OLD.uuid AND deleted_at IS NULL;
+    UPDATE session_logs SET deleted_at = NOW() WHERE uuid = OLD.uuid AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
     -- Soft delete related tibetan singing bowl entries
     UPDATE tibetan_singing_bowl_mr 
     SET deleted_at = NOW() 
     WHERE uuid = OLD.uuid 
-      AND deleted_at IS NULL;
+      AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     -- Soft delete related tummo breathing entries
     UPDATE tummo_breathing_mr 
     SET deleted_at = NOW() 
     WHERE uuid = OLD.uuid 
-      AND deleted_at IS NULL;
+      AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     RETURN NULL;  -- Indicate that the default action should not be taken
 END;

@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/lib/pq"
 	db "github.com/lotusMind/meditation/db/sqlc"
 	"github.com/lotusMind/meditation/util"
 )
@@ -63,10 +63,12 @@ func (server *Server) createUser(ctx *gin.Context) {
 	userResult, err := server.store.CreateUserTransaction(ctx, args)
 
 	if err != nil {
-		println("err is not nil!")
-		if strings.Contains(err.Error(), "unique_violation") {
-			ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("email exists already")))
-			return
+		if pqErr, ok := err.(*pq.Error); ok {
+			switch pqErr.Code.Name() {
+			case "unique_violation", "foreign_key_violation":
+				ctx.JSON(http.StatusForbidden, errorResponse(err))
+				return
+			}
 		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -107,9 +109,14 @@ func (server *Server) fetchUserInfoById(ctx *gin.Context) {
 	user, err := server.store.GetUserById(ctx, reqParam.ID)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("user does not exists")))
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, errorResponse(errors.New("user does not exists")))
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+
 	result.ID = user.ID
 	result.Email = user.Email
 	result.FirstName = user.FirstName

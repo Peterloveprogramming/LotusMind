@@ -9,14 +9,19 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func randomUser(t *testing.T) db.User {
+func randomMrUser(t *testing.T, password ...string) db.User {
 	// parse date
 	format := "2006-01-02"
 	birthDate, err := time.Parse(format, "1990-01-01")
 	require.NoError(t, err)
 
 	// hashing the password
-	hashedPassword, err := util.HashPassword(util.RandomString(6))
+	var hashedPassword string
+	if len(password) > 0 {
+		hashedPassword, err = util.HashPassword(password[0])
+	} else {
+		hashedPassword, err = util.HashPassword(util.RandomString(6))
+	}
 	require.NoError(t, err)
 	require.NotEmpty(t, hashedPassword)
 
