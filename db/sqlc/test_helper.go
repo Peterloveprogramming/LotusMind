@@ -46,10 +46,37 @@ func CreateRandomMrUser(t *testing.T, q *Queries) User {
 	return user
 }
 
-// func CreateRandomMobileUser(t *testing.T, q *Queries) User {
-// 	user := CreateRandomMrUser(t,q)
-
-// }
+func CreateRandomMobileUser(t *testing.T, q *Queries) User {
+	user := CreateRandomMrUser(t, q)
+	updateParams := UpdateUserParams{
+		ID:             user.ID,
+		Email:          user.Email,
+		FirstName:      user.FirstName,
+		LastName:       user.LastName,
+		Gender:         user.Gender,
+		BirthDate:      user.BirthDate,
+		Country:        user.Country,
+		HashedPassword: user.HashedPassword,
+		Goals:          user.Goals,
+		IsMobileUser:   1,
+		IsMrUser:       0,
+	}
+	updatedUser, err := q.UpdateUser(context.Background(), updateParams)
+	require.NoError(t, err)
+	require.NotEmpty(t, updatedUser)
+	require.Equal(t, updatedUser.ID, user.ID)
+	require.Equal(t, updatedUser.Email, user.Email)
+	require.Equal(t, updatedUser.FirstName, user.FirstName)
+	require.Equal(t, updatedUser.LastName, user.LastName)
+	require.Equal(t, updatedUser.Gender, user.Gender)
+	require.Equal(t, updatedUser.BirthDate.UTC(), user.BirthDate.UTC()) // Compare in UTC
+	require.Equal(t, updatedUser.Country, user.Country)
+	require.Equal(t, updatedUser.HashedPassword, user.HashedPassword)
+	require.Equal(t, updatedUser.Goals, user.Goals)
+	require.Equal(t, int16(1), updatedUser.IsMobileUser)
+	require.Equal(t, int16(0), updatedUser.IsMrUser)
+	return updatedUser
+}
 
 func CreateRandomUsers(t *testing.T, numberOfUsers int, q *Queries) {
 	for i := 0; i < numberOfUsers; i++ {
@@ -66,10 +93,10 @@ func CreateRandomMrProfile(t *testing.T, q *Queries) int64 {
 	return user.ID
 }
 
-func CreateRandomMrMobile(t *testing.T, q *Queries) int64 {
-	user := CreateRandomMrUser(t, q)
+func CreateRandomMobileProfile(t *testing.T, q *Queries) int64 {
+	user := CreateRandomMobileUser(t, q)
 
-	err := q.CreateUserProfileMr(context.Background(), user.ID)
+	err := q.CreateUserProfileMobile(context.Background(), user.ID)
 	require.NoError(t, err)
 	require.NotEmpty(t, user.ID)
 	return user.ID
