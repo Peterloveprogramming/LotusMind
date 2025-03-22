@@ -4,64 +4,38 @@ import (
 	"context"
 	"testing"
 
-	"github.com/lotusMind/meditation/util"
 	"github.com/stretchr/testify/require"
 )
 
-func createRandomSessionLog(t *testing.T) SessionLog {
-	// first create a user otherwise it will throw an error
-	CreateRandomMrUser(t, testQueries)
-
-	sessionType := util.RandomSessionType()
-	sessionPlatform := util.GetPlatformTypeBasedOnSessionType(sessionType)
-	arg := CreateSessionLogParams{
-		UserID:          1,
-		SessionType:     sessionType,
-		SessionPlatform: sessionPlatform,
-	}
-
-	sessionLog, err := testQueries.CreateSessionLog(context.Background(), arg)
-	require.NoError(t, err)
-	require.NotEmpty(t, sessionLog)
-	require.Equal(t, arg.UserID, sessionLog.UserID)
-	require.Equal(t, arg.SessionType, sessionLog.SessionType)
-	require.Equal(t, arg.SessionPlatform, sessionLog.SessionPlatform)
-
-	return sessionLog
-}
-
-func createSessionWithUserID(t *testing.T, userId int64) SessionLog {
-	sessionType := util.RandomSessionType()
-	sessionPlatform := util.GetPlatformTypeBasedOnSessionType(sessionType)
-	arg := CreateSessionLogParams{
-		UserID:          userId,
-		SessionType:     sessionType,
-		SessionPlatform: sessionPlatform,
-	}
-
-	sessionLog, err := testQueries.CreateSessionLog(context.Background(), arg)
-	require.NoError(t, err)
-	require.NotEmpty(t, sessionLog)
-	require.Equal(t, arg.UserID, sessionLog.UserID)
-	require.Equal(t, arg.SessionType, sessionLog.SessionType)
-	require.Equal(t, arg.SessionPlatform, sessionLog.SessionPlatform)
-
-	return sessionLog
-}
-
-// Crud Testing
-
-// Create
 func TestCreateRandomSession(t *testing.T) {
 	// need to make sure that user with id 1 exists in the database.
-	createRandomSessionLog(t)
+	createRandomSessionLog(t, testQueries)
 }
 
-// Read
+func TestGetSessionLogByUuid(t *testing.T) {
+	sessionLog := createRandomSessionLog(t, testQueries)
+	retrievedSessionLog, err := testQueries.GetSessionLogByUUID(context.Background(), sessionLog.Uuid)
+	require.NoError(t, err)
+	require.NotEmpty(t, retrievedSessionLog)
+}
+
+func TestGetUserIdFromSessionLogUuid(t *testing.T) {
+	sessionLog := createRandomSessionLog(t, testQueries)
+
+	userId, err := testQueries.GetUserIdFromSessionLogUuid(context.Background(), sessionLog.Uuid)
+	require.NoError(t, err)
+	require.NotEmpty(t, userId)
+
+	User, error := testQueries.GetUserById(context.Background(), userId)
+	require.NotEmpty(t, User)
+	require.NoError(t, error)
+	require.Equal(t, User.ID, userId)
+}
+
 func TestGetSessionLogByUserId(t *testing.T) {
 	// first create 10 random Session logs with user id 1
 	for i := 0; i < 10; i++ {
-		createRandomSessionLog(t)
+		createRandomSessionLog(t, testQueries)
 	}
 
 	// need to make sure that user with id 1 exists in the database.
@@ -75,19 +49,12 @@ func TestGetSessionLogByUserId(t *testing.T) {
 	}
 }
 
-func TestGetSessionLogByUuid(t *testing.T) {
-	sessionLog := createRandomSessionLog(t)
-	retrievedSessionLog, err := testQueries.GetSessionLogByUUID(context.Background(), sessionLog.Uuid)
-	require.NoError(t, err)
-	require.NotEmpty(t, retrievedSessionLog)
-}
-
 func TestGetSessionLogByOffset(t *testing.T) {
 	// Page 1: Use OFFSET 0 and LIMIT 10 to fetch the first 10 rows.
 	// Page 2: Use OFFSET 10 and LIMIT 10 to fetch the next 10 rows.
 
 	for i := 0; i < 10; i++ {
-		createRandomSessionLog(t)
+		createRandomSessionLog(t, testQueries)
 	}
 	args := GetSessionsLogByUserIdWithOffsetParams{
 		UserID: 1,
@@ -124,15 +91,17 @@ func TestGetSessionLogByOffset(t *testing.T) {
 // Delete
 func TestDeleteSessionLog(t *testing.T) {
 
-	// createdSessionLog := createRandomSessionLog(t)
+	createdSessionLog := createRandomSessionLog(t, testQueries)
 
-	// // deleting session log
-	// err := testQueries.DeleteSessionLog(context.Background(), createdSessionLog.Uuid)
-	// require.NoError(t, err)
+	// deleting session log
+	err := testQueries.DeleteSessionLog(context.Background(), createdSessionLog.Uuid)
+	require.NoError(t, err)
 
-	// // get the deleted session log
-	// deletedSessionLog := GetSessionLogByUUID(t, createdSessionLog.Uuid)
+	// get the deleted session log
+	deletedSessionLog, err := testQueries.GetSessionLogByUUID(context.Background(), createdSessionLog.Uuid)
+	require.NoError(t, err)
+	require.NotEmpty(t, deletedSessionLog)
 
-	// // make sure the deleted_at is not nil since we are implementing a soft delete
-	// require.NotEmpty(t, deletedSessionLog.DeletedAt)
+	// make sure the deleted_at is not nil since we are implementing a soft delete
+	require.NotEmpty(t, deletedSessionLog.DeletedAt)
 }

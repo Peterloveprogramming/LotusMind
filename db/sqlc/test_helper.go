@@ -84,6 +84,50 @@ func CreateRandomUsers(t *testing.T, numberOfUsers int, q *Queries) {
 	}
 }
 
+func createRandomSessionLog(t *testing.T, q *Queries, sessionTypeOptional ...string) SessionLog {
+	// first create a user otherwise it will throw an error
+	user := CreateRandomMrUser(t, q)
+
+	sessionType := util.RandomSessionType()
+	if len(sessionTypeOptional) > 0 {
+		sessionType = sessionTypeOptional[0]
+	}
+	sessionPlatform := util.GetPlatformTypeBasedOnSessionType(sessionType)
+	arg := CreateSessionLogParams{
+		UserID:          user.ID,
+		SessionType:     sessionType,
+		SessionPlatform: sessionPlatform,
+	}
+
+	sessionLog, err := q.CreateSessionLog(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, sessionLog)
+	require.Equal(t, arg.UserID, sessionLog.UserID)
+	require.Equal(t, arg.SessionType, sessionLog.SessionType)
+	require.Equal(t, arg.SessionPlatform, sessionLog.SessionPlatform)
+
+	return sessionLog
+}
+
+func createSessionWithUserID(t *testing.T, userId int64) SessionLog {
+	sessionType := util.RandomSessionType()
+	sessionPlatform := util.GetPlatformTypeBasedOnSessionType(sessionType)
+	arg := CreateSessionLogParams{
+		UserID:          userId,
+		SessionType:     sessionType,
+		SessionPlatform: sessionPlatform,
+	}
+
+	sessionLog, err := testQueries.CreateSessionLog(context.Background(), arg)
+	require.NoError(t, err)
+	require.NotEmpty(t, sessionLog)
+	require.Equal(t, arg.UserID, sessionLog.UserID)
+	require.Equal(t, arg.SessionType, sessionLog.SessionType)
+	require.Equal(t, arg.SessionPlatform, sessionLog.SessionPlatform)
+
+	return sessionLog
+}
+
 func CreateRandomMrProfile(t *testing.T, q *Queries) int64 {
 	user := CreateRandomMrUser(t, q)
 
@@ -100,4 +144,22 @@ func CreateRandomMobileProfile(t *testing.T, q *Queries) int64 {
 	require.NoError(t, err)
 	require.NotEmpty(t, user.ID)
 	return user.ID
+}
+
+func CreateRandomTibetanSingingBowlMr(t *testing.T, q *Queries) TibetanSingingBowlMr {
+	sessionLog := createRandomSessionLog(t, q, "tibetan_singing_bowl_mr")
+
+	args := CreateTibetanSingingBowlMrParams{
+		//convert to uuid
+		Uuid:             sessionLog.Uuid,
+		StartMoodRating:  0,
+		StartMood:        "N/A",
+		FinishMoodRating: 0,
+		FinishMood:       "N/A",
+		SessionCompleted: 0,
+	}
+	tibetanSingingBowl, err := q.CreateTibetanSingingBowlMr(context.Background(), args)
+	require.NotEmpty(t, tibetanSingingBowl)
+	require.NoError(t, err)
+	return tibetanSingingBowl
 }
