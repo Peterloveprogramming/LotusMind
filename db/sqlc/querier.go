@@ -41,8 +41,8 @@ type Querier interface {
 	UpdateTibetanSingingBowlMrByUniqueID(ctx context.Context, arg UpdateTibetanSingingBowlMrByUniqueIDParams) (TibetanSingingBowlMr, error)
 	UpdateTibetanSingingBowlMrByUuid(ctx context.Context, arg UpdateTibetanSingingBowlMrByUuidParams) (TibetanSingingBowlMr, error)
 	UpdateTibetanSingingBowlMrFinishingMoodByUuid(ctx context.Context, arg UpdateTibetanSingingBowlMrFinishingMoodByUuidParams) (TibetanSingingBowlMr, error)
-	UpdateTibetanSingingBowlMrQuitByUuid(ctx context.Context, arg UpdateTibetanSingingBowlMrQuitByUuidParams) error
-	UpdateTibetanSingingBowlMrStartingMoodByUuid(ctx context.Context, arg UpdateTibetanSingingBowlMrStartingMoodByUuidParams) error
+	UpdateTibetanSingingBowlMrQuitByUuid(ctx context.Context, arg UpdateTibetanSingingBowlMrQuitByUuidParams) (TibetanSingingBowlMr, error)
+	UpdateTibetanSingingBowlMrStartingMoodByUuid(ctx context.Context, arg UpdateTibetanSingingBowlMrStartingMoodByUuidParams) (TibetanSingingBowlMr, error)
 	UpdateTummoBreathingMrByUniqueID(ctx context.Context, arg UpdateTummoBreathingMrByUniqueIDParams) (TummoBreathingMr, error)
 	UpdateTummoBreathingMrByUuid(ctx context.Context, arg UpdateTummoBreathingMrByUuidParams) (TummoBreathingMr, error)
 	UpdateTummoBreathingMrFinishingMoodByUuid(ctx context.Context, arg UpdateTummoBreathingMrFinishingMoodByUuidParams) (TummoBreathingMr, error)

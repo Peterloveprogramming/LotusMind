@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -64,4 +65,62 @@ func TestUpdateTibetanSingingBowlMrByUuid(t *testing.T) {
 	require.Equal(t, updatedTibetanSingingBowl.StartedAt, tibetanSingingBowl.StartedAt)
 	require.Equal(t, updatedTibetanSingingBowl.EndsAt, tibetanSingingBowl.EndsAt)
 	require.Equal(t, updatedTibetanSingingBowl.DeletedAt, tibetanSingingBowl.DeletedAt)
+}
+
+func TestUpdateTibetanSingingBowlMrStartingMoodByUuid(t *testing.T) {
+	tibetanSingingBowl := CreateRandomTibetanSingingBowlMr(t, testQueries)
+	updatedStartingMoodRating := 2
+	updatedStartingMood := "Sad"
+	args := UpdateTibetanSingingBowlMrStartingMoodByUuidParams{
+		Uuid:            tibetanSingingBowl.Uuid,
+		StartMoodRating: int16(updatedStartingMoodRating),
+		StartMood:       updatedStartingMood,
+	}
+	updatedTibetanSingingBowl, err := testQueries.UpdateTibetanSingingBowlMrStartingMoodByUuid(context.Background(), args)
+	require.NoError(t, err)
+	require.NotEmpty(t, updatedTibetanSingingBowl)
+	require.Equal(t, updatedStartingMoodRating, int(updatedTibetanSingingBowl.StartMoodRating))
+	require.Equal(t, updatedStartingMood, updatedTibetanSingingBowl.StartMood)
+}
+
+func TestUpdateTibetanSingingBowlMrFinishingMoodByUuid(t *testing.T) {
+	tibetanSingingBowl := CreateRandomTibetanSingingBowlMr(t, testQueries)
+	updatedFinishingMoodRating := 10
+	updatedFinishingMood := "Happy"
+	args := UpdateTibetanSingingBowlMrFinishingMoodByUuidParams{
+		Uuid:             tibetanSingingBowl.Uuid,
+		FinishMoodRating: int16(updatedFinishingMoodRating),
+		FinishMood:       updatedFinishingMood,
+		SessionCompleted: int16(1),
+	}
+	updatedTibetanSingingBowl, err := testQueries.UpdateTibetanSingingBowlMrFinishingMoodByUuid(context.Background(), args)
+	require.NoError(t, err)
+	require.NotEmpty(t, updatedTibetanSingingBowl)
+	require.Equal(t, updatedFinishingMoodRating, int(updatedTibetanSingingBowl.FinishMoodRating))
+	require.Equal(t, updatedFinishingMood, updatedTibetanSingingBowl.FinishMood)
+	require.Equal(t, int16(1), updatedTibetanSingingBowl.SessionCompleted)
+
+}
+
+func TestUpdateTibetanSingingBowlMrQuitByUuid(t *testing.T) {
+	tibetanSingingBowl := CreateRandomTibetanSingingBowlMr(t, testQueries)
+	endsTime := time.Now()
+	args := UpdateTibetanSingingBowlMrQuitByUuidParams{
+		Uuid:   tibetanSingingBowl.Uuid,
+		EndsAt: endsTime,
+	}
+	updatedTibetanSingingBowl, err := testQueries.UpdateTibetanSingingBowlMrQuitByUuid(context.Background(), args)
+	require.NoError(t, err)
+	require.NotEmpty(t, updatedTibetanSingingBowl)
+	require.Equal(t, endsTime.UTC(), updatedTibetanSingingBowl.EndsAt.UTC())
+}
+
+func TestGetTibetanSingingBowlMrByUniqueID(t *testing.T) {
+	tibetanSingingBowl := CreateRandomTibetanSingingBowlMr(t, testQueries)
+	fetchedTibetanSingingBowl, err := testQueries.GetTibetanSingingBowlMrByUniqueID(context.Background(), tibetanSingingBowl.UniqueID)
+	require.NoError(t, err)
+	require.NotEmpty(t, fetchedTibetanSingingBowl)
+	require.Equal(t, tibetanSingingBowl.UniqueID, fetchedTibetanSingingBowl.UniqueID)
+	require.Equal(t, tibetanSingingBowl.Uuid, fetchedTibetanSingingBowl.Uuid)
+
 }

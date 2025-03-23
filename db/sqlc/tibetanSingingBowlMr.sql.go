@@ -333,7 +333,7 @@ func (q *Queries) UpdateTibetanSingingBowlMrFinishingMoodByUuid(ctx context.Cont
 	return i, err
 }
 
-const updateTibetanSingingBowlMrQuitByUuid = `-- name: UpdateTibetanSingingBowlMrQuitByUuid :exec
+const updateTibetanSingingBowlMrQuitByUuid = `-- name: UpdateTibetanSingingBowlMrQuitByUuid :one
 UPDATE tibetan_singing_bowl_mr
 SET
   ends_at = COALESCE($2, ends_at)
@@ -346,12 +346,25 @@ type UpdateTibetanSingingBowlMrQuitByUuidParams struct {
 	EndsAt time.Time `json:"ends_at"`
 }
 
-func (q *Queries) UpdateTibetanSingingBowlMrQuitByUuid(ctx context.Context, arg UpdateTibetanSingingBowlMrQuitByUuidParams) error {
-	_, err := q.db.ExecContext(ctx, updateTibetanSingingBowlMrQuitByUuid, arg.Uuid, arg.EndsAt)
-	return err
+func (q *Queries) UpdateTibetanSingingBowlMrQuitByUuid(ctx context.Context, arg UpdateTibetanSingingBowlMrQuitByUuidParams) (TibetanSingingBowlMr, error) {
+	row := q.db.QueryRowContext(ctx, updateTibetanSingingBowlMrQuitByUuid, arg.Uuid, arg.EndsAt)
+	var i TibetanSingingBowlMr
+	err := row.Scan(
+		&i.UniqueID,
+		&i.Uuid,
+		&i.StartMoodRating,
+		&i.StartMood,
+		&i.FinishMoodRating,
+		&i.FinishMood,
+		&i.SessionCompleted,
+		&i.StartedAt,
+		&i.EndsAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
 
-const updateTibetanSingingBowlMrStartingMoodByUuid = `-- name: UpdateTibetanSingingBowlMrStartingMoodByUuid :exec
+const updateTibetanSingingBowlMrStartingMoodByUuid = `-- name: UpdateTibetanSingingBowlMrStartingMoodByUuid :one
 UPDATE tibetan_singing_bowl_mr
 SET
   start_mood_rating = COALESCE($2, start_mood_rating),
@@ -366,7 +379,20 @@ type UpdateTibetanSingingBowlMrStartingMoodByUuidParams struct {
 	StartMood       string    `json:"start_mood"`
 }
 
-func (q *Queries) UpdateTibetanSingingBowlMrStartingMoodByUuid(ctx context.Context, arg UpdateTibetanSingingBowlMrStartingMoodByUuidParams) error {
-	_, err := q.db.ExecContext(ctx, updateTibetanSingingBowlMrStartingMoodByUuid, arg.Uuid, arg.StartMoodRating, arg.StartMood)
-	return err
+func (q *Queries) UpdateTibetanSingingBowlMrStartingMoodByUuid(ctx context.Context, arg UpdateTibetanSingingBowlMrStartingMoodByUuidParams) (TibetanSingingBowlMr, error) {
+	row := q.db.QueryRowContext(ctx, updateTibetanSingingBowlMrStartingMoodByUuid, arg.Uuid, arg.StartMoodRating, arg.StartMood)
+	var i TibetanSingingBowlMr
+	err := row.Scan(
+		&i.UniqueID,
+		&i.Uuid,
+		&i.StartMoodRating,
+		&i.StartMood,
+		&i.FinishMoodRating,
+		&i.FinishMood,
+		&i.SessionCompleted,
+		&i.StartedAt,
+		&i.EndsAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
