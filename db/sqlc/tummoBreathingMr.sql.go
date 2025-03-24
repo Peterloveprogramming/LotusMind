@@ -60,30 +60,6 @@ func (q *Queries) CreateTummoBreathingMr(ctx context.Context, arg CreateTummoBre
 	return i, err
 }
 
-const deleteTummoBreathingMrByUniqueID = `-- name: DeleteTummoBreathingMrByUniqueID :one
-DELETE FROM tummo_breathing_mr 
-WHERE unique_id = $1
-RETURNING unique_id, uuid, start_mood_rating, start_mood, finish_mood_rating, finish_mood, session_completed, started_at, ends_at, deleted_at
-`
-
-func (q *Queries) DeleteTummoBreathingMrByUniqueID(ctx context.Context, uniqueID uuid.UUID) (TummoBreathingMr, error) {
-	row := q.db.QueryRowContext(ctx, deleteTummoBreathingMrByUniqueID, uniqueID)
-	var i TummoBreathingMr
-	err := row.Scan(
-		&i.UniqueID,
-		&i.Uuid,
-		&i.StartMoodRating,
-		&i.StartMood,
-		&i.FinishMoodRating,
-		&i.FinishMood,
-		&i.SessionCompleted,
-		&i.StartedAt,
-		&i.EndsAt,
-		&i.DeletedAt,
-	)
-	return i, err
-}
-
 const getTummoBreathingMrByUniqueID = `-- name: GetTummoBreathingMrByUniqueID :one
 SELECT unique_id, uuid, start_mood_rating, start_mood, finish_mood_rating, finish_mood, session_completed, started_at, ends_at, deleted_at 
 FROM tummo_breathing_mr 
@@ -161,6 +137,31 @@ WHERE uuid = $1
 
 func (q *Queries) GetTummoBreathingMrByUuid(ctx context.Context, argUuid uuid.UUID) (TummoBreathingMr, error) {
 	row := q.db.QueryRowContext(ctx, getTummoBreathingMrByUuid, argUuid)
+	var i TummoBreathingMr
+	err := row.Scan(
+		&i.UniqueID,
+		&i.Uuid,
+		&i.StartMoodRating,
+		&i.StartMood,
+		&i.FinishMoodRating,
+		&i.FinishMood,
+		&i.SessionCompleted,
+		&i.StartedAt,
+		&i.EndsAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const softDeleteTummoBreathingMrByUniqueID = `-- name: SoftDeleteTummoBreathingMrByUniqueID :one
+UPDATE tummo_breathing_mr 
+SET deleted_at = NOW()
+WHERE unique_id = $1 AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z')
+RETURNING unique_id, uuid, start_mood_rating, start_mood, finish_mood_rating, finish_mood, session_completed, started_at, ends_at, deleted_at
+`
+
+func (q *Queries) SoftDeleteTummoBreathingMrByUniqueID(ctx context.Context, uniqueID uuid.UUID) (TummoBreathingMr, error) {
+	row := q.db.QueryRowContext(ctx, softDeleteTummoBreathingMrByUniqueID, uniqueID)
 	var i TummoBreathingMr
 	err := row.Scan(
 		&i.UniqueID,

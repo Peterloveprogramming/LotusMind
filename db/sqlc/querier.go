@@ -18,8 +18,6 @@ type Querier interface {
 	CreateUserProfileMobile(ctx context.Context, userID int64) error
 	CreateUserProfileMr(ctx context.Context, userID int64) error
 	DeleteSessionLog(ctx context.Context, argUuid uuid.UUID) error
-	DeleteTibetanSingingBowlMrByUniqueID(ctx context.Context, uniqueID uuid.UUID) (TibetanSingingBowlMr, error)
-	DeleteTummoBreathingMrByUniqueID(ctx context.Context, uniqueID uuid.UUID) (TummoBreathingMr, error)
 	DeleteUser(ctx context.Context, id int64) error
 	GetSessionLogByUUID(ctx context.Context, argUuid uuid.UUID) (SessionLog, error)
 	GetSessionsLogByUserId(ctx context.Context, userID int64) ([]SessionLog, error)
@@ -38,6 +36,8 @@ type Querier interface {
 	GetUserProfileMrByUserId(ctx context.Context, userID int64) (UsersProfileMr, error)
 	GetUserProfileMrTime(ctx context.Context, userID int64) (int64, error)
 	GetUsersByCountry(ctx context.Context, country string) ([]User, error)
+	SoftDeleteTibetanSingingBowlMrByUniqueID(ctx context.Context, uniqueID uuid.UUID) (TibetanSingingBowlMr, error)
+	SoftDeleteTummoBreathingMrByUniqueID(ctx context.Context, uniqueID uuid.UUID) (TummoBreathingMr, error)
 	UpdateTibetanSingingBowlMrByUniqueID(ctx context.Context, arg UpdateTibetanSingingBowlMrByUniqueIDParams) (TibetanSingingBowlMr, error)
 	UpdateTibetanSingingBowlMrByUuid(ctx context.Context, arg UpdateTibetanSingingBowlMrByUuidParams) (TibetanSingingBowlMr, error)
 	UpdateTibetanSingingBowlMrFinishingMoodByUuid(ctx context.Context, arg UpdateTibetanSingingBowlMrFinishingMoodByUuidParams) (TibetanSingingBowlMr, error)

@@ -115,6 +115,16 @@ func TestUpdateTibetanSingingBowlMrQuitByUuid(t *testing.T) {
 	require.Equal(t, endsTime.UTC(), updatedTibetanSingingBowl.EndsAt.UTC())
 }
 
+func TestTibetanSingingBowlMrByUuid(t *testing.T) {
+	tibetanSingingBowl := CreateRandomTibetanSingingBowlMr(t, testQueries)
+	fetchedTibetanSingingBowl, err := testQueries.GetTibetanSingingBowlMrByUuid(context.Background(), tibetanSingingBowl.Uuid)
+	require.NoError(t, err)
+	require.NotEmpty(t, fetchedTibetanSingingBowl)
+	require.Equal(t, tibetanSingingBowl.UniqueID, fetchedTibetanSingingBowl.UniqueID)
+	require.Equal(t, tibetanSingingBowl.Uuid, fetchedTibetanSingingBowl.Uuid)
+
+}
+
 func TestGetTibetanSingingBowlMrByUniqueID(t *testing.T) {
 	tibetanSingingBowl := CreateRandomTibetanSingingBowlMr(t, testQueries)
 	fetchedTibetanSingingBowl, err := testQueries.GetTibetanSingingBowlMrByUniqueID(context.Background(), tibetanSingingBowl.UniqueID)
@@ -122,5 +132,35 @@ func TestGetTibetanSingingBowlMrByUniqueID(t *testing.T) {
 	require.NotEmpty(t, fetchedTibetanSingingBowl)
 	require.Equal(t, tibetanSingingBowl.UniqueID, fetchedTibetanSingingBowl.UniqueID)
 	require.Equal(t, tibetanSingingBowl.Uuid, fetchedTibetanSingingBowl.Uuid)
+
+}
+
+func TestGetTibetanSingingBowlMrByUserID(t *testing.T) {
+	// first create a tibetanSingingBowl.
+	// session log and user entries also get created along the way.
+	tibetanSingingBowl := CreateRandomTibetanSingingBowlMr(t, testQueries)
+	// fetch session log based on tibetanSingingBowl.uuid
+	sessionLog, err := testQueries.GetSessionLogByUUID(context.Background(), tibetanSingingBowl.Uuid)
+	require.NotEmpty(t, sessionLog)
+	require.NoError(t, err)
+
+	// returns an array
+	fetchedTibetanSingingBowls, err := testQueries.GetTibetanSingingBowlMrByUserID(context.Background(), sessionLog.UserID)
+	require.NotEmpty(t, fetchedTibetanSingingBowls)
+	require.NoError(t, err)
+
+	fetchedTibetanSingingBowl := fetchedTibetanSingingBowls[0]
+
+	require.Equal(t, fetchedTibetanSingingBowl.UniqueID, tibetanSingingBowl.UniqueID)
+	require.Equal(t, fetchedTibetanSingingBowl.Uuid, tibetanSingingBowl.Uuid)
+}
+
+func TestDeleteTibetanSingingBowlMrByUniqueID(t *testing.T) {
+	tibetanSingingBowl := CreateRandomTibetanSingingBowlMr(t, testQueries)
+
+	deletedTibetanSingingBowl, err := testQueries.SoftDeleteTibetanSingingBowlMrByUniqueID(context.Background(), tibetanSingingBowl.UniqueID)
+	require.NotEmpty(t, deletedTibetanSingingBowl)
+	require.NoError(t, err)
+	require.NotEqual(t, tibetanSingingBowl.DeletedAt.UTC(), deletedTibetanSingingBowl.DeletedAt.UTC())
 
 }

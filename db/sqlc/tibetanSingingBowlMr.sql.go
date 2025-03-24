@@ -60,30 +60,6 @@ func (q *Queries) CreateTibetanSingingBowlMr(ctx context.Context, arg CreateTibe
 	return i, err
 }
 
-const deleteTibetanSingingBowlMrByUniqueID = `-- name: DeleteTibetanSingingBowlMrByUniqueID :one
-DELETE FROM tibetan_singing_bowl_mr 
-WHERE unique_id = $1
-RETURNING unique_id, uuid, start_mood_rating, start_mood, finish_mood_rating, finish_mood, session_completed, started_at, ends_at, deleted_at
-`
-
-func (q *Queries) DeleteTibetanSingingBowlMrByUniqueID(ctx context.Context, uniqueID uuid.UUID) (TibetanSingingBowlMr, error) {
-	row := q.db.QueryRowContext(ctx, deleteTibetanSingingBowlMrByUniqueID, uniqueID)
-	var i TibetanSingingBowlMr
-	err := row.Scan(
-		&i.UniqueID,
-		&i.Uuid,
-		&i.StartMoodRating,
-		&i.StartMood,
-		&i.FinishMoodRating,
-		&i.FinishMood,
-		&i.SessionCompleted,
-		&i.StartedAt,
-		&i.EndsAt,
-		&i.DeletedAt,
-	)
-	return i, err
-}
-
 const getTibetanSingingBowlMrByUniqueID = `-- name: GetTibetanSingingBowlMrByUniqueID :one
 SELECT unique_id, uuid, start_mood_rating, start_mood, finish_mood_rating, finish_mood, session_completed, started_at, ends_at, deleted_at 
 FROM tibetan_singing_bowl_mr 
@@ -161,6 +137,31 @@ WHERE uuid = $1
 
 func (q *Queries) GetTibetanSingingBowlMrByUuid(ctx context.Context, argUuid uuid.UUID) (TibetanSingingBowlMr, error) {
 	row := q.db.QueryRowContext(ctx, getTibetanSingingBowlMrByUuid, argUuid)
+	var i TibetanSingingBowlMr
+	err := row.Scan(
+		&i.UniqueID,
+		&i.Uuid,
+		&i.StartMoodRating,
+		&i.StartMood,
+		&i.FinishMoodRating,
+		&i.FinishMood,
+		&i.SessionCompleted,
+		&i.StartedAt,
+		&i.EndsAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const softDeleteTibetanSingingBowlMrByUniqueID = `-- name: SoftDeleteTibetanSingingBowlMrByUniqueID :one
+UPDATE tibetan_singing_bowl_mr 
+SET deleted_at = NOW()
+WHERE unique_id = $1 AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z')
+RETURNING unique_id, uuid, start_mood_rating, start_mood, finish_mood_rating, finish_mood, session_completed, started_at, ends_at, deleted_at
+`
+
+func (q *Queries) SoftDeleteTibetanSingingBowlMrByUniqueID(ctx context.Context, uniqueID uuid.UUID) (TibetanSingingBowlMr, error) {
+	row := q.db.QueryRowContext(ctx, softDeleteTibetanSingingBowlMrByUniqueID, uniqueID)
 	var i TibetanSingingBowlMr
 	err := row.Scan(
 		&i.UniqueID,

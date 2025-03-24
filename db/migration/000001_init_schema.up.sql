@@ -214,65 +214,20 @@ BEFORE DELETE ON session_logs
 FOR EACH ROW EXECUTE FUNCTION soft_delete_session_logs_and_related_sessions_data();
 
 
--- -- users table - Soft deletion for users
--- CREATE RULE users_soft_deletion AS ON DELETE TO users
--- DO INSTEAD (
---   UPDATE users 
---   SET deleted_at = NOW() 
---   WHERE id = OLD.id AND deleted_at IS NULL
-
---   execute session_logs_soft_deletion if not executed
---    then execute session_logs_soft_deletion_for_tibetan_singing_bowl_mr
---    then execute 
--- );
-
-
--- -- users table -  Cascade soft deletion for session_logs
--- CREATE RULE users_session_logs_soft_deletion_for_session_logs AS ON DELETE TO users
--- DO ALSO (
---   UPDATE session_logs 
---   SET deleted_at = NOW() 
---   WHERE user_id = OLD.id AND deleted_at IS NULL
--- );
-
-
--- -- session_logs - Soft deletion for session_logs
--- CREATE RULE session_logs_soft_deletion AS ON DELETE TO session_logs
--- DO INSTEAD (
---   UPDATE session_logs 
---   SET deleted_at = NOW() 
---   WHERE uuid = OLD.uuid AND deleted_at IS NULL
--- );
-
--- -- session_logs - Cascade soft deletion for tibetan_singing_bowl_mr
--- CREATE RULE session_logs_soft_deletion_for_tibetan_singing_bowl_mr AS ON DELETE TO session_logs
--- DO ALSO (
---   UPDATE tibetan_singing_bowl_mr 
---   SET deleted_at = NOW() 
---   WHERE uuid = OLD.uuid AND deleted_at IS NULL
--- );
-
--- -- session_logs - Cascade soft deletion for tummo_breathing_mr
--- CREATE RULE session_logs_soft_deletion_for_tummo_breathing_mr AS ON DELETE TO session_logs
--- DO ALSO (
---   UPDATE tummo_breathing_mr 
---   SET deleted_at = NOW() 
---   WHERE uuid = OLD.uuid AND deleted_at IS NULL
--- );
-
 
 -- -- tibetan_singing_bowl_mr - Soft deletion for tibetan_singing_bowl_mr
--- CREATE RULE tibetan_singing_bowl_mr_soft_deletion AS ON DELETE TO tibetan_singing_bowl_mr
--- DO INSTEAD (
---   UPDATE tibetan_singing_bowl_mr 
---   SET deleted_at = NOW() 
---   WHERE uuid = OLD.uuid AND deleted_at IS NULL
--- );
+CREATE RULE tibetan_singing_bowl_mr_soft_deletion AS ON DELETE TO tibetan_singing_bowl_mr
+DO INSTEAD (
+  UPDATE tibetan_singing_bowl_mr 
+  SET deleted_at = NOW() 
+  WHERE unique_id = OLD.unique_id AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z')
+);
+
 
 -- -- tummo_breathing_mr - Soft deletion for tummo_breathing_mr
--- CREATE RULE tummo_breathing_mr_soft_deletion AS ON DELETE TO tummo_breathing_mr
--- DO INSTEAD (
---   UPDATE tummo_breathing_mr 
---   SET deleted_at = NOW() 
---   WHERE uuid = OLD.uuid AND deleted_at IS NULL
--- );
+CREATE RULE tummo_breathing_mr_soft_deletion AS ON DELETE TO tummo_breathing_mr
+DO INSTEAD (
+  UPDATE tummo_breathing_mr 
+  SET deleted_at = NOW() 
+  WHERE unique_id = OLD.unique_id AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z')
+);

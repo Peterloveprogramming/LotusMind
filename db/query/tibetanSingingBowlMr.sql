@@ -88,7 +88,8 @@ WHERE
 
 
 
--- name: DeleteTibetanSingingBowlMrByUniqueID :one
-DELETE FROM tibetan_singing_bowl_mr 
-WHERE unique_id = $1
+-- name: SoftDeleteTibetanSingingBowlMrByUniqueID :one
+UPDATE tibetan_singing_bowl_mr 
+SET deleted_at = NOW()
+WHERE unique_id = $1 AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z')
 RETURNING *;

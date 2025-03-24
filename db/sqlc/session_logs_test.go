@@ -53,11 +53,15 @@ func TestGetSessionLogByOffset(t *testing.T) {
 	// Page 1: Use OFFSET 0 and LIMIT 10 to fetch the first 10 rows.
 	// Page 2: Use OFFSET 10 and LIMIT 10 to fetch the next 10 rows.
 
+	// first create a user
+	user := CreateRandomMrUser(t, testQueries)
+
+	// create 10 session logs with the same user id
 	for i := 0; i < 10; i++ {
-		createRandomSessionLog(t, testQueries)
+		createSessionWithUserID(t, user.ID)
 	}
 	args := GetSessionsLogByUserIdWithOffsetParams{
-		UserID: 1,
+		UserID: user.ID,
 		Limit:  5,
 		Offset: 0,
 	}
@@ -70,7 +74,7 @@ func TestGetSessionLogByOffset(t *testing.T) {
 
 	// get the next 5 session logs
 	args = GetSessionsLogByUserIdWithOffsetParams{
-		UserID: 1,
+		UserID: user.ID,
 		Limit:  5,
 		Offset: 5,
 	}

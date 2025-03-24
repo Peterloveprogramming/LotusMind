@@ -163,3 +163,21 @@ func CreateRandomTibetanSingingBowlMr(t *testing.T, q *Queries) TibetanSingingBo
 	require.NoError(t, err)
 	return tibetanSingingBowl
 }
+
+func CreateRandomTummoBreathingMr(t *testing.T, q *Queries) TummoBreathingMr {
+	sessionLog := createRandomSessionLog(t, q, "tummo_breathing_mr")
+
+	args := CreateTummoBreathingMrParams{
+		//convert to uuid
+		Uuid:             sessionLog.Uuid,
+		StartMoodRating:  0,
+		StartMood:        "N/A",
+		FinishMoodRating: 0,
+		FinishMood:       "N/A",
+		SessionCompleted: 0,
+	}
+	tummoBreathingMr, err := q.CreateTummoBreathingMr(context.Background(), args)
+	require.NotEmpty(t, tummoBreathingMr)
+	require.NoError(t, err)
+	return tummoBreathingMr
+}
