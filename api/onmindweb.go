@@ -147,11 +147,46 @@ func (server *Server) registEmail(ctx *gin.Context) {
 		return
 	}
 
+	//获取推荐的手串
+	// 创建一个包含脉轮分数的切片
+	chakraScores := []struct {
+		name  string
+		score float32
+	}{
+		{"Root Chakra", rootScores},
+		{"Sacral Chakra", sacralScores},
+		{"Solar Plexus Chakra", solarPlexusScores},
+		{"Heart Chakra", heartScores},
+		{"Throat Chakra", throatScores},
+		{"Third Eye Chakra", thirdEyeScores},
+		{"Crown Chakra", crownScores},
+	}
+
+	// 根据分数排序（从低到高）
+	for i := 0; i < len(chakraScores)-1; i++ {
+		for j := i + 1; j < len(chakraScores); j++ {
+			if chakraScores[i].score > chakraScores[j].score {
+				chakraScores[i], chakraScores[j] = chakraScores[j], chakraScores[i]
+			}
+		}
+	}
+
+	// 获取分数最低的两个脉轮
+	lowestChakras := []string{chakraScores[0].name, chakraScores[1].name}
+	fmt.Printf("分数最低的两个脉轮是: %v\n", lowestChakras)
+
+	// 获取推荐的手串
+	bracelets, err := server.store.GetChakraBracelet(ctx, lowestChakras)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
 	// 添加返回结果
 	result := gin.H{
 		"email":          req.Email,
 		"message":        "Email registered successfully",
-		"chakra_results": chakras, // 直接返回解析后的脉轮结果
+		"chakra_results": chakras,   // 直接返回解析后的脉轮结果
+		"bracelets":      bracelets, // 添加手串信息到返回结果
 	}
 
 	ctx.JSON(http.StatusCreated, result)

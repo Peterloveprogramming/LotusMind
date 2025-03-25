@@ -113,3 +113,12 @@ type EmailRegistrations struct {
 	DeletedAt    time.Time      `json:"deleted_at"`
 }
 
+type ChakraBracelet struct {
+	Chakra      sql.NullString `json:"chakra"` // 改为 sql.NullString
+	Name        string         `json:"name"`
+	ImageUrl    string         `json:"image_url"`
+	ProductLink string         `json:"product_link"`
+	Type        int32          `json:"type"`
+	CreatedAt   time.Time      `json:"created_at"`
+	DeletedAt   time.Time      `json:"deleted_at"`
+}

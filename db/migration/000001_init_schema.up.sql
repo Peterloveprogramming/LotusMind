@@ -82,6 +82,17 @@ CREATE TABLE "chakra_test_results" (
     "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
 );
 
+CREATE TABLE "chakra_bracelet" (
+    "unique_id" UUID PRIMARY KEY NOT NULL,
+    "chakra" VARCHAR(50),
+    "name" VARCHAR(50) NOT NULL,
+    "image_url" VARCHAR(250) NOT NULL,
+    "product_link" VARCHAR(250) NOT NULL,
+    "type" INTEGER NOT NULL DEFAULT 0,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
+);
+
 CREATE INDEX ON "users" ("email");
 
 CREATE INDEX ON "users" ("country");

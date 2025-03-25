@@ -7,8 +7,8 @@ package db
 
 import (
 	"context"
-
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 const createUserEmail = `-- name: CreateUserEmail :one
@@ -201,4 +201,59 @@ func (q *Queries) GetEmailRegistrationByTestNum(ctx context.Context, email strin
 	)
 	return i, err
 }
+
+
+const getChakraBracelet = `
+WITH custom_bracelets AS (
+    SELECT chakra, name, image_url, product_link, type, created_at, deleted_at
+    FROM chakra_bracelet 
+    WHERE chakra = ANY($1) AND type = 0
+    ORDER BY created_at DESC
+),
+random_bracelets AS (
+    SELECT chakra, name, image_url, product_link, type, created_at, deleted_at
+    FROM chakra_bracelet 
+    WHERE type = 1
+    ORDER BY RANDOM()
+    LIMIT 2
+)
+SELECT * FROM custom_bracelets
+UNION ALL
+SELECT * FROM random_bracelets;
+`
+
+
+func (q *Queries) GetChakraBracelet(ctx context.Context, chakras []string) ([]ChakraBracelet, error) {
+	rows, err := q.db.QueryContext(ctx, getChakraBracelet, pq.Array(chakras))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	
+	var items []ChakraBracelet
+	for rows.Next() {
+		var i ChakraBracelet
+		if err := rows.Scan(
+			&i.Chakra,
+			&i.Name,
+			&i.ImageUrl,
+			&i.ProductLink,
+			&i.Type,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err = rows.Close(); err != nil {
+		return nil, err
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+
 

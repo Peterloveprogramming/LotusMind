@@ -479,3 +479,7 @@ func (store *Store) UpdateChakraReportByUniqueId(ctx context.Context, chakraRepo
 func (store *Store) GetEmailRegistrationByTestNum(ctx context.Context, email string, testNum int) (EmailRegistrations, error) {
 	return store.Queries.GetEmailRegistrationByTestNum(ctx, email, testNum)
 }
+
+func (store *Store) GetChakraBracelet(ctx context.Context, chakras []string) ([]ChakraBracelet, error) {
+	return store.Queries.GetChakraBracelet(ctx, chakras)
+}
