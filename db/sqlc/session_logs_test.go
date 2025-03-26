@@ -58,7 +58,7 @@ func TestGetSessionLogByOffset(t *testing.T) {
 
 	// create 10 session logs with the same user id
 	for i := 0; i < 10; i++ {
-		createSessionWithUserID(t, user.ID)
+		createSessionWithUserID(t, testQueries, user.ID)
 	}
 	args := GetSessionsLogByUserIdWithOffsetParams{
 		UserID: user.ID,

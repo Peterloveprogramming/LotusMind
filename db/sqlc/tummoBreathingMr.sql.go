@@ -334,7 +334,7 @@ func (q *Queries) UpdateTummoBreathingMrFinishingMoodByUuid(ctx context.Context,
 	return i, err
 }
 
-const updateTummoBreathingMrQuitByUuid = `-- name: UpdateTummoBreathingMrQuitByUuid :exec
+const updateTummoBreathingMrQuitByUuid = `-- name: UpdateTummoBreathingMrQuitByUuid :one
 UPDATE tummo_breathing_mr
 SET
   ends_at = COALESCE($2, ends_at)
@@ -347,12 +347,25 @@ type UpdateTummoBreathingMrQuitByUuidParams struct {
 	EndsAt time.Time `json:"ends_at"`
 }
 
-func (q *Queries) UpdateTummoBreathingMrQuitByUuid(ctx context.Context, arg UpdateTummoBreathingMrQuitByUuidParams) error {
-	_, err := q.db.ExecContext(ctx, updateTummoBreathingMrQuitByUuid, arg.Uuid, arg.EndsAt)
-	return err
+func (q *Queries) UpdateTummoBreathingMrQuitByUuid(ctx context.Context, arg UpdateTummoBreathingMrQuitByUuidParams) (TummoBreathingMr, error) {
+	row := q.db.QueryRowContext(ctx, updateTummoBreathingMrQuitByUuid, arg.Uuid, arg.EndsAt)
+	var i TummoBreathingMr
+	err := row.Scan(
+		&i.UniqueID,
+		&i.Uuid,
+		&i.StartMoodRating,
+		&i.StartMood,
+		&i.FinishMoodRating,
+		&i.FinishMood,
+		&i.SessionCompleted,
+		&i.StartedAt,
+		&i.EndsAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
 
-const updateTummoBreathingMrStartingMoodByUuid = `-- name: UpdateTummoBreathingMrStartingMoodByUuid :exec
+const updateTummoBreathingMrStartingMoodByUuid = `-- name: UpdateTummoBreathingMrStartingMoodByUuid :one
 UPDATE tummo_breathing_mr
 SET
   start_mood_rating = COALESCE($2, start_mood_rating),
@@ -367,7 +380,20 @@ type UpdateTummoBreathingMrStartingMoodByUuidParams struct {
 	StartMood       string    `json:"start_mood"`
 }
 
-func (q *Queries) UpdateTummoBreathingMrStartingMoodByUuid(ctx context.Context, arg UpdateTummoBreathingMrStartingMoodByUuidParams) error {
-	_, err := q.db.ExecContext(ctx, updateTummoBreathingMrStartingMoodByUuid, arg.Uuid, arg.StartMoodRating, arg.StartMood)
-	return err
+func (q *Queries) UpdateTummoBreathingMrStartingMoodByUuid(ctx context.Context, arg UpdateTummoBreathingMrStartingMoodByUuidParams) (TummoBreathingMr, error) {
+	row := q.db.QueryRowContext(ctx, updateTummoBreathingMrStartingMoodByUuid, arg.Uuid, arg.StartMoodRating, arg.StartMood)
+	var i TummoBreathingMr
+	err := row.Scan(
+		&i.UniqueID,
+		&i.Uuid,
+		&i.StartMoodRating,
+		&i.StartMood,
+		&i.FinishMoodRating,
+		&i.FinishMood,
+		&i.SessionCompleted,
+		&i.StartedAt,
+		&i.EndsAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }

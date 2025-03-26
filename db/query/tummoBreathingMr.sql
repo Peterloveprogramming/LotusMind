@@ -40,7 +40,7 @@ SET
 WHERE uuid = $1
 RETURNING *;
 
--- name: UpdateTummoBreathingMrStartingMoodByUuid :exec
+-- name: UpdateTummoBreathingMrStartingMoodByUuid :one
 UPDATE tummo_breathing_mr
 SET
   start_mood_rating = COALESCE($2, start_mood_rating),
@@ -58,7 +58,7 @@ SET
 WHERE uuid = $1
 RETURNING *;
 
--- name: UpdateTummoBreathingMrQuitByUuid :exec
+-- name: UpdateTummoBreathingMrQuitByUuid :one
 UPDATE tummo_breathing_mr
 SET
   ends_at = COALESCE($2, ends_at)

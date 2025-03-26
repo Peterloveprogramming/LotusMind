@@ -128,6 +128,45 @@ func TestCreateUser(t *testing.T) {
 	}
 }
 
+func TestFetchUserTime(t *testing.T) {
+	user := randomMrUser(t)
+
+	testCases := []struct {
+		name          string
+		userId        int64
+		platform      string
+		buildStub     func(store *mockdb.MockStore)
+		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name:     "OK",
+			userId:   user.ID,
+			platform: "mr",
+			buildStub: func(store *mockdb.MockStore) {
+				var result int64
+				store.EXPECT().GetUserProfileMrTime(gomock.Any(), user.ID, "mr").Times(1).Return(result, nil)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				// require response status codes match
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+	}
+	for i := range testCases {
+		tc := testCases[i]
+		t.Run(tc.name, func(t *testing.T) {
+			tc.buildStub(testStore)
+			recorder := httptest.NewRecorder()
+			url := fmt.Sprintf("/user/get_time/%d/%s", tc.userId, tc.platform)
+			request, err := http.NewRequest(http.MethodGet, url, nil)
+			require.NoError(t, err)
+			addAuthorization(t, request, testServer.tokenMaker, authorizationTypeBearer, user.Email, testServer.config.AccessTokenDuration)
+			testServer.router.ServeHTTP(recorder, request)
+			tc.checkResponse(t, recorder)
+		})
+	}
+
+}
 func TestFetchUserInfoByIdParams(t *testing.T) {
 	//Load configuration
 	// config, err := util.LoadConfig("../")

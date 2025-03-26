@@ -109,7 +109,7 @@ func createRandomSessionLog(t *testing.T, q *Queries, sessionTypeOptional ...str
 	return sessionLog
 }
 
-func createSessionWithUserID(t *testing.T, userId int64) SessionLog {
+func createSessionWithUserID(t *testing.T, q *Queries, userId int64) SessionLog {
 	sessionType := util.RandomSessionType()
 	sessionPlatform := util.GetPlatformTypeBasedOnSessionType(sessionType)
 	arg := CreateSessionLogParams{
@@ -118,7 +118,7 @@ func createSessionWithUserID(t *testing.T, userId int64) SessionLog {
 		SessionPlatform: sessionPlatform,
 	}
 
-	sessionLog, err := testQueries.CreateSessionLog(context.Background(), arg)
+	sessionLog, err := q.CreateSessionLog(context.Background(), arg)
 	require.NoError(t, err)
 	require.NotEmpty(t, sessionLog)
 	require.Equal(t, arg.UserID, sessionLog.UserID)

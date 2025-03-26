@@ -115,7 +115,7 @@ func TestUpdateTibetanSingingBowlMrQuitByUuid(t *testing.T) {
 	require.Equal(t, endsTime.UTC(), updatedTibetanSingingBowl.EndsAt.UTC())
 }
 
-func TestTibetanSingingBowlMrByUuid(t *testing.T) {
+func TestGetTibetanSingingBowlMrByUuid(t *testing.T) {
 	tibetanSingingBowl := CreateRandomTibetanSingingBowlMr(t, testQueries)
 	fetchedTibetanSingingBowl, err := testQueries.GetTibetanSingingBowlMrByUuid(context.Background(), tibetanSingingBowl.Uuid)
 	require.NoError(t, err)

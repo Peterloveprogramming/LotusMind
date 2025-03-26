@@ -183,36 +183,6 @@ func (mr *MockStoreMockRecorder) DeleteSessionLog(arg0, arg1 interface{}) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSessionLog", reflect.TypeOf((*MockStore)(nil).DeleteSessionLog), arg0, arg1)
 }
 
-// DeleteTibetanSingingBowlMrByUniqueID mocks base method.
-func (m *MockStore) DeleteTibetanSingingBowlMrByUniqueID(arg0 context.Context, arg1 uuid.UUID) (db.TibetanSingingBowlMr, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteTibetanSingingBowlMrByUniqueID", arg0, arg1)
-	ret0, _ := ret[0].(db.TibetanSingingBowlMr)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// DeleteTibetanSingingBowlMrByUniqueID indicates an expected call of DeleteTibetanSingingBowlMrByUniqueID.
-func (mr *MockStoreMockRecorder) DeleteTibetanSingingBowlMrByUniqueID(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTibetanSingingBowlMrByUniqueID", reflect.TypeOf((*MockStore)(nil).DeleteTibetanSingingBowlMrByUniqueID), arg0, arg1)
-}
-
-// DeleteTummoBreathingMrByUniqueID mocks base method.
-func (m *MockStore) DeleteTummoBreathingMrByUniqueID(arg0 context.Context, arg1 uuid.UUID) (db.TummoBreathingMr, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteTummoBreathingMrByUniqueID", arg0, arg1)
-	ret0, _ := ret[0].(db.TummoBreathingMr)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// DeleteTummoBreathingMrByUniqueID indicates an expected call of DeleteTummoBreathingMrByUniqueID.
-func (mr *MockStoreMockRecorder) DeleteTummoBreathingMrByUniqueID(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTummoBreathingMrByUniqueID", reflect.TypeOf((*MockStore)(nil).DeleteTummoBreathingMrByUniqueID), arg0, arg1)
-}
-
 // DeleteUser mocks base method.
 func (m *MockStore) DeleteUser(arg0 context.Context, arg1 int64) error {
 	m.ctrl.T.Helper()
@@ -482,6 +452,36 @@ func (mr *MockStoreMockRecorder) GetUsersByCountry(arg0, arg1 interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsersByCountry", reflect.TypeOf((*MockStore)(nil).GetUsersByCountry), arg0, arg1)
 }
 
+// SoftDeleteTibetanSingingBowlMrByUniqueID mocks base method.
+func (m *MockStore) SoftDeleteTibetanSingingBowlMrByUniqueID(arg0 context.Context, arg1 uuid.UUID) (db.TibetanSingingBowlMr, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SoftDeleteTibetanSingingBowlMrByUniqueID", arg0, arg1)
+	ret0, _ := ret[0].(db.TibetanSingingBowlMr)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SoftDeleteTibetanSingingBowlMrByUniqueID indicates an expected call of SoftDeleteTibetanSingingBowlMrByUniqueID.
+func (mr *MockStoreMockRecorder) SoftDeleteTibetanSingingBowlMrByUniqueID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SoftDeleteTibetanSingingBowlMrByUniqueID", reflect.TypeOf((*MockStore)(nil).SoftDeleteTibetanSingingBowlMrByUniqueID), arg0, arg1)
+}
+
+// SoftDeleteTummoBreathingMrByUniqueID mocks base method.
+func (m *MockStore) SoftDeleteTummoBreathingMrByUniqueID(arg0 context.Context, arg1 uuid.UUID) (db.TummoBreathingMr, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SoftDeleteTummoBreathingMrByUniqueID", arg0, arg1)
+	ret0, _ := ret[0].(db.TummoBreathingMr)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SoftDeleteTummoBreathingMrByUniqueID indicates an expected call of SoftDeleteTummoBreathingMrByUniqueID.
+func (mr *MockStoreMockRecorder) SoftDeleteTummoBreathingMrByUniqueID(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SoftDeleteTummoBreathingMrByUniqueID", reflect.TypeOf((*MockStore)(nil).SoftDeleteTummoBreathingMrByUniqueID), arg0, arg1)
+}
+
 // UpdateSessionFinishTransaction mocks base method.
 func (m *MockStore) UpdateSessionFinishTransaction(arg0 context.Context, arg1 db.UpdateSessionFinishTransactionParams) error {
 	m.ctrl.T.Helper()
@@ -542,11 +542,12 @@ func (mr *MockStoreMockRecorder) UpdateTibetanSingingBowlMrFinishingMoodByUuid(a
 }
 
 // UpdateTibetanSingingBowlMrQuitByUuid mocks base method.
-func (m *MockStore) UpdateTibetanSingingBowlMrQuitByUuid(arg0 context.Context, arg1 db.UpdateTibetanSingingBowlMrQuitByUuidParams) error {
+func (m *MockStore) UpdateTibetanSingingBowlMrQuitByUuid(arg0 context.Context, arg1 db.UpdateTibetanSingingBowlMrQuitByUuidParams) (db.TibetanSingingBowlMr, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateTibetanSingingBowlMrQuitByUuid", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(db.TibetanSingingBowlMr)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // UpdateTibetanSingingBowlMrQuitByUuid indicates an expected call of UpdateTibetanSingingBowlMrQuitByUuid.
@@ -556,11 +557,12 @@ func (mr *MockStoreMockRecorder) UpdateTibetanSingingBowlMrQuitByUuid(arg0, arg1
 }
 
 // UpdateTibetanSingingBowlMrStartingMoodByUuid mocks base method.
-func (m *MockStore) UpdateTibetanSingingBowlMrStartingMoodByUuid(arg0 context.Context, arg1 db.UpdateTibetanSingingBowlMrStartingMoodByUuidParams) error {
+func (m *MockStore) UpdateTibetanSingingBowlMrStartingMoodByUuid(arg0 context.Context, arg1 db.UpdateTibetanSingingBowlMrStartingMoodByUuidParams) (db.TibetanSingingBowlMr, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateTibetanSingingBowlMrStartingMoodByUuid", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(db.TibetanSingingBowlMr)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // UpdateTibetanSingingBowlMrStartingMoodByUuid indicates an expected call of UpdateTibetanSingingBowlMrStartingMoodByUuid.
@@ -615,11 +617,12 @@ func (mr *MockStoreMockRecorder) UpdateTummoBreathingMrFinishingMoodByUuid(arg0,
 }
 
 // UpdateTummoBreathingMrQuitByUuid mocks base method.
-func (m *MockStore) UpdateTummoBreathingMrQuitByUuid(arg0 context.Context, arg1 db.UpdateTummoBreathingMrQuitByUuidParams) error {
+func (m *MockStore) UpdateTummoBreathingMrQuitByUuid(arg0 context.Context, arg1 db.UpdateTummoBreathingMrQuitByUuidParams) (db.TummoBreathingMr, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateTummoBreathingMrQuitByUuid", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(db.TummoBreathingMr)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // UpdateTummoBreathingMrQuitByUuid indicates an expected call of UpdateTummoBreathingMrQuitByUuid.
@@ -629,17 +632,33 @@ func (mr *MockStoreMockRecorder) UpdateTummoBreathingMrQuitByUuid(arg0, arg1 int
 }
 
 // UpdateTummoBreathingMrStartingMoodByUuid mocks base method.
-func (m *MockStore) UpdateTummoBreathingMrStartingMoodByUuid(arg0 context.Context, arg1 db.UpdateTummoBreathingMrStartingMoodByUuidParams) error {
+func (m *MockStore) UpdateTummoBreathingMrStartingMoodByUuid(arg0 context.Context, arg1 db.UpdateTummoBreathingMrStartingMoodByUuidParams) (db.TummoBreathingMr, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateTummoBreathingMrStartingMoodByUuid", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(db.TummoBreathingMr)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // UpdateTummoBreathingMrStartingMoodByUuid indicates an expected call of UpdateTummoBreathingMrStartingMoodByUuid.
 func (mr *MockStoreMockRecorder) UpdateTummoBreathingMrStartingMoodByUuid(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTummoBreathingMrStartingMoodByUuid", reflect.TypeOf((*MockStore)(nil).UpdateTummoBreathingMrStartingMoodByUuid), arg0, arg1)
+}
+
+// UpdateUser mocks base method.
+func (m *MockStore) UpdateUser(arg0 context.Context, arg1 db.UpdateUserParams) (db.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUser", arg0, arg1)
+	ret0, _ := ret[0].(db.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateUser indicates an expected call of UpdateUser.
+func (mr *MockStoreMockRecorder) UpdateUser(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUser", reflect.TypeOf((*MockStore)(nil).UpdateUser), arg0, arg1)
 }
 
 // UpdateUserProfileMobilerTime mocks base method.
