@@ -130,6 +130,8 @@ func TestCreateUser(t *testing.T) {
 
 func TestFetchUserTime(t *testing.T) {
 	user := randomMrUser(t)
+	mrProfile := randomMrProfile(t, user.ID)
+	mobileProfile := randomMobileProfile(t, user.ID)
 
 	testCases := []struct {
 		name          string
@@ -139,16 +141,39 @@ func TestFetchUserTime(t *testing.T) {
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
-			name:     "OK",
+			name:     "Mr_OK",
 			userId:   user.ID,
 			platform: "mr",
 			buildStub: func(store *mockdb.MockStore) {
-				var result int64
-				store.EXPECT().GetUserProfileMrTime(gomock.Any(), user.ID, "mr").Times(1).Return(result, nil)
+				store.EXPECT().GetUserProfileMrTime(gomock.Any(), user.ID).Times(1).Return(mrProfile.TotalTimeSpentInMins, nil)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				// require response status codes match
 				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+		{
+			name:     "Mobile_OK",
+			userId:   user.ID,
+			platform: "mobile",
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().GetUserProfileMobileTime(gomock.Any(), user.ID).Times(1).Return(mobileProfile.TotalTimeSpentInMins, nil)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				// require response status codes match
+				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+		{
+			name:     "Profile does not exist",
+			userId:   user.ID,
+			platform: "mobile",
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().GetUserProfileMobileTime(gomock.Any(), user.ID).Times(1).Return(int64(0), sql.ErrNoRows)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				// require response status codes match
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
 	}
@@ -157,7 +182,7 @@ func TestFetchUserTime(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.buildStub(testStore)
 			recorder := httptest.NewRecorder()
-			url := fmt.Sprintf("/user/get_time/%d/%s", tc.userId, tc.platform)
+			url := fmt.Sprintf("/user/get_time/%s/%d", tc.platform, tc.userId)
 			request, err := http.NewRequest(http.MethodGet, url, nil)
 			require.NoError(t, err)
 			addAuthorization(t, request, testServer.tokenMaker, authorizationTypeBearer, user.Email, testServer.config.AccessTokenDuration)

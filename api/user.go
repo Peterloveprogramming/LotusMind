@@ -150,12 +150,20 @@ func (server *Server) fetchUserTime(ctx *gin.Context) {
 	case "mobile":
 		userTime, err = server.store.GetUserProfileMobileTime(ctx, reqParam.ID)
 		if err != nil {
+			if err == sql.ErrNoRows {
+				ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("user profile does not exists")))
+				return
+			}
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
 			return
 		}
 	case "mr":
 		userTime, err = server.store.GetUserProfileMrTime(ctx, reqParam.ID)
 		if err != nil {
+			if err == sql.ErrNoRows {
+				ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("user profile does not exists")))
+				return
+			}
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
 			return
 		}

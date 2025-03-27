@@ -39,3 +39,31 @@ func randomMrUser(t *testing.T, password ...string) db.User {
 		HashedPassword: hashedPassword,
 	}
 }
+
+func randomMrProfile(t *testing.T, userIdParam ...int64) db.UsersProfileMr {
+	var userId *int64
+	if len(userIdParam) > 0 {
+		userId = &userIdParam[0]
+	} else {
+		user := randomMrUser(t)
+		userId = &user.ID
+	}
+	return db.UsersProfileMr{
+		UserID:               *userId,
+		TotalTimeSpentInMins: int64(util.RandomInt(1, 1000)),
+	}
+}
+
+func randomMobileProfile(t *testing.T, userIdParam ...int64) db.UsersProfileMobile {
+	var userId *int64
+	if len(userIdParam) > 0 {
+		userId = &userIdParam[0]
+	} else {
+		user := randomMrUser(t)
+		userId = &user.ID
+	}
+	return db.UsersProfileMobile{
+		UserID:               *userId,
+		TotalTimeSpentInMins: int64(util.RandomInt(1, 1000)),
+	}
+}
