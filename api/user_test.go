@@ -23,6 +23,7 @@ import (
 
 func TestCreateUser(t *testing.T) {
 	password := "marvel998"
+	require.NoError(t, err)
 	user := randomMrUser(t, password)
 	require.NoError(t, err)
 
@@ -46,7 +47,7 @@ func TestCreateUser(t *testing.T) {
 				"password":   password,
 			},
 			buildStub: func(store *mockdb.MockStore) {
-				store.EXPECT().CreateUserTransaction(gomock.Any(), gomock.Any()).Times(1).Return(db.CreateUserResult{ID: user.ID}, nil)
+				store.EXPECT().CreateUserTransaction(gomock.Any(), gomock.AssignableToTypeOf(db.CreateUserTransactiontArgs{})).Times(1).Return(db.CreateUserResult{ID: user.ID}, nil)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				// require response status codes match
@@ -128,6 +129,122 @@ func TestCreateUser(t *testing.T) {
 	}
 }
 
+func TestFetchUserInfoByIdParams(t *testing.T) {
+	//Load configuration
+	// config, err := util.LoadConfig("../")
+	// require.NoError(t, err)
+
+	user := randomMrUser(t)
+
+	testCases := []struct {
+		name          string
+		userId        interface{} // should be int64, but using interface{} for flexibility
+		buildStub     func(store *mockdb.MockStore)
+		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
+	}{
+		{
+			name:   "OK",
+			userId: user.ID,
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().GetUserById(gomock.Any(), user.ID).Times(1).Return(user, nil)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				// require response status codes match
+				require.Equal(t, http.StatusOK, recorder.Code)
+
+				// require body match
+				result, err := ioutil.ReadAll(recorder.Body)
+				require.NoError(t, err)
+				var userResult userInfoResult
+				err = json.Unmarshal(result, &userResult)
+				require.NoError(t, err)
+				require.Equal(t, user.ID, userResult.ID)
+				require.Equal(t, user.Email, userResult.Email)
+				require.Equal(t, user.FirstName, userResult.FirstName)
+				require.Equal(t, user.LastName, userResult.LastName)
+				require.Equal(t, user.Gender, userResult.Gender)
+				require.Equal(t, user.BirthDate.Format(util.GetDateFormat()), userResult.BirthDate)
+				require.Equal(t, user.Country, userResult.Country)
+				require.Equal(t, user.IsMrUser, userResult.IsMrUser)
+				require.Equal(t, user.IsMobileUser, userResult.IsMobileUser)
+				require.Equal(t, user.Goals, userResult.Goals)
+			},
+		},
+		{
+			name:   "NotFound",
+			userId: user.ID,
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().GetUserById(gomock.Any(), user.ID).Times(1).Return(db.User{}, sql.ErrNoRows)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				// require response status codes match
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+			},
+		},
+		{
+			name:   "invalid ID",
+			userId: "abc",
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().GetUserById(gomock.Any(), gomock.Any()).Times(0)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				// require response status codes match
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name:   "InternalError",
+			userId: user.ID,
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().GetUserById(gomock.Any(), user.ID).Times(1).Return(db.User{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				// require response status codes match
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
+		{
+			name:   "InvalidId",
+			userId: 0,
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().GetUserById(gomock.Any(), gomock.Any()).Times(0)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				// require response status codes match
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+	}
+
+	for i := range testCases {
+		tc := testCases[i]
+		t.Run(tc.name, func(t *testing.T) {
+			// ctrl := gomock.NewController(t)
+			// checks to see if all methods expected to be called were called
+			// defer ctrl.Finish()
+
+			// store := mockdb.NewMockStore(testStore)
+			tc.buildStub(testStore)
+
+			//start test server and send in requests.
+			// server, err := NewServer(config, store)
+			// require.NoError(t, err)
+
+			recorder := httptest.NewRecorder()
+
+			url := fmt.Sprintf("/user/get_info/%v", tc.userId)
+			request, err := http.NewRequest(http.MethodGet, url, nil)
+			require.NoError(t, err)
+
+			// Add the Authorization header
+			addAuthorization(t, request, testServer.tokenMaker, authorizationTypeBearer, user.Email, testServer.config.AccessTokenDuration)
+
+			testServer.router.ServeHTTP(recorder, request)
+			tc.checkResponse(t, recorder)
+		})
+	}
+}
+
 func TestFetchUserTime(t *testing.T) {
 	user := randomMrUser(t)
 	mrProfile := randomMrProfile(t, user.ID)
@@ -165,11 +282,35 @@ func TestFetchUserTime(t *testing.T) {
 			},
 		},
 		{
-			name:     "Profile does not exist",
+			name:     "Mobile Profile does not exist",
 			userId:   user.ID,
 			platform: "mobile",
 			buildStub: func(store *mockdb.MockStore) {
 				store.EXPECT().GetUserProfileMobileTime(gomock.Any(), user.ID).Times(1).Return(int64(0), sql.ErrNoRows)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				// require response status codes match
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name:     "Mr Profile does not exist",
+			userId:   user.ID,
+			platform: "mr",
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().GetUserProfileMrTime(gomock.Any(), user.ID).Times(1).Return(int64(0), sql.ErrNoRows)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				// require response status codes match
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name:     "Invalid Platform",
+			userId:   user.ID,
+			platform: "ss",
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().GetUserProfileMobileTime(gomock.Any(), user.ID).Times(0).Return(int64(0), sql.ErrConnDone)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				// require response status codes match
@@ -190,109 +331,54 @@ func TestFetchUserTime(t *testing.T) {
 			tc.checkResponse(t, recorder)
 		})
 	}
-
 }
-func TestFetchUserInfoByIdParams(t *testing.T) {
-	//Load configuration
-	// config, err := util.LoadConfig("../")
-	// require.NoError(t, err)
 
-	user := randomMrUser(t)
+func TestLoginuSER(t *testing.T) {
+	password := "marvel998"
+	user := randomMrUser(t, password)
 
 	testCases := []struct {
 		name          string
-		accountID     int64
+		userId        int64
+		body          gin.H
 		buildStub     func(store *mockdb.MockStore)
 		checkResponse func(t *testing.T, recorder *httptest.ResponseRecorder)
 	}{
 		{
-			name:      "OK",
-			accountID: user.ID,
+			name:   "Login ok",
+			userId: user.ID,
+			body: gin.H{
+				"email":    user.Email,
+				"password": password,
+			},
 			buildStub: func(store *mockdb.MockStore) {
-				store.EXPECT().GetUserById(gomock.Any(), user.ID).Times(1).Return(user, nil)
+				store.EXPECT().GetUserByEmail(gomock.Any(), user.Email).Times(1).Return(user, nil)
 			},
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				// require response status codes match
 				require.Equal(t, http.StatusOK, recorder.Code)
-
-				// require body match
-				result, err := ioutil.ReadAll(recorder.Body)
-				require.NoError(t, err)
-				var userResult userInfoResult
-				err = json.Unmarshal(result, &userResult)
-				require.NoError(t, err)
-				require.Equal(t, user.ID, userResult.ID)
-				require.Equal(t, user.Email, userResult.Email)
-				require.Equal(t, user.FirstName, userResult.FirstName)
-				require.Equal(t, user.LastName, userResult.LastName)
-				require.Equal(t, user.Gender, userResult.Gender)
-				require.Equal(t, user.BirthDate.Format(util.GetDateFormat()), userResult.BirthDate)
-				require.Equal(t, user.Country, userResult.Country)
-				require.Equal(t, user.IsMrUser, userResult.IsMrUser)
-				require.Equal(t, user.IsMobileUser, userResult.IsMobileUser)
-				require.Equal(t, user.Goals, userResult.Goals)
-			},
-		},
-		{
-			name:      "NotFound",
-			accountID: user.ID,
-			buildStub: func(store *mockdb.MockStore) {
-				store.EXPECT().GetUserById(gomock.Any(), user.ID).Times(1).Return(db.User{}, sql.ErrNoRows)
-			},
-			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				// require response status codes match
-				require.Equal(t, http.StatusNotFound, recorder.Code)
-			},
-		},
-		{
-			name:      "InternalError",
-			accountID: user.ID,
-			buildStub: func(store *mockdb.MockStore) {
-				store.EXPECT().GetUserById(gomock.Any(), user.ID).Times(1).Return(db.User{}, sql.ErrConnDone)
-			},
-			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				// require response status codes match
-				require.Equal(t, http.StatusInternalServerError, recorder.Code)
-			},
-		},
-		{
-			name:      "InvalidId",
-			accountID: 0,
-			buildStub: func(store *mockdb.MockStore) {
-				store.EXPECT().GetUserById(gomock.Any(), gomock.Any()).Times(0)
-			},
-			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
-				// require response status codes match
-				require.Equal(t, http.StatusBadRequest, recorder.Code)
 			},
 		},
 	}
-
 	for i := range testCases {
 		tc := testCases[i]
 		t.Run(tc.name, func(t *testing.T) {
-			// ctrl := gomock.NewController(t)
-			// checks to see if all methods expected to be called were called
-			// defer ctrl.Finish()
 
-			// store := mockdb.NewMockStore(testStore)
 			tc.buildStub(testStore)
-
-			//start test server and send in requests.
-			// server, err := NewServer(config, store)
-			// require.NoError(t, err)
 
 			recorder := httptest.NewRecorder()
 
-			url := fmt.Sprintf("/user/get_info/%d", tc.accountID)
-			request, err := http.NewRequest(http.MethodGet, url, nil)
+			// marshal the response body
+			bodyData, err := json.Marshal(tc.body)
 			require.NoError(t, err)
 
-			// Add the Authorization header
-			addAuthorization(t, request, testServer.tokenMaker, authorizationTypeBearer, user.Email, testServer.config.AccessTokenDuration)
+			url := fmt.Sprintf("/user/login")
+			request, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(bodyData))
+			require.NoError(t, err)
 
 			testServer.router.ServeHTTP(recorder, request)
 			tc.checkResponse(t, recorder)
+
 		})
 	}
 }

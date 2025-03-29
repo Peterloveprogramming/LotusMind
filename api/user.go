@@ -154,7 +154,7 @@ func (server *Server) fetchUserTime(ctx *gin.Context) {
 				ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("user profile does not exists")))
 				return
 			}
-			ctx.JSON(http.StatusBadRequest, errorResponse(err))
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 			return
 		}
 	case "mr":
@@ -227,5 +227,5 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		AccessToken: accessToken,
 		ID:          user.ID,
 	}
-	ctx.JSON(http.StatusCreated, rsp)
+	ctx.JSON(http.StatusOK, rsp)
 }
