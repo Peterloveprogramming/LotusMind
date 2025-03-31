@@ -64,6 +64,48 @@ func TestCreateUser(t *testing.T) {
 			},
 		},
 		{
+			name: "internal server error",
+			body: gin.H{
+				"email":      user.Email,
+				"first_name": user.FirstName,
+				"last_name":  user.LastName,
+				"gender":     user.Gender,
+				"birth_date": user.BirthDate.Format(util.GetDateFormat()),
+				"country":    user.Country,
+				"goals":      user.Goals,
+				"platform":   "mr",
+				"password":   password,
+			},
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().CreateUserTransaction(gomock.Any(), gomock.AssignableToTypeOf(db.CreateUserTransactiontArgs{})).Times(1).Return(db.CreateUserResult{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				// require response status codes match
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
+		{
+			name: "Wrong Date Format",
+			body: gin.H{
+				"email":      user.Email,
+				"first_name": user.FirstName,
+				"last_name":  user.LastName,
+				"gender":     user.Gender,
+				"birth_date": "20006-01-01",
+				"country":    user.Country,
+				"goals":      user.Goals,
+				"platform":   "mr",
+				"password":   password,
+			},
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().CreateUserTransaction(gomock.Any(), gomock.AssignableToTypeOf(db.CreateUserTransactiontArgs{})).Times(0)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				// require response status codes match
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
 			name: "UniqueViolation",
 			body: gin.H{
 				"email":      user.Email,
@@ -357,6 +399,66 @@ func TestLoginuSER(t *testing.T) {
 			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
 				// require response status codes match
 				require.Equal(t, http.StatusOK, recorder.Code)
+			},
+		},
+		{
+			name:   "Login failed with wrong password",
+			userId: user.ID,
+			body: gin.H{
+				"email":    user.Email,
+				"password": "wrongpassword",
+			},
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().GetUserByEmail(gomock.Any(), user.Email).Times(1).Return(user, nil)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				// require response status codes match
+				require.Equal(t, http.StatusUnauthorized, recorder.Code)
+			},
+		},
+		{
+			name:   "User dont exist",
+			userId: user.ID,
+			body: gin.H{
+				"email":    util.RandomEmail(),
+				"password": password,
+			},
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().GetUserByEmail(gomock.Any(), gomock.Any()).Times(1).Return(db.User{}, sql.ErrNoRows)
+			},
+
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				// require response status codes match
+				require.Equal(t, http.StatusNotFound, recorder.Code)
+			},
+		},
+		{
+			name:   "Not enough Params",
+			userId: user.ID,
+			body: gin.H{
+				"email": util.RandomEmail(),
+			},
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().GetUserByEmail(gomock.Any(), gomock.Any()).Times(0)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				// require response status codes match
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name:   "Internal Error",
+			userId: user.ID,
+			body: gin.H{
+				"email":    user.Email,
+				"password": password,
+			},
+			buildStub: func(store *mockdb.MockStore) {
+				store.EXPECT().GetUserByEmail(gomock.Any(), user.Email).Times(1).Return(db.User{}, sql.ErrConnDone)
+			},
+			checkResponse: func(t *testing.T, recorder *httptest.ResponseRecorder) {
+				// require response status codes match
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
 			},
 		},
 	}
