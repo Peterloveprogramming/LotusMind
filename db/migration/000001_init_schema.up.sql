@@ -68,6 +68,7 @@ CREATE TABLE "email_registrations" (
   "language" VARCHAR(20) NOT NULL,
   "chakra_info" VARCHAR(3000),
   "chakra_report" VARCHAR(8000),
+  "unique_code" VARCHAR(20) NOT NULL,
   "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
 );

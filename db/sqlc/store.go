@@ -440,6 +440,7 @@ type CreateUserEmailTransactiontArgs struct {
 	Email      string
 	ChakraInfo string
 	Language   string
+	UniqueCode string
 }
 
 func (store *Store) CreateUserEmailTransaction(ctx context.Context, args CreateUserEmailTransactiontArgs) error {
@@ -449,6 +450,7 @@ func (store *Store) CreateUserEmailTransaction(ctx context.Context, args CreateU
 			Email:      args.Email,
 			ChakraInfo: args.ChakraInfo,
 			Language:   args.Language,
+			UniqueCode: args.UniqueCode,
 		}
 		_, err := q.CreateUserEmail(ctx, params)
 		if err != nil {

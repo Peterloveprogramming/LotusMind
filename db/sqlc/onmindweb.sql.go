@@ -16,11 +16,12 @@ INSERT INTO email_registrations  (
   unique_id,
   email,
   chakra_info,
-  language
+  language,
+  unique_code
 ) VALUES (
-  $1, $2, $3, $4
+  $1, $2, $3, $4, $5
 )
-RETURNING unique_id, email, chakra_info, language, created_at, deleted_at
+RETURNING unique_id, email, chakra_info, language, unique_code, created_at, deleted_at
 `
 
 type CreateUserEmailParams struct {
@@ -28,21 +29,24 @@ type CreateUserEmailParams struct {
 	Email      string    `json:"email"`
 	ChakraInfo string    `json:"chakra_info"`
 	Language   string    `json:"language"`
+	UniqueCode string    `json:"unique_code"`
 }
 
-func (q *Queries) CreateUserEmail(ctx context.Context, arg CreateUserEmailParams) (UserEmail, error) {
+func (q *Queries) CreateUserEmail(ctx context.Context, arg CreateUserEmailParams) (EmailRegistrations, error) {
 	row := q.db.QueryRowContext(ctx, createUserEmail,
 		arg.UniqueId,
 		arg.Email,
 		arg.ChakraInfo,
 		arg.Language,
+		arg.UniqueCode,
 	)
-	var i UserEmail
+	var i EmailRegistrations
 	err := row.Scan(
 		&i.UniqueId,
 		&i.Email,
-		&i.Language,
 		&i.ChakraInfo,
+		&i.Language,
+		&i.UniqueCode,
 		&i.CreatedAt,
 		&i.DeletedAt,
 	)
@@ -147,7 +151,7 @@ func (q *Queries) GetByEmail(ctx context.Context, email string) (EmailRegistrati
 
 
 const getLatestEmailRegistration = `-- name: GetLatestEmailRegistration :one
-SELECT unique_id, email, chakra_report, created_at, deleted_at FROM email_registrations
+SELECT unique_id, email, chakra_report, unique_code, created_at, deleted_at FROM email_registrations
 WHERE email = $1
 ORDER BY created_at DESC
 LIMIT 1;
@@ -160,6 +164,7 @@ func (q *Queries) GetLatestEmailRegistration(ctx context.Context, email string) 
 		&i.UniqueId,
 		&i.Email,
 		&i.ChakraReport,
+		&i.UniqueCode,
 		&i.CreatedAt,
 		&i.DeletedAt,
 	)
@@ -180,7 +185,7 @@ func (q *Queries) UpdateChakraReportByUniqueId(ctx context.Context, chakraReport
 
 
 const getEmailRegistrationByTestNum = `-- name: GetEmailRegistrationByTestNum :one
-SELECT unique_id, email, language, chakra_info, chakra_report, created_at, deleted_at
+SELECT unique_id, email, language, chakra_info, chakra_report, unique_code, created_at, deleted_at
 FROM email_registrations
 WHERE email = $1
 ORDER BY created_at
@@ -196,6 +201,7 @@ func (q *Queries) GetEmailRegistrationByTestNum(ctx context.Context, email strin
 		&i.Language,
 		&i.ChakraInfo,
 		&i.ChakraReport,
+		&i.UniqueCode,
 		&i.CreatedAt,
 		&i.DeletedAt,
 	)
@@ -217,9 +223,9 @@ random_bracelets AS (
     ORDER BY RANDOM()
     LIMIT 2
 )
-SELECT * FROM custom_bracelets
+SELECT * FROM random_bracelets	
 UNION ALL
-SELECT * FROM random_bracelets;
+SELECT * FROM custom_bracelets;
 `
 
 

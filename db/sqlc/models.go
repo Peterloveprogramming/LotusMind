@@ -107,6 +107,7 @@ type EmailRegistrations struct {
 	UniqueId     uuid.UUID      `json:"unique_id"`
 	Email        string         `json:"email"`
 	Language     string         `json:"language"`
+	UniqueCode   string         `json:"unique_code"`
 	ChakraInfo   sql.NullString `json:"chakra_info"`
 	ChakraReport sql.NullString `json:"chakra_report"`
 	CreatedAt    time.Time      `json:"created_at"`
