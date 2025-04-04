@@ -1,10 +1,14 @@
 package api
 
 import (
+	"fmt"
+	"net/http"
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	db "github.com/lotusMind/meditation/db/sqlc"
+	"github.com/lotusMind/meditation/token"
 	"github.com/lotusMind/meditation/util"
 	"github.com/stretchr/testify/require"
 )
@@ -66,4 +70,30 @@ func randomMobileProfile(t *testing.T, userIdParam ...int64) db.UsersProfileMobi
 		UserID:               *userId,
 		TotalTimeSpentInMins: int64(util.RandomInt(1, 1000)),
 	}
+}
+
+func randomTibetanSingingBowlrSessionLog(t *testing.T) db.SessionLog {
+	mrUser := randomMrUser(t)
+	return db.SessionLog{
+		Uuid:            uuid.New(),
+		UserID:          mrUser.ID,
+		SessionType:     "tibetan_singing_bowl_mr",
+		SessionPlatform: "mr",
+	}
+}
+
+func addAuthorization(
+	t *testing.T,
+	request *http.Request,
+	tokenMaker token.Maker,
+	authorizationType string,
+	userEmail string,
+	duration time.Duration,
+) {
+	token, err := tokenMaker.CreateToken(userEmail, duration)
+	require.NoError(t, err)
+	require.NotEmpty(t, token)
+
+	authorizationHeader := fmt.Sprintf("%s %s", authorizationType, token)
+	request.Header.Set(authorizationHeaderKey, authorizationHeader)
 }

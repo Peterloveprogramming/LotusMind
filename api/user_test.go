@@ -9,14 +9,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
 	"github.com/lib/pq"
 	mockdb "github.com/lotusMind/meditation/db/mock"
 	db "github.com/lotusMind/meditation/db/sqlc"
-	"github.com/lotusMind/meditation/token"
 	"github.com/lotusMind/meditation/util"
 	"github.com/stretchr/testify/require"
 )
@@ -483,20 +481,4 @@ func TestLoginuSER(t *testing.T) {
 
 		})
 	}
-}
-
-func addAuthorization(
-	t *testing.T,
-	request *http.Request,
-	tokenMaker token.Maker,
-	authorizationType string,
-	userEmail string,
-	duration time.Duration,
-) {
-	token, err := tokenMaker.CreateToken(userEmail, duration)
-	require.NoError(t, err)
-	require.NotEmpty(t, token)
-
-	authorizationHeader := fmt.Sprintf("%s %s", authorizationType, token)
-	request.Header.Set(authorizationHeaderKey, authorizationHeader)
 }
