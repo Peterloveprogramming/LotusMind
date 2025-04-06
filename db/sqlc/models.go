@@ -110,6 +110,8 @@ type EmailRegistrations struct {
 	UniqueCode   string         `json:"unique_code"`
 	ChakraInfo   sql.NullString `json:"chakra_info"`
 	ChakraReport sql.NullString `json:"chakra_report"`
+	IP           string         `json:"ip"`
+	Country      string         `json:"country"`
 	CreatedAt    time.Time      `json:"created_at"`
 	DeletedAt    time.Time      `json:"deleted_at"`
 }

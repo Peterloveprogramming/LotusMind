@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -23,6 +24,8 @@ type createUserEmailRequestBody struct {
 	Email    string            `json:"email" binding:"required,min=1,max=50"`
 	Answers  map[string]string `json:"answers"`
 	Language string            `json:"language"`
+	IP       string            `json:"ip"`
+	Country  string            `json:"country"`
 }
 
 func (server *Server) registEmail(ctx *gin.Context) {
@@ -138,6 +141,8 @@ func (server *Server) registEmail(ctx *gin.Context) {
 		ChakraInfo: string(chakraInfoJSON),
 		Language:   req.Language,
 		UniqueCode: generateUniqueCode(),
+		IP:         req.IP,
+		Country:    req.Country,
 	}
 
 	err = server.store.CreateUserEmailTransaction(ctx, args)
@@ -530,4 +535,83 @@ func (server *Server) getLatestEmailRegistration(ctx *gin.Context, email string)
 		return db.EmailRegistrations{}, err
 	}
 	return latestRegistration, nil
+}
+
+func (server *Server) getReportByCode(ctx *gin.Context) {
+	code := ctx.Param("code")
+	if code == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "code is required"})
+		return
+	}
+
+	registration, err := server.store.GetReportByCode(ctx, code)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "report not found"})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 解析 chakra_info
+	var chakraInfo []ChakraInfo
+	if registration.ChakraInfo.Valid {
+		if err := json.Unmarshal([]byte(registration.ChakraInfo.String), &chakraInfo); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "failed to parse chakra info"})
+			return
+		}
+	} else {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "No chakra info available"})
+		return
+	}
+
+	// 获取推荐的手串
+	// 创建一个切片存储分数最低的两个脉轮名称
+	type chakraScore struct {
+		name  string
+		score int32
+	}
+	scores := make([]chakraScore, len(chakraInfo))
+	for i, r := range chakraInfo {
+		scores[i] = chakraScore{
+			name:  r.ChakraName,
+			score: r.ChakraScore,
+		}
+	}
+
+	// 根据分数排序（从低到高）
+	sort.Slice(scores, func(i, j int) bool {
+		return scores[i].score < scores[j].score
+	})
+
+	// 获取分数最低的两个脉轮
+	lowestChakras := []string{scores[0].name, scores[1].name}
+
+	// 获取推荐的手串
+	var bracelets []db.ChakraBracelet
+	bracelets, err = server.store.GetChakraBracelet(ctx, lowestChakras)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 构建返回结果
+	var response []chakraTestResult
+	for _, r := range chakraInfo {
+		response = append(response, chakraTestResult{
+			ChakraName:   r.ChakraName,
+			ChakraScore:  r.ChakraScore,
+			ChakraStatus: r.ChakraStatus,
+		})
+	}
+
+	// 返回结果
+	result := gin.H{
+		"chakra_results": response,
+		"language":       registration.Language,
+		"bracelets":      bracelets,
+	}
+
+	ctx.JSON(http.StatusOK, result)
 }

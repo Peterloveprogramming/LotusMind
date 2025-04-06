@@ -441,6 +441,8 @@ type CreateUserEmailTransactiontArgs struct {
 	ChakraInfo string
 	Language   string
 	UniqueCode string
+	IP         string
+	Country    string
 }
 
 func (store *Store) CreateUserEmailTransaction(ctx context.Context, args CreateUserEmailTransactiontArgs) error {
@@ -451,6 +453,8 @@ func (store *Store) CreateUserEmailTransaction(ctx context.Context, args CreateU
 			ChakraInfo: args.ChakraInfo,
 			Language:   args.Language,
 			UniqueCode: args.UniqueCode,
+			IP:         args.IP,
+			Country:    args.Country,
 		}
 		_, err := q.CreateUserEmail(ctx, params)
 		if err != nil {
@@ -484,4 +488,8 @@ func (store *Store) GetEmailRegistrationByTestNum(ctx context.Context, email str
 
 func (store *Store) GetChakraBracelet(ctx context.Context, chakras []string) ([]ChakraBracelet, error) {
 	return store.Queries.GetChakraBracelet(ctx, chakras)
+}
+
+func (store *Store) GetReportByCode(ctx context.Context, code string) (EmailRegistrations, error) {
+	return store.Queries.GetReportByCode(ctx, code)
 }

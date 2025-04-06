@@ -17,11 +17,13 @@ INSERT INTO email_registrations  (
   email,
   chakra_info,
   language,
-  unique_code
+  unique_code,
+  ip,
+  country
 ) VALUES (
-  $1, $2, $3, $4, $5
+  $1, $2, $3, $4, $5, $6, $7
 )
-RETURNING unique_id, email, chakra_info, language, unique_code, created_at, deleted_at
+RETURNING unique_id, email, chakra_info, language, unique_code, ip, country, created_at, deleted_at
 `
 
 type CreateUserEmailParams struct {
@@ -30,6 +32,8 @@ type CreateUserEmailParams struct {
 	ChakraInfo string    `json:"chakra_info"`
 	Language   string    `json:"language"`
 	UniqueCode string    `json:"unique_code"`
+	IP         string    `json:"ip"`
+	Country    string    `json:"country"`
 }
 
 func (q *Queries) CreateUserEmail(ctx context.Context, arg CreateUserEmailParams) (EmailRegistrations, error) {
@@ -39,6 +43,8 @@ func (q *Queries) CreateUserEmail(ctx context.Context, arg CreateUserEmailParams
 		arg.ChakraInfo,
 		arg.Language,
 		arg.UniqueCode,
+		arg.IP,
+		arg.Country,
 	)
 	var i EmailRegistrations
 	err := row.Scan(
@@ -47,6 +53,8 @@ func (q *Queries) CreateUserEmail(ctx context.Context, arg CreateUserEmailParams
 		&i.ChakraInfo,
 		&i.Language,
 		&i.UniqueCode,
+		&i.IP,
+		&i.Country,
 		&i.CreatedAt,
 		&i.DeletedAt,
 	)
@@ -260,6 +268,31 @@ func (q *Queries) GetChakraBracelet(ctx context.Context, chakras []string) ([]Ch
 	}
 	return items, nil
 }
+
+
+const getReportByCode = `-- name: GetReportByCode :one
+SELECT unique_id, email, chakra_info, chakra_report, language, unique_code, created_at, deleted_at
+FROM email_registrations
+WHERE unique_code = $1 AND deleted_at = '0001-01-01 00:00:00+00'
+LIMIT 1;
+`	
+
+func (q *Queries) GetReportByCode(ctx context.Context, code string) (EmailRegistrations, error) {
+	row := q.db.QueryRowContext(ctx, getReportByCode, code)
+	var i EmailRegistrations
+	err := row.Scan(
+		&i.UniqueId,
+		&i.Email,
+		&i.ChakraInfo,
+		&i.ChakraReport,
+		&i.Language,
+		&i.UniqueCode,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 
 
 
