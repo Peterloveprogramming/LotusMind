@@ -36,9 +36,37 @@ func (server *Server) registEmail(ctx *gin.Context) {
 	}
 
 	// 创建问题分数映射
+	fmt.Printf("req.Answers: %+v\n", req.Answers)
 	questionAnswers := make(map[string]string)
+
+	// 准备批量插入的参数
+	var uniqueIds []uuid.UUID
+	var emails []string
+	var uniqueCodes []string
+	var questions []string
+	var answers []string
+	uniqueCode := generateUniqueCode()
+
 	for question, answer := range req.Answers {
 		questionAnswers[question] = answer
+		uniqueIds = append(uniqueIds, uuid.New())
+		emails = append(emails, req.Email)
+		uniqueCodes = append(uniqueCodes, uniqueCode)
+		questions = append(questions, question)
+		answers = append(answers, answer)
+	}
+
+	// 批量插入选项答案
+	_, err := server.store.CreateChakraTestOptionAnswersBatch(ctx, db.CreateChakraTestOptionAnswersBatchParams{
+		UniqueIds:   uniqueIds,
+		Emails:      emails,
+		UniqueCodes: uniqueCodes,
+		Questions:   questions,
+		Answers:     answers,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	// 创建一个切片用于存放所有 value
@@ -140,7 +168,7 @@ func (server *Server) registEmail(ctx *gin.Context) {
 		Email:      req.Email,
 		ChakraInfo: string(chakraInfoJSON),
 		Language:   req.Language,
-		UniqueCode: generateUniqueCode(),
+		UniqueCode: uniqueCode,
 		IP:         req.IP,
 		Country:    req.Country,
 	}

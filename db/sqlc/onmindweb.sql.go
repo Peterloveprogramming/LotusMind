@@ -294,5 +294,58 @@ func (q *Queries) GetReportByCode(ctx context.Context, code string) (EmailRegist
 }
 
 
+const createChakraTestOptionAnswersBatch = `-- name: CreateChakraTestOptionAnswersBatch :many
+INSERT INTO chakra_test_option_answers (
+    unique_id,
+    email,
+    unique_code,
+    question,
+    answer
+)
+SELECT unnest($1::uuid[]), unnest($2::text[]), unnest($3::text[]), unnest($4::text[]), unnest($5::text[])
+RETURNING *; 
+`
+
+
+type CreateChakraTestOptionAnswersBatchParams struct {
+	UniqueIds []uuid.UUID `json:"unique_ids"`
+	Emails    []string    `json:"emails"`
+	UniqueCodes []string    `json:"unique_codes"`
+	Questions []string    `json:"questions"`
+	Answers   []string    `json:"answers"`
+}
+
+func (q *Queries) CreateChakraTestOptionAnswersBatch(ctx context.Context, arg CreateChakraTestOptionAnswersBatchParams) (ChakraTestOptionAnswers, error) {
+	row := q.db.QueryRowContext(ctx, createChakraTestOptionAnswersBatch,
+		pq.Array(arg.UniqueIds),
+		pq.Array(arg.Emails),
+		pq.Array(arg.UniqueCodes),
+		pq.Array(arg.Questions),
+		pq.Array(arg.Answers),
+	)
+	var i ChakraTestOptionAnswers
+	err := row.Scan(
+		&i.UniqueId,
+		&i.Email,
+		&i.UniqueCode,
+		&i.Question,
+		&i.Answer,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 

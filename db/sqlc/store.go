@@ -493,3 +493,7 @@ func (store *Store) GetChakraBracelet(ctx context.Context, chakras []string) ([]
 func (store *Store) GetReportByCode(ctx context.Context, code string) (EmailRegistrations, error) {
 	return store.Queries.GetReportByCode(ctx, code)
 }
+
+func (store *Store) CreateChakraTestOptionAnswersBatch(ctx context.Context, arg CreateChakraTestOptionAnswersBatchParams) (ChakraTestOptionAnswers, error) {
+	return store.Queries.CreateChakraTestOptionAnswersBatch(ctx, arg)
+}

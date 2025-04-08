@@ -125,3 +125,13 @@ type ChakraBracelet struct {
 	CreatedAt   time.Time      `json:"created_at"`
 	DeletedAt   time.Time      `json:"deleted_at"`
 }
+
+type ChakraTestOptionAnswers struct {
+	UniqueId uuid.UUID `json:"unique_id"`
+	Email    string    `json:"email"`
+	UniqueCode string    `json:"unique_code"`
+	Question string    `json:"question"`
+	Answer   string    `json:"answer"`
+	CreatedAt time.Time `json:"created_at"`
+	DeletedAt time.Time `json:"deleted_at"`
+}
