@@ -31,7 +31,27 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ommind
-          IMAGE_TAG: ${{ github.sha }}
+          # Pass the raw components needed for the tag
+          GIT_SHA: ${{ github.sha }}
+          BRANCH_NAME: ${{ github.ref_name }}
         run: |
+          # Get the current date
+          CURRENT_DATE=$(date +'%Y%m%d')
+
+          # Sanitize the branch name (replace '/' with '-')
+          # You might need more complex sanitization depending on possible branch names
+          SANITIZED_BRANCH_NAME=$(echo "${BRANCH_NAME}" | sed 's|/|-|g')
+
+          # Use a short SHA for brevity (e.g., first 7 characters)
+          SHORT_SHA="${GIT_SHA::7}"
+
+          # Construct the final tag using hyphens (or underscores)
+          IMAGE_TAG="${SHORT_SHA}-${CURRENT_DATE}-${SANITIZED_BRANCH_NAME}"
+
+          echo "Building image with tag: $IMAGE_TAG"
+          # Use the constructed tag in the docker build command
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+
+          echo "Pushing image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          # Use the constructed tag in the docker push command
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
