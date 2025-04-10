@@ -2,10 +2,10 @@ name: Test golang migrate and run unit tests
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "develop"]
   pull_request:
-    branches: ["main"]
-
+    branches: ["main", "develop"]
+    
 jobs:
   test:
     name: Test
@@ -49,3 +49,4 @@ jobs:
 
       - name: Test
         run: make test
+
