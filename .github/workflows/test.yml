@@ -5,7 +5,7 @@ on:
     branches: ["main", "develop"]
   pull_request:
     branches: ["main", "develop"]
-
+    
 jobs:
   test:
     name: Test
@@ -47,5 +47,6 @@ jobs:
       - name: Run migrations
         run: make migrateup
 
-    # - name: Test
-    #   run: make test
+      - name: Test
+        run: make test
+
