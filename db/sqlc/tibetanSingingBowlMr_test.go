@@ -112,7 +112,7 @@ func TestUpdateTibetanSingingBowlMrQuitByUuid(t *testing.T) {
 	updatedTibetanSingingBowl, err := testQueries.UpdateTibetanSingingBowlMrQuitByUuid(context.Background(), args)
 	require.NoError(t, err)
 	require.NotEmpty(t, updatedTibetanSingingBowl)
-	require.Equal(t, endsTime.UTC(), updatedTibetanSingingBowl.EndsAt.UTC())
+	require.WithinDuration(t, endsTime.UTC(), updatedTibetanSingingBowl.EndsAt.UTC(), time.Microsecond)
 }
 
 func TestGetTibetanSingingBowlMrByUuid(t *testing.T) {

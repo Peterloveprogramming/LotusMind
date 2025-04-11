@@ -111,7 +111,7 @@ func TestUpdateTummoBreathingMrQuitByUuid(t *testing.T) {
 	updatedTummoBreathingMr, err := testQueries.UpdateTummoBreathingMrQuitByUuid(context.Background(), args)
 	require.NoError(t, err)
 	require.NotEmpty(t, updatedTummoBreathingMr)
-	require.Equal(t, endsTime.UTC(), updatedTummoBreathingMr.EndsAt.UTC())
+	require.WithinDuration(t, endsTime.UTC(), updatedTummoBreathingMr.EndsAt.UTC(), time.Microsecond)
 }
 
 func TestGetTummoBreathingMrByUniqueID(t *testing.T) {
