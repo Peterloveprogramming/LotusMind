@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	"github.com/lotusMind/meditation/chakareport"
 	db "github.com/lotusMind/meditation/db/sqlc"
 	"github.com/lotusMind/meditation/token"
 	"github.com/lotusMind/meditation/util"
@@ -21,10 +22,11 @@ var (
 
 // servers all the http requests for lotus mind
 type Server struct {
-	config     util.Config
-	store      *db.Store
-	router     *gin.Engine
-	tokenMaker token.Maker
+	config             util.Config
+	store              *db.Store
+	router             *gin.Engine
+	tokenMaker         token.Maker
+	chakaraReportMaker chakareport.Maker
 }
 
 // set up api routes for that server
@@ -33,10 +35,15 @@ func NewServer(config util.Config, store *db.Store) (*Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("can not create token maker: %w", err)
 	}
+	chakaraReportMaker, err := chakareport.NewDummyChakaraReportMaker()
+	if err != nil {
+		return nil, fmt.Errorf("can not create chakaraReportMaker: %w", err)
+	}
 	server := &Server{
-		store:      store,
-		tokenMaker: tokenMaker,
-		config:     config,
+		store:              store,
+		tokenMaker:         tokenMaker,
+		config:             config,
+		chakaraReportMaker: chakaraReportMaker,
 	}
 
 	//register validator

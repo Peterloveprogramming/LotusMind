@@ -466,7 +466,13 @@ func (server *Server) getChakraReport(ctx *gin.Context) {
 		language = req.Language
 
 		// 生成报告的逻辑
-		report = generateChakraReport(req.ChakraInfo, language)
+		// report = generateChakraReport(req.ChakraInfo, language)
+		report, err = server.chakaraReportMaker.GenerateChakaraReport(language)
+		if err != nil {
+			println("there is error in the server", err)
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
 
 		// 获取最新的 email_registrations 记录
 		latestRegistration, err := server.getLatestEmailRegistration(ctx, req.Email)

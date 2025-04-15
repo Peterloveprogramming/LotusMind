@@ -1,6 +1,6 @@
 # create docker contianer
 postgres:
-	docker run --name postgres17 --network lotusmind-network -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:17-alpine
+	docker run --name postgres17 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:17-alpine
 # create database inside the container
 createdb:
 	docker exec -it postgres17 createdb --username=root --owner=root meditation
