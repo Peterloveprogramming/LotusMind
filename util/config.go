@@ -9,11 +9,13 @@ import (
 // stores all the configuration of the application
 // values will then be read by viper.
 type Config struct {
-	DBDriver            string        `mapstructure:"DB_DRIVER"`
-	DBSource            string        `mapstructure:"DB_SOURCE"`
-	ServerAddress       string        `mapstructure:"SERVER_ADDRESS"`
-	TokenSymmetricKey   string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
-	AccessTokenDuration time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
+	APP_ENVIROMENT         string        `mapstructure:"APP_ENVIROMENT"`
+	CHAKARA_REPORT_API_URL string        `mapstructure:"CHAKARA_REPORT_API_URL"`
+	DBDriver               string        `mapstructure:"DB_DRIVER"`
+	DBSource               string        `mapstructure:"DB_SOURCE"`
+	ServerAddress          string        `mapstructure:"SERVER_ADDRESS"`
+	TokenSymmetricKey      string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
+	AccessTokenDuration    time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

@@ -35,7 +35,7 @@ func NewServer(config util.Config, store *db.Store) (*Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("can not create token maker: %w", err)
 	}
-	chakaraReportMaker, err := chakareport.NewDummyChakaraReportMaker()
+	chakaraReportMaker, err := chakareport.ChakraMaker(config.APP_ENVIROMENT, config.CHAKARA_REPORT_API_URL)
 	if err != nil {
 		return nil, fmt.Errorf("can not create chakaraReportMaker: %w", err)
 	}

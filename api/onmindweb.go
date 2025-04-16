@@ -1,12 +1,10 @@
 package api
 
 import (
-	"bytes"
 	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"sort"
@@ -16,6 +14,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/lotusMind/meditation/chakareport"
 	db "github.com/lotusMind/meditation/db/sqlc"
 )
 
@@ -404,10 +403,10 @@ type ChakraInfo struct {
 }
 
 type GetChakraReportRequest struct {
-	Email      string       `json:"email" binding:"required,email"`
-	TestNum    string       `json:"test_num"`
-	Language   string       `json:"language"`
-	ChakraInfo []ChakraInfo `json:"chakra_info" binding:"required"`
+	Email      string                   `json:"email" binding:"required,email"`
+	TestNum    string                   `json:"test_num"`
+	Language   string                   `json:"language"`
+	ChakraInfo []chakareport.ChakraInfo `json:"chakra_info" binding:"required"` // Use chakareport.ChakraInfo
 }
 
 type GetChakraReportResponse struct {
@@ -466,8 +465,7 @@ func (server *Server) getChakraReport(ctx *gin.Context) {
 		language = req.Language
 
 		// 生成报告的逻辑
-		// report = generateChakraReport(req.ChakraInfo, language)
-		report, err = server.chakaraReportMaker.GenerateChakaraReport(language)
+		report, err = server.chakaraReportMaker.GenerateChakaraReport(req.ChakraInfo, language)
 		if err != nil {
 			println("there is error in the server", err)
 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -511,39 +509,6 @@ func (server *Server) getChakraReport(ctx *gin.Context) {
 	fmt.Println("newReport111:", string(newReport))
 	ctx.Data(http.StatusOK, "application/json", newReport)
 
-}
-
-func generateChakraReport(chakraInfo []ChakraInfo, language string) []byte {
-	fmt.Printf("current language: %+v\n", language)
-
-	// 将 chakraInfo 和 language 转换为 JSON
-	jsonData, err := json.Marshal(map[string]interface{}{
-		"chakra_info": chakraInfo,
-		"language":    language,
-	})
-	if err != nil {
-		fmt.Println("Error marshalling JSON:", err)
-		return []byte("Error generating report about json.Marshal")
-	}
-
-	// 发送 POST 请求到外部 API
-	resp, err := http.Post("http://host.docker.internal:8888/getChakraReport", "application/json", bytes.NewBuffer(jsonData))
-	if err != nil {
-		fmt.Println("Error making POST request:", err)
-		return []byte("Error generating report about http.Post")
-	}
-	defer resp.Body.Close()
-
-	// 读取响应
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println("Error reading response body:", err)
-		return []byte("Error generating report about ioutil.ReadAll")
-	}
-	fmt.Println("body:", body)
-
-	// 直接返回响应内容
-	return body
 }
 
 func (server *Server) getEmailRegistrationByTestNum(ctx *gin.Context, email string, testNum int) (db.EmailRegistrations, error) {
