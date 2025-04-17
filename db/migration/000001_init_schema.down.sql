@@ -16,6 +16,11 @@ DROP TABLE IF EXISTS tummo_breathing_mr;
 DROP TABLE IF EXISTS session_logs;
 DROP TABLE IF EXISTS users_profile_mr;
 DROP TABLE IF EXISTS users_profile_mobile;
+DROP TABLE IF EXISTS email_registrations;
+DROP TABLE IF EXISTS chakra_test_results;
+DROP TABLE IF EXISTS chakra_bracelet;
+DROP TABLE IF EXISTS chakra_test_option_answers;
+
 
 
 -- Drop users table
