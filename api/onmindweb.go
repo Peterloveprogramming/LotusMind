@@ -480,6 +480,10 @@ func (server *Server) getChakraReport(ctx *gin.Context) {
 		}
 		fmt.Printf("Latest registration for email %s: %+v\n", req.Email, latestRegistration)
 
+		// get uniqueid
+		// save it like ommind/chakara-report/y.peter998@gmail.com/WZFZ5T6PSIX.txt
+		// we want to pass email, and uniqueid, report  s3 - perhaps has a function called, save chakarareport?
+		// function needs to have crud
 		// 更新 chakra_report 字段
 		if err := server.updateChakraReportByUniqueId(ctx, latestRegistration.UniqueId, report); err != nil {
 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))

@@ -16,9 +16,10 @@ type Config struct {
 	ServerAddress          string        `mapstructure:"SERVER_ADDRESS"`
 	TokenSymmetricKey      string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
 	AccessTokenDuration    time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
-    AWSRegion           string        `mapstructure:"AWS_REGION"`
-	AWSAccessKeyID      string        `mapstructure:"AWS_ACCESS_KEY_ID"`
-	AWSSecretAccessKey  string        `mapstructure:"AWS_SECRET_ACCESS_KEY"`
+	AWSRegion              string        `mapstructure:"AWS_REGION"`
+	AWSAccessKeyID         string        `mapstructure:"AWS_ACCESS_KEY_ID"`
+	AWSSecretAccessKey     string        `mapstructure:"AWS_SECRET_ACCESS_KEY"`
+	AWSBucketName          string        `mapstructure:"AWS_BUCKET_NAME"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

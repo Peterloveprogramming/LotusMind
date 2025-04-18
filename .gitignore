@@ -1,7 +1,2 @@
-# app.env
 aws_commands.txt
-start.sh
-Dockerfile
-app.env
-docker-compose.yml
-
+/chakara-report
