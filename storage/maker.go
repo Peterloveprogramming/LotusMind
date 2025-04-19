@@ -7,7 +7,7 @@ import (
 
 type Maker interface {
 	SaveChakaraReportAsText(email string, uniqueId string, content string) error
-	GetChakaraReportByTestNum(email string, testNum int) (string, error)
+	GetChakaraReportByUniqueCode(email string, uniqueCode string) (string, error)
 }
 
 func StorageMaker(appEnvironment string, awsRegion, awsAccessKeyId, awsSecretAccessKey, awsBucketName string) (Maker, error) {

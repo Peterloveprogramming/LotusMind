@@ -73,47 +73,53 @@ func (maker *LocalStorageMaker) SaveChakaraReportAsText(email string, uniqueId s
 	return nil
 }
 
-func (maker *LocalStorageMaker) GetChakaraReportByTestNum(email string, testNum int) (string, error) {
-	if testNum <= 0 {
-		return "", fmt.Errorf("testNum must be greater than 0")
+// GetChakaraReportByUniqueCode retrieves the content of the chakra report file
+// matching the uniqueCode for a given email from the local filesystem.
+// If multiple matches exist, it returns the latest one based on the timestamp.
+func (maker *LocalStorageMaker) GetChakaraReportByUniqueCode(email string, uniqueCode string) (string, error) {
+	if uniqueCode == "" {
+		return "", fmt.Errorf("uniqueCode cannot be empty")
+	}
+	if email == "" {
+		return "", fmt.Errorf("email cannot be empty")
 	}
 
 	// Construct the specific user's directory path
 	dirPath := filepath.Join(maker.baseReportDir, email)
+	// Define the specific prefix for the unique code within the user's folder
+	filePrefix := uniqueCode + "-"
 
 	// Read the directory contents
 	entries, err := os.ReadDir(dirPath)
 	if err != nil {
-		// Handle cases where the directory doesn't exist (e.g., no reports for the user yet)
+		// Handle cases where the directory doesn't exist
 		if os.IsNotExist(err) {
 			return "", fmt.Errorf("no reports found for email: %s", email)
 		}
 		return "", fmt.Errorf("failed to read directory '%s': %w", dirPath, err)
 	}
 
-	// Filter and collect report filenames
-	var reportFiles []string
+	// Filter and collect report filenames matching the uniqueCode prefix
+	var matchingFiles []string
 	for _, entry := range entries {
-		// Skip directories and files that don't have the correct extension
-		if !entry.IsDir() && strings.HasSuffix(entry.Name(), ReportFileExtension) {
-			reportFiles = append(reportFiles, entry.Name())
+		// Skip directories and files that don't match the prefix and extension
+		if !entry.IsDir() && strings.HasPrefix(entry.Name(), filePrefix) && strings.HasSuffix(entry.Name(), ReportFileExtension) {
+			matchingFiles = append(matchingFiles, entry.Name())
 		}
 	}
 
-	// Sort the filenames alphabetically. Since the timestamp is YYYYMMDDHHMM,
-	// this effectively sorts them chronologically (oldest first).
-	sort.Strings(reportFiles)
-
-	// Calculate the index (0-based)
-	index := testNum - 1
-
-	// Check if the requested testNum is valid
-	if index < 0 || index >= len(reportFiles) {
-		return "", fmt.Errorf("report number %d not found for email %s (only %d reports exist)", testNum, email, len(reportFiles))
+	// Check if any matching files were found
+	if len(matchingFiles) == 0 {
+		return "", fmt.Errorf("report with unique code '%s' not found for email '%s' locally", uniqueCode, email)
 	}
 
-	// Get the filename for the requested report number
-	targetFilename := reportFiles[index]
+	// If multiple matches, sort descending by filename to get the latest timestamp
+	if len(matchingFiles) > 1 {
+		sort.Sort(sort.Reverse(sort.StringSlice(matchingFiles)))
+	}
+
+	// Get the filename for the requested report (the first one after sorting)
+	targetFilename := matchingFiles[0]
 	filePath := filepath.Join(dirPath, targetFilename)
 
 	// Read the file content
@@ -122,5 +128,6 @@ func (maker *LocalStorageMaker) GetChakaraReportByTestNum(email string, testNum 
 		return "", fmt.Errorf("failed to read report file '%s': %w", filePath, err)
 	}
 
+	fmt.Printf("Successfully retrieved report locally from '%s'\n", filePath) // Log success
 	return string(contentBytes), nil
 }

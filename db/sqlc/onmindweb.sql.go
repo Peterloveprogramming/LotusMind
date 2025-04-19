@@ -159,7 +159,7 @@ func (q *Queries) GetByEmail(ctx context.Context, email string) (EmailRegistrati
 
 
 const getLatestEmailRegistration = `-- name: GetLatestEmailRegistration :one
-SELECT unique_id, email, chakra_report, unique_code, created_at, deleted_at FROM email_registrations
+SELECT unique_id, email, unique_code, created_at, deleted_at FROM email_registrations
 WHERE email = $1
 ORDER BY created_at DESC
 LIMIT 1;

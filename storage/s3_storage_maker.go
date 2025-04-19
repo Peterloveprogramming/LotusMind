@@ -31,10 +31,6 @@ func NewS3StorageMaker(awsRegion, awsAccessKeyId, awsSecretAccessKey, awsBucketN
 	if awsRegion == "" || awsAccessKeyId == "" || awsSecretAccessKey == "" || awsBucketName == "" {
 		return nil, fmt.Errorf("missing required AWS configuration: region, access key ID, secret access key, or bucket name cannot be empty")
 	}
-	println("aws region", awsRegion)
-	println("aws access key id", awsAccessKeyId)
-	println("aws secret access key", awsSecretAccessKey)
-	println("aws bucket name", awsBucketName)
 
 	// Load AWS configuration
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
@@ -92,71 +88,74 @@ func (maker *S3StorageMaker) SaveChakaraReportAsText(email string, uniqueId stri
 	return nil // Return nil on success
 }
 
-// GetChakaraReportByTestNum retrieves the content of the Nth oldest chakra report
-// for a given email from the S3 bucket.
-// testNum = 1 retrieves the oldest, testNum = 2 retrieves the second oldest, etc.
-func (maker *S3StorageMaker) GetChakaraReportByTestNum(email string, testNum int) (string, error) {
-	if testNum <= 0 {
-		return "", fmt.Errorf("testNum must be greater than 0")
+// GetChakaraReportByUniqueCode retrieves the content of the chakra report
+// matching the uniqueCode for a given email from the S3 bucket.
+// If multiple matches exist, it returns the latest one based on the timestamp.
+func (maker *S3StorageMaker) GetChakaraReportByUniqueCode(email string, uniqueCode string) (string, error) {
+	if uniqueCode == "" {
+		return "", fmt.Errorf("uniqueCode cannot be empty")
+	}
+	if email == "" {
+		return "", fmt.Errorf("email cannot be empty")
 	}
 
 	ctx := context.TODO() // Use context.TODO() for now
 
 	// Define the prefix for listing objects in the user's "folder"
 	prefix := ReportFolderName + "/" + email + "/"
+	// Define the specific prefix for the unique code within the user's folder
+	filePrefix := prefix + uniqueCode + "-"
 
-	// List objects in the bucket with the specified prefix
+	// List objects in the bucket with the user's folder prefix
 	listInput := &s3.ListObjectsV2Input{
 		Bucket: aws.String(maker.awsBucketName),
-		Prefix: aws.String(prefix),
+		Prefix: aws.String(prefix), // List the whole user folder first
 	}
 
-	var reportObjects []types.Object // Use types.Object
+	var matchingObjects []types.Object // Store objects matching the uniqueCode
 
-	// Paginate through results if necessary (though unlikely for single user reports)
+	// Paginate through results
 	paginator := s3.NewListObjectsV2Paginator(maker.s3Client, listInput)
 	for paginator.HasMorePages() {
 		page, err := paginator.NextPage(ctx)
 		if err != nil {
 			return "", fmt.Errorf("failed to list objects in S3 bucket '%s' with prefix '%s': %w", maker.awsBucketName, prefix, err)
 		}
-		// Filter for actual files (not the prefix "folder" itself) and correct extension
+
+		// Filter for files matching the specific uniqueCode prefix and extension
 		for _, obj := range page.Contents {
-			// Ensure obj.Key is not nil and doesn't represent the directory itself
-			if obj.Key != nil && *obj.Key != prefix && strings.HasSuffix(*obj.Key, ReportFileExtension) {
-				reportObjects = append(reportObjects, obj)
+			if obj.Key != nil && strings.HasPrefix(*obj.Key, filePrefix) && strings.HasSuffix(*obj.Key, ReportFileExtension) {
+				matchingObjects = append(matchingObjects, obj)
 			}
 		}
 	}
 
-	// Sort the objects by key (filename). Since the timestamp is YYYYMMDDHHMM,
-	// this effectively sorts them chronologically (oldest first).
-	sort.Slice(reportObjects, func(i, j int) bool {
-		// Dereference pointers safely
-		keyI := ""
-		if reportObjects[i].Key != nil {
-			keyI = *reportObjects[i].Key
-		}
-		keyJ := ""
-		if reportObjects[j].Key != nil {
-			keyJ = *reportObjects[j].Key
-		}
-		return keyI < keyJ
-	})
-
-	// Calculate the index (0-based)
-	index := testNum - 1
-
-	// Check if the requested testNum is valid
-	if index < 0 || index >= len(reportObjects) {
-		return "", fmt.Errorf("report number %d not found for email %s in S3 bucket '%s' (only %d reports exist)", testNum, email, maker.awsBucketName, len(reportObjects))
+	// Check if any matching objects were found
+	if len(matchingObjects) == 0 {
+		return "", fmt.Errorf("report with unique code '%s' not found for email '%s' in S3 bucket '%s'", uniqueCode, email, maker.awsBucketName)
 	}
 
-	// Get the key for the requested report number
-	targetKey := reportObjects[index].Key
+	// If multiple matches, sort descending by key (filename) to get the latest timestamp
+	if len(matchingObjects) > 1 {
+		sort.Slice(matchingObjects, func(i, j int) bool {
+			// Dereference pointers safely
+			keyI := ""
+			if matchingObjects[i].Key != nil {
+				keyI = *matchingObjects[i].Key
+			}
+			keyJ := ""
+			if matchingObjects[j].Key != nil {
+				keyJ = *matchingObjects[j].Key
+			}
+			// Sort descending
+			return keyI > keyJ
+		})
+	}
+
+	// Get the key of the target object (the first one after sorting, which is the latest)
+	targetKey := matchingObjects[0].Key
 	if targetKey == nil {
-		// This should ideally not happen if filtering worked, but good to check
-		return "", fmt.Errorf("internal error: found object at index %d has nil key", index)
+		return "", fmt.Errorf("internal error: found object for unique code '%s' has nil key", uniqueCode)
 	}
 
 	// Get the object content from S3

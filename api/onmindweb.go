@@ -450,12 +450,16 @@ func (server *Server) getChakraReport(ctx *gin.Context) {
 		}
 		fmt.Printf("Registration for email %s: %+v\n", req.Email, registration)
 
-		// 使用数据库中的 chakra_report
-		if registration.ChakraReport.Valid {
-			report = []byte(registration.ChakraReport.String)
-		} else {
-			report = []byte("No report available")
+		// 使用 chakra_report
+		var reportString string
+		reportString, err = server.storageMaker.GetChakaraReportByUniqueCode(req.Email, registration.UniqueCode)
+		if err != nil {
+			// Handle the error appropriately, maybe return or log
+			ctx.JSON(http.StatusInternalServerError, errorResponse(fmt.Errorf("failed to get report from storage: %w", err)))
+			return
 		}
+		// Convert the string report to a byte slice
+		report = []byte(reportString)
 
 		// 获取 language
 		language = registration.Language
@@ -479,13 +483,9 @@ func (server *Server) getChakraReport(ctx *gin.Context) {
 			return
 		}
 		fmt.Printf("Latest registration for email %s: %+v\n", req.Email, latestRegistration)
-
-		// get uniqueid
-		// save it like ommind/chakara-report/y.peter998@gmail.com/WZFZ5T6PSIX.txt
-		// we want to pass email, and uniqueid, report  s3 - perhaps has a function called, save chakarareport?
-		// function needs to have crud
+		println("the report is ", string(report))
 		// 更新 chakra_report 字段
-		if err := server.updateChakraReportByUniqueId(ctx, latestRegistration.UniqueId, report); err != nil {
+		if err := server.storageMaker.SaveChakaraReportAsText(req.Email, latestRegistration.UniqueCode, string(report)); err != nil {
 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 			return
 		}

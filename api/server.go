@@ -42,7 +42,7 @@ func NewServer(config util.Config, store *db.Store) (*Server, error) {
 		return nil, fmt.Errorf("can not create chakaraReportMaker: %w", err)
 	}
 
-	storageMaker, err := storage.StorageMaker(config.APP_ENVIROMENT, config.AWSRegion, config.AWSAccessKeyID, config.AWSSecretAccessKey, config.AWSBucketName)
+	storageMaker, err := storage.StorageMaker("prod", config.AWSRegion, config.AWSAccessKeyID, config.AWSSecretAccessKey, config.AWSBucketName)
 	if err != nil {
 		return nil, fmt.Errorf("can not create storageMaker: %w", err)
 	}
@@ -98,7 +98,7 @@ func (server *Server) setupRouter() {
 	router.POST("/chakra/results/getChakraReport", server.getChakraReport)
 
 	router.GET("/test", func(c *gin.Context) {
-		err := server.storageMaker.SaveChakaraReportAsText("y.peter89@gmail.com", "dj", "test report 2")
+		err := server.storageMaker.SaveChakaraReportAsText("y.peter2223@gmail.com", "djj", "dj")
 		if err != nil {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
@@ -109,7 +109,7 @@ func (server *Server) setupRouter() {
 	})
 
 	router.GET("/test1", func(c *gin.Context) {
-		report, err := server.storageMaker.GetChakaraReportByTestNum("y.peter89@gmail.com", 3)
+		report, err := server.storageMaker.GetChakaraReportByUniqueCode("y.peter2223@gmail.com", "djj")
 		if err != nil {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
