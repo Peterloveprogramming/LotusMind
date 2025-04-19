@@ -67,6 +67,7 @@ CREATE TABLE "email_registrations" (
   "email" VARCHAR(50) NOT NULL,
   "language" VARCHAR(20) NOT NULL,
   "chakra_info" VARCHAR(3000),
+  "chakra_report" VARCHAR(8000),
   "unique_code" VARCHAR(20) NOT NULL,
   "ip" VARCHAR(20),
   "country" VARCHAR(100),
