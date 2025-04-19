@@ -283,6 +283,7 @@ func (server *Server) getChakraTestResults(ctx *gin.Context) {
 	// 获取特定的 email_registrations 记录
 	registration, err := server.getEmailRegistrationByTestNum(ctx, req.Email, testNum)
 	if err != nil {
+		println("error occured while attempting getEmailRegistrationByTestNum ", err)
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
@@ -479,6 +480,7 @@ func (server *Server) getChakraReport(ctx *gin.Context) {
 		// 获取最新的 email_registrations 记录
 		latestRegistration, err := server.getLatestEmailRegistration(ctx, req.Email)
 		if err != nil {
+			println("error occurred while attempting getLatestEmailRegistration", err)
 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 			return
 		}

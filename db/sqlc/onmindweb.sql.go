@@ -159,7 +159,7 @@ func (q *Queries) GetByEmail(ctx context.Context, email string) (EmailRegistrati
 
 
 const getLatestEmailRegistration = `-- name: GetLatestEmailRegistration :one
-SELECT unique_id, email, unique_code, created_at, deleted_at FROM email_registrations
+SELECT unique_id, email, unique_code,created_at, deleted_at FROM email_registrations
 WHERE email = $1
 ORDER BY created_at DESC
 LIMIT 1;
@@ -171,7 +171,6 @@ func (q *Queries) GetLatestEmailRegistration(ctx context.Context, email string) 
 	err := row.Scan(
 		&i.UniqueId,
 		&i.Email,
-		&i.ChakraReport,
 		&i.UniqueCode,
 		&i.CreatedAt,
 		&i.DeletedAt,
@@ -193,7 +192,7 @@ func (q *Queries) UpdateChakraReportByUniqueId(ctx context.Context, chakraReport
 
 
 const getEmailRegistrationByTestNum = `-- name: GetEmailRegistrationByTestNum :one
-SELECT unique_id, email, language, chakra_info, chakra_report, unique_code, created_at, deleted_at
+SELECT unique_id, email, language, chakra_info, unique_code, created_at, deleted_at
 FROM email_registrations
 WHERE email = $1
 ORDER BY created_at
@@ -208,7 +207,6 @@ func (q *Queries) GetEmailRegistrationByTestNum(ctx context.Context, email strin
 		&i.Email,
 		&i.Language,
 		&i.ChakraInfo,
-		&i.ChakraReport,
 		&i.UniqueCode,
 		&i.CreatedAt,
 		&i.DeletedAt,
