@@ -188,36 +188,36 @@ CREATE OR REPLACE FUNCTION soft_delete_user()
 RETURNS TRIGGER AS $$
 BEGIN
     -- Soft delete user
-    UPDATE users SET deleted_at = NOW() WHERE id = OLD.id AND deleted_at IS NULL;
+    UPDATE users SET deleted_at = NOW() WHERE id = OLD.id AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     -- Soft delete session logs linked to the user
-    UPDATE session_logs 
-    SET deleted_at = NOW() 
-    WHERE user_id = OLD.id AND deleted_at IS NULL;
+    UPDATE session_logs
+    SET deleted_at = NOW()
+    WHERE user_id = OLD.id AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     -- Soft delete related users_profile_mr
-    UPDATE users_profile_mr 
-    SET deleted_at = NOW() 
-    WHERE user_id IN (SELECT user_id FROM users_profile_mr WHERE user_id = OLD.id) 
-      AND deleted_at IS NULL;
+    UPDATE users_profile_mr
+    SET deleted_at = NOW()
+    WHERE user_id IN (SELECT user_id FROM users_profile_mr WHERE user_id = OLD.id)
+      AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     -- Soft delete related users_profile_mobile
     UPDATE users_profile_mobile
-    SET deleted_at = NOW() 
-    WHERE user_id IN (SELECT user_id FROM users_profile_mobile WHERE user_id = OLD.id) 
-      AND deleted_at IS NULL;
+    SET deleted_at = NOW()
+    WHERE user_id IN (SELECT user_id FROM users_profile_mobile WHERE user_id = OLD.id)
+      AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     -- Soft delete related tibetan singing bowl entries
-    UPDATE tibetan_singing_bowl_mr 
-    SET deleted_at = NOW() 
-    WHERE uuid IN (SELECT uuid FROM session_logs WHERE user_id = OLD.id) 
-      AND deleted_at IS NULL;
+    UPDATE tibetan_singing_bowl_mr
+    SET deleted_at = NOW()
+    WHERE uuid IN (SELECT uuid FROM session_logs WHERE user_id = OLD.id)
+      AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     -- Soft delete related tummo breathing entries
-    UPDATE tummo_breathing_mr 
-    SET deleted_at = NOW() 
-    WHERE uuid IN (SELECT uuid FROM session_logs WHERE user_id = OLD.id) 
-      AND deleted_at IS NULL;
+    UPDATE tummo_breathing_mr
+    SET deleted_at = NOW()
+    WHERE uuid IN (SELECT uuid FROM session_logs WHERE user_id = OLD.id)
+      AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     RETURN NULL;  -- Indicate that the default action should not be taken
 END;
@@ -234,18 +234,18 @@ CREATE OR REPLACE FUNCTION soft_delete_session_logs_and_related_sessions_data()
 RETURNS TRIGGER AS $$
 BEGIN
     -- Soft delete session_logs
-    UPDATE session_logs SET deleted_at = NOW() WHERE uuid = OLD.uuid AND deleted_at IS NULL;
+    UPDATE session_logs SET deleted_at = NOW() WHERE uuid = OLD.uuid AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
     -- Soft delete related tibetan singing bowl entries
-    UPDATE tibetan_singing_bowl_mr 
-    SET deleted_at = NOW() 
-    WHERE uuid = OLD.uuid 
-      AND deleted_at IS NULL;
+    UPDATE tibetan_singing_bowl_mr
+    SET deleted_at = NOW()
+    WHERE uuid = OLD.uuid
+      AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     -- Soft delete related tummo breathing entries
-    UPDATE tummo_breathing_mr 
-    SET deleted_at = NOW() 
-    WHERE uuid = OLD.uuid 
-      AND deleted_at IS NULL;
+    UPDATE tummo_breathing_mr
+    SET deleted_at = NOW()
+    WHERE uuid = OLD.uuid
+      AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     RETURN NULL;  -- Indicate that the default action should not be taken
 END;
@@ -257,69 +257,21 @@ BEFORE DELETE ON session_logs
 FOR EACH ROW EXECUTE FUNCTION soft_delete_session_logs_and_related_sessions_data();
 
 
--- -- users table - Soft deletion for users
--- CREATE RULE users_soft_deletion AS ON DELETE TO users
--- DO INSTEAD (
---   UPDATE users 
---   SET deleted_at = NOW() 
---   WHERE id = OLD.id AND deleted_at IS NULL
-
---   execute session_logs_soft_deletion if not executed
---    then execute session_logs_soft_deletion_for_tibetan_singing_bowl_mr
---    then execute 
--- );
-
-
--- -- users table -  Cascade soft deletion for session_logs
--- CREATE RULE users_session_logs_soft_deletion_for_session_logs AS ON DELETE TO users
--- DO ALSO (
---   UPDATE session_logs 
---   SET deleted_at = NOW() 
---   WHERE user_id = OLD.id AND deleted_at IS NULL
--- );
-
-
--- -- session_logs - Soft deletion for session_logs
--- CREATE RULE session_logs_soft_deletion AS ON DELETE TO session_logs
--- DO INSTEAD (
---   UPDATE session_logs 
---   SET deleted_at = NOW() 
---   WHERE uuid = OLD.uuid AND deleted_at IS NULL
--- );
-
--- -- session_logs - Cascade soft deletion for tibetan_singing_bowl_mr
--- CREATE RULE session_logs_soft_deletion_for_tibetan_singing_bowl_mr AS ON DELETE TO session_logs
--- DO ALSO (
---   UPDATE tibetan_singing_bowl_mr 
---   SET deleted_at = NOW() 
---   WHERE uuid = OLD.uuid AND deleted_at IS NULL
--- );
-
--- -- session_logs - Cascade soft deletion for tummo_breathing_mr
--- CREATE RULE session_logs_soft_deletion_for_tummo_breathing_mr AS ON DELETE TO session_logs
--- DO ALSO (
---   UPDATE tummo_breathing_mr 
---   SET deleted_at = NOW() 
---   WHERE uuid = OLD.uuid AND deleted_at IS NULL
--- );
-
 
 -- -- tibetan_singing_bowl_mr - Soft deletion for tibetan_singing_bowl_mr
--- CREATE RULE tibetan_singing_bowl_mr_soft_deletion AS ON DELETE TO tibetan_singing_bowl_mr
--- DO INSTEAD (
---   UPDATE tibetan_singing_bowl_mr 
---   SET deleted_at = NOW() 
---   WHERE uuid = OLD.uuid AND deleted_at IS NULL
--- );
-
+CREATE RULE tibetan_singing_bowl_mr_soft_deletion AS ON DELETE TO tibetan_singing_bowl_mr
+DO INSTEAD (
+  UPDATE tibetan_singing_bowl_mr
+  SET deleted_at = NOW()
+  WHERE unique_id = OLD.unique_id AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z')
+);
 -- -- tummo_breathing_mr - Soft deletion for tummo_breathing_mr
--- CREATE RULE tummo_breathing_mr_soft_deletion AS ON DELETE TO tummo_breathing_mr
--- DO INSTEAD (
---   UPDATE tummo_breathing_mr 
---   SET deleted_at = NOW() 
---   WHERE uuid = OLD.uuid AND deleted_at IS NULL
--- );
-
+CREATE RULE tummo_breathing_mr_soft_deletion AS ON DELETE TO tummo_breathing_mr
+DO INSTEAD (
+  UPDATE tummo_breathing_mr
+  SET deleted_at = NOW()
+  WHERE unique_id = OLD.unique_id AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z')
+);
 
 INSERT INTO chakra_bracelet (unique_id, chakra, name, image_url, product_link, type) VALUES
 (uuid_generate_v4(), 'Root Chakra', 'Obsidian Grounding & Protection Bracelet', '/images/bracelet/black obisidian.jpg', 'https://www.ommindshop.com/products/root-chakra-obsidian-bracelet', 0),

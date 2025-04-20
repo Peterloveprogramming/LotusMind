@@ -24,7 +24,7 @@ func updateSessionStartMood(server *Server, ctx *gin.Context, args updateSession
 			StartMoodRating: args.StartMoodRating,
 			StartMood:       args.StartMood,
 		}
-		err := server.store.UpdateTibetanSingingBowlMrStartingMoodByUuid(ctx, TSBparams)
+		_, err := server.store.UpdateTibetanSingingBowlMrStartingMoodByUuid(ctx, TSBparams)
 
 		if err != nil {
 			return err
@@ -36,7 +36,7 @@ func updateSessionStartMood(server *Server, ctx *gin.Context, args updateSession
 			StartMoodRating: args.StartMoodRating,
 			StartMood:       args.StartMood,
 		}
-		err := server.store.UpdateTummoBreathingMrStartingMoodByUuid(ctx, TBparams)
+		_, err := server.store.UpdateTummoBreathingMrStartingMoodByUuid(ctx, TBparams)
 
 		if err != nil {
 			return err
@@ -105,7 +105,7 @@ func updateSessionQuit(server *Server, ctx *gin.Context, args updateSessionQuitP
 			Uuid:   args.Uuid,
 			EndsAt: args.EndsAt,
 		}
-		err := server.store.UpdateTibetanSingingBowlMrQuitByUuid(ctx, TSBparams)
+		_, err := server.store.UpdateTibetanSingingBowlMrQuitByUuid(ctx, TSBparams)
 
 		if err != nil {
 			return err
@@ -116,7 +116,7 @@ func updateSessionQuit(server *Server, ctx *gin.Context, args updateSessionQuitP
 			Uuid:   args.Uuid,
 			EndsAt: args.EndsAt,
 		}
-		err := server.store.UpdateTummoBreathingMrQuitByUuid(ctx, TBparams)
+		_, err := server.store.UpdateTummoBreathingMrQuitByUuid(ctx, TBparams)
 
 		if err != nil {
 			return err

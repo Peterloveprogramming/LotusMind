@@ -41,7 +41,7 @@ SET
 WHERE uuid = $1
 RETURNING *;
 
--- name: UpdateTibetanSingingBowlMrStartingMoodByUuid :exec
+-- name: UpdateTibetanSingingBowlMrStartingMoodByUuid :one
 UPDATE tibetan_singing_bowl_mr
 SET
   start_mood_rating = COALESCE($2, start_mood_rating),
@@ -59,7 +59,7 @@ SET
 WHERE uuid = $1
 RETURNING *;
 
--- name: UpdateTibetanSingingBowlMrQuitByUuid :exec
+-- name: UpdateTibetanSingingBowlMrQuitByUuid :one
 UPDATE tibetan_singing_bowl_mr
 SET
   ends_at = COALESCE($2, ends_at)
@@ -88,7 +88,8 @@ WHERE
 
 
 
--- name: DeleteTibetanSingingBowlMrByUniqueID :one
-DELETE FROM tibetan_singing_bowl_mr 
-WHERE unique_id = $1
+-- name: SoftDeleteTibetanSingingBowlMrByUniqueID :one
+UPDATE tibetan_singing_bowl_mr 
+SET deleted_at = NOW()
+WHERE unique_id = $1 AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z')
 RETURNING *;

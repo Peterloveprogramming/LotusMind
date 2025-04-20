@@ -32,7 +32,7 @@ type Server struct {
 }
 
 // set up api routes for that server
-func NewServer(config util.Config, store *db.Store) (*Server, error) {
+func NewServer(config util.Config, store db.Store) (*Server, error) {
 	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {
 		return nil, fmt.Errorf("can not create token maker: %w", err)
