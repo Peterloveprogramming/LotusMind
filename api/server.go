@@ -42,7 +42,7 @@ func NewServer(config util.Config, store *db.Store) (*Server, error) {
 		return nil, fmt.Errorf("can not create chakaraReportMaker: %w", err)
 	}
 
-	storageMaker, err := storage.StorageMaker("prod", config.AWSRegion, config.AWSAccessKeyID, config.AWSSecretAccessKey, config.AWSBucketName)
+	storageMaker, err := storage.StorageMaker(config.APP_ENVIROMENT, config.AWSRegion, config.AWSAccessKeyID, config.AWSSecretAccessKey, config.AWSBucketName)
 	if err != nil {
 		return nil, fmt.Errorf("can not create storageMaker: %w", err)
 	}

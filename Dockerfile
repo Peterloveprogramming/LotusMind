@@ -1,5 +1,5 @@
 # Build Stage 
-FROM golang:1.22.0-alpine AS builder 
+FROM golang:1.23-alpine as builder 
 WORKDIR /app
 COPY . .
 RUN go build -o main main.go
@@ -10,22 +10,14 @@ RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.18.1/
  
 
 # Run Stage 
-FROM alpine:latest 
+FROM alpine 
 WORKDIR /app
-
-# 添加基础工具
-RUN apk add --no-cache bash dos2unix
-
 COPY --from=builder /app/main .
 COPY --from=builder /app/migrate ./migrate
 COPY app.env .
 COPY start.sh .
+# COPY wait-for.sh .
 COPY db/migration ./migration
-
-# 设置执行权限并转换行尾
-RUN dos2unix /app/start.sh && \
-    dos2unix /app/app.env && \
-    chmod +x /app/start.sh
 
 EXPOSE 8080
 ENTRYPOINT ["/app/start.sh"]
