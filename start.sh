@@ -1,8 +1,10 @@
 #!/bin/sh 
 set -e
 
-echo "run db migration"
-/app/migrate -path /app/migration -database "$DB_SOURCE" -verbose up
+if [ "$RUN_DB_MIGRATION" = "true" ]; then
+  echo "run db migration"
+  /app/migrate -path /app/migration -database "$DB_SOURCE" -verbose up
+fi
 
 echo "start up the app"
 echo "$@"

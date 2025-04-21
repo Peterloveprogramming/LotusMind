@@ -20,6 +20,7 @@ services:
     ports:
       - "8080:8080"
     environment:
+      - RUN_DB_MIGRATION=true
       - DB_SOURCE=postgresql://root:secret@postgres:5432/meditation?sslmode=disable
     depends_on:
       postgres:

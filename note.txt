@@ -1,7 +1,0 @@
-what needs tranaction?
-    test user sql
-        - create user, session log, and session at the same time. 
-
-    session log
-        - create session log, needs to make sure it gets created in the session tables. 
-        
