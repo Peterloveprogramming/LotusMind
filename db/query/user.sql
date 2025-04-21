@@ -49,3 +49,7 @@ RETURNING *;
 DELETE FROM users
 WHERE id = $1;
 
+
+-- name: GetByEmail :one
+SELECT id, email, created_at, deleted_at FROM users
+WHERE email = $1;

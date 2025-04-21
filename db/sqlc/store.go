@@ -18,6 +18,7 @@ type Store interface {
 	CreateUserTransaction(ctx context.Context, args CreateUserTransactiontArgs) (CreateUserResult, error)
 	UpdateSessionFinishTransaction(ctx context.Context, args UpdateSessionFinishTransactionParams) error
 	CreateUserForTestingDeletion(ctx context.Context) (CreateUserForTestingDeletionResult, error)
+	CreateUserEmailTransaction(ctx context.Context, args CreateUserEmailTransactiontArgs) error
 }
 
 // SQLStore talks to the real database
@@ -54,7 +55,7 @@ func (store *SQLStore) execTx(ctx context.Context, fn func(*Queries) error) erro
 }
 
 // ExecTx executes a function within a database transaction
-func (store *Store) ExecTx(ctx context.Context, fn func(*Queries) error) error {
+func (store *SQLStore) ExecTx(ctx context.Context, fn func(*Queries) error) error {
 	tx, err := store.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -454,16 +455,25 @@ type CreateUserEmailTransactiontArgs struct {
 	Country    string
 }
 
-func (store *Store) CreateUserEmailTransaction(ctx context.Context, args CreateUserEmailTransactiontArgs) error {
+func (store *SQLStore) CreateUserEmailTransaction(ctx context.Context, args CreateUserEmailTransactiontArgs) error {
 	err := store.execTx(ctx, func(q *Queries) error {
 		params := CreateUserEmailParams{
-			UniqueId:   uuid.New(),
-			Email:      args.Email,
-			ChakraInfo: args.ChakraInfo,
+			UniqueID: uuid.New(),
+			Email:    args.Email,
+			ChakraInfo: sql.NullString{
+				String: args.ChakraInfo,
+				Valid:  args.ChakraInfo != "",
+			},
 			Language:   args.Language,
 			UniqueCode: args.UniqueCode,
-			IP:         args.IP,
-			Country:    args.Country,
+			Ip: sql.NullString{
+				String: args.IP,
+				Valid:  args.IP != "",
+			},
+			Country: sql.NullString{
+				String: args.Country,
+				Valid:  args.Country != "",
+			},
 		}
 		_, err := q.CreateUserEmail(ctx, params)
 		if err != nil {
@@ -475,34 +485,34 @@ func (store *Store) CreateUserEmailTransaction(ctx context.Context, args CreateU
 	return err
 }
 
-func (store *Store) CreateChakraTestResult(ctx context.Context, arg CreateChakraTestResultParams) (ChakraTestResult, error) {
-	return store.Queries.CreateChakraTestResult(ctx, arg)
-}
+// func (store *SQLStore) CreateChakraTestResult(ctx context.Context, arg CreateChakraTestResultParams) (ChakraTestResult, error) {
+// 	return store.Queries.CreateChakraTestResult(ctx, arg)
+// }
 
-func (store *Store) GetByEmail(ctx context.Context, email string) (EmailRegistrations, error) {
-	return store.Queries.GetByEmail(ctx, email)
-}
+// func (store *SQLStore) GetByEmail(ctx context.Context, email string) (EmailRegistrations, error) {
+// 	return store.Queries.GetByEmail(ctx, email)
+// }
 
-func (store *Store) GetLatestEmailRegistration(ctx context.Context, email string) (EmailRegistrations, error) {
-	return store.Queries.GetLatestEmailRegistration(ctx, email)
-}
+// func (store *SQLStore) GetLatestEmailRegistration(ctx context.Context, email string) (EmailRegistrations, error) {
+// 	return store.Queries.GetLatestEmailRegistration(ctx, email)
+// }
 
-func (store *Store) UpdateChakraReportByUniqueId(ctx context.Context, chakraReport string, uniqueId uuid.UUID) error {
-	return store.Queries.UpdateChakraReportByUniqueId(ctx, chakraReport, uniqueId)
-}
+// func (store *SQLStore) UpdateChakraReportByUniqueId(ctx context.Context, chakraReport string, uniqueId uuid.UUID) error {
+// 	return store.Queries.UpdateChakraReportByUniqueId(ctx, chakraReport, uniqueId)
+// }
 
-func (store *Store) GetEmailRegistrationByTestNum(ctx context.Context, email string, testNum int) (EmailRegistrations, error) {
-	return store.Queries.GetEmailRegistrationByTestNum(ctx, email, testNum)
-}
+// func (store *SQLStore) GetEmailRegistrationByTestNum(ctx context.Context, email string, testNum int) (EmailRegistrations, error) {
+// 	return store.Queries.GetEmailRegistrationByTestNum(ctx, email, testNum)
+// }
 
-func (store *Store) GetChakraBracelet(ctx context.Context, chakras []string) ([]ChakraBracelet, error) {
-	return store.Queries.GetChakraBracelet(ctx, chakras)
-}
+// func (store *SQLStore) GetChakraBracelet(ctx context.Context, chakras []string) ([]ChakraBracelet, error) {
+// 	return store.Queries.GetChakraBracelet(ctx, chakras)
+// }
 
-func (store *Store) GetReportByCode(ctx context.Context, code string) (EmailRegistrations, error) {
-	return store.Queries.GetReportByCode(ctx, code)
-}
+// func (store *SQLStore) GetReportByCode(ctx context.Context, code string) (EmailRegistrations, error) {
+// 	return store.Queries.GetReportByCode(ctx, code)
+// }
 
-func (store *Store) CreateChakraTestOptionAnswersBatch(ctx context.Context, arg CreateChakraTestOptionAnswersBatchParams) (ChakraTestOptionAnswers, error) {
-	return store.Queries.CreateChakraTestOptionAnswersBatch(ctx, arg)
-}
+// func (store *SQLStore) CreateChakraTestOptionAnswersBatch(ctx context.Context, arg CreateChakraTestOptionAnswersBatchParams) (ChakraTestOptionAnswers, error) {
+// 	return store.Queries.CreateChakraTestOptionAnswersBatch(ctx, arg)
+// }

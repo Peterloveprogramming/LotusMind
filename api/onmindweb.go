@@ -57,11 +57,11 @@ func (server *Server) registEmail(ctx *gin.Context) {
 
 	// 批量插入选项答案
 	_, err := server.store.CreateChakraTestOptionAnswersBatch(ctx, db.CreateChakraTestOptionAnswersBatchParams{
-		UniqueIds:   uniqueIds,
-		Emails:      emails,
-		UniqueCodes: uniqueCodes,
-		Questions:   questions,
-		Answers:     answers,
+		Column1: uniqueIds,
+		Column2: emails,
+		Column3: uniqueCodes,
+		Column4: questions,
+		Column5: answers, // Use Column5 instead of Answers
 	})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

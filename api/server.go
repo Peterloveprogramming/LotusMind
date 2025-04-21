@@ -24,7 +24,7 @@ var (
 // servers all the http requests for lotus mind
 type Server struct {
 	config             util.Config
-	store              *db.Store
+	store              db.Store
 	router             *gin.Engine
 	tokenMaker         token.Maker
 	chakaraReportMaker chakareport.Maker

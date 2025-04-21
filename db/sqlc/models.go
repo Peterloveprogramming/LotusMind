@@ -11,6 +11,49 @@ import (
 	"github.com/google/uuid"
 )
 
+type ChakraBracelet struct {
+	UniqueID    uuid.UUID      `json:"unique_id"`
+	Chakra      sql.NullString `json:"chakra"`
+	Name        string         `json:"name"`
+	ImageUrl    string         `json:"image_url"`
+	ProductLink string         `json:"product_link"`
+	Type        int32          `json:"type"`
+	CreatedAt   time.Time      `json:"created_at"`
+	DeletedAt   time.Time      `json:"deleted_at"`
+}
+
+type ChakraTestOptionAnswer struct {
+	UniqueID   uuid.UUID `json:"unique_id"`
+	Email      string    `json:"email"`
+	UniqueCode string    `json:"unique_code"`
+	Question   string    `json:"question"`
+	Answer     string    `json:"answer"`
+	CreatedAt  time.Time `json:"created_at"`
+	DeletedAt  time.Time `json:"deleted_at"`
+}
+
+type ChakraTestResult struct {
+	UniqueID     uuid.UUID `json:"unique_id"`
+	Email        string    `json:"email"`
+	ChakraName   string    `json:"chakra_name"`
+	ChakraScore  int32     `json:"chakra_score"`
+	ChakraStatus string    `json:"chakra_status"`
+	CreatedAt    time.Time `json:"created_at"`
+	DeletedAt    time.Time `json:"deleted_at"`
+}
+
+type EmailRegistration struct {
+	UniqueID   uuid.UUID      `json:"unique_id"`
+	Email      string         `json:"email"`
+	Language   string         `json:"language"`
+	ChakraInfo sql.NullString `json:"chakra_info"`
+	UniqueCode string         `json:"unique_code"`
+	Ip         sql.NullString `json:"ip"`
+	Country    sql.NullString `json:"country"`
+	CreatedAt  time.Time      `json:"created_at"`
+	DeletedAt  time.Time      `json:"deleted_at"`
+}
+
 type SessionLog struct {
 	Uuid   uuid.UUID `json:"uuid"`
 	UserID int64     `json:"user_id"`
@@ -73,14 +116,6 @@ type User struct {
 	DeletedAt         time.Time `json:"deleted_at"`
 }
 
-type UserEmail struct {
-	UniqueId        uuid.UUID     `json:"unique_id"`
-	Email     string    `json:"email"`
-	Language  string    `json:"language"`
-	ChakraInfo string    `json:"chakra_info"`
-	CreatedAt time.Time `json:"created_at"`
-	DeletedAt time.Time `json:"deleted_at"`
-}
 type UsersProfileMobile struct {
 	UserID               int64     `json:"user_id"`
 	TotalTimeSpentInMins int64     `json:"total_time_spent_in_mins"`
@@ -91,47 +126,4 @@ type UsersProfileMr struct {
 	UserID               int64     `json:"user_id"`
 	TotalTimeSpentInMins int64     `json:"total_time_spent_in_mins"`
 	DeletedAt            time.Time `json:"deleted_at"`
-}
-
-type ChakraTestResult struct {
-	UniqueId     uuid.UUID `json:"unique_id"`
-	Email        string    `json:"email"`
-	ChakraName   string    `json:"chakra_name"`
-	ChakraScore  int32     `json:"chakra_score"`
-	ChakraStatus string    `json:"chakra_status"`
-	CreatedAt    time.Time `json:"created_at"`
-	DeletedAt    time.Time `json:"deleted_at"`
-}
-
-type EmailRegistrations struct {
-	UniqueId     uuid.UUID      `json:"unique_id"`
-	Email        string         `json:"email"`
-	Language     string         `json:"language"`
-	UniqueCode   string         `json:"unique_code"`
-	ChakraInfo   sql.NullString `json:"chakra_info"`
-	ChakraReport sql.NullString `json:"chakra_report"`
-	IP           string         `json:"ip"`
-	Country      string         `json:"country"`
-	CreatedAt    time.Time      `json:"created_at"`
-	DeletedAt    time.Time      `json:"deleted_at"`
-}
-
-type ChakraBracelet struct {
-	Chakra      sql.NullString `json:"chakra"` // 改为 sql.NullString
-	Name        string         `json:"name"`
-	ImageUrl    string         `json:"image_url"`
-	ProductLink string         `json:"product_link"`
-	Type        int32          `json:"type"`
-	CreatedAt   time.Time      `json:"created_at"`
-	DeletedAt   time.Time      `json:"deleted_at"`
-}
-
-type ChakraTestOptionAnswers struct {
-	UniqueId uuid.UUID `json:"unique_id"`
-	Email    string    `json:"email"`
-	UniqueCode string    `json:"unique_code"`
-	Question string    `json:"question"`
-	Answer   string    `json:"answer"`
-	CreatedAt time.Time `json:"created_at"`
-	DeletedAt time.Time `json:"deleted_at"`
 }
