@@ -11,14 +11,23 @@ import (
 )
 
 type Querier interface {
+	CreateChakraTestOptionAnswersBatch(ctx context.Context, arg CreateChakraTestOptionAnswersBatchParams) ([]ChakraTestOptionAnswer, error)
+	CreateChakraTestResults(ctx context.Context, arg CreateChakraTestResultsParams) (ChakraTestResult, error)
 	CreateSessionLog(ctx context.Context, arg CreateSessionLogParams) (SessionLog, error)
 	CreateTibetanSingingBowlMr(ctx context.Context, arg CreateTibetanSingingBowlMrParams) (TibetanSingingBowlMr, error)
 	CreateTummoBreathingMr(ctx context.Context, arg CreateTummoBreathingMrParams) (TummoBreathingMr, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	CreateUserEmail(ctx context.Context, arg CreateUserEmailParams) (CreateUserEmailRow, error)
 	CreateUserProfileMobile(ctx context.Context, userID int64) error
 	CreateUserProfileMr(ctx context.Context, userID int64) error
 	DeleteSessionLog(ctx context.Context, argUuid uuid.UUID) error
 	DeleteUser(ctx context.Context, id int64) error
+	GetByEmail(ctx context.Context, email string) (GetByEmailRow, error)
+	GetChakraBracelet(ctx context.Context, chakras []string) ([]GetChakraBraceletRow, error)
+	GetChakraTestResults(ctx context.Context, email string) ([]GetChakraTestResultsRow, error)
+	GetEmailRegistrationByTestNum(ctx context.Context, arg GetEmailRegistrationByTestNumParams) (GetEmailRegistrationByTestNumRow, error)
+	GetLatestEmailRegistration(ctx context.Context, email string) (GetLatestEmailRegistrationRow, error)
+	GetReportByCode(ctx context.Context, uniqueCode string) (GetReportByCodeRow, error)
 	GetSessionLogByUUID(ctx context.Context, argUuid uuid.UUID) (SessionLog, error)
 	GetSessionsLogByUserId(ctx context.Context, userID int64) ([]SessionLog, error)
 	GetSessionsLogByUserIdWithOffset(ctx context.Context, arg GetSessionsLogByUserIdWithOffsetParams) ([]SessionLog, error)

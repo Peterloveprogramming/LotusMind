@@ -18,6 +18,8 @@ type Store interface {
 	CreateUserTransaction(ctx context.Context, args CreateUserTransactiontArgs) (CreateUserResult, error)
 	UpdateSessionFinishTransaction(ctx context.Context, args UpdateSessionFinishTransactionParams) error
 	CreateUserForTestingDeletion(ctx context.Context) (CreateUserForTestingDeletionResult, error)
+	CreateUserEmailTransaction(ctx context.Context, args CreateUserEmailTransactiontArgs) error
+	ExecTx(ctx context.Context, fn func(*Queries) error) error
 }
 
 // SQLStore talks to the real database
@@ -50,6 +52,25 @@ func (store *SQLStore) execTx(ctx context.Context, fn func(*Queries) error) erro
 		}
 		return err
 	}
+	return tx.Commit()
+}
+
+// ExecTx executes a function within a database transaction
+func (store *SQLStore) ExecTx(ctx context.Context, fn func(*Queries) error) error {
+	tx, err := store.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	q := New(tx)
+	err = fn(q)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return fmt.Errorf("tx err: %v, rb err: %v", err, rbErr)
+		}
+		return err
+	}
+
 	return tx.Commit()
 }
 
@@ -424,4 +445,43 @@ func (store *SQLStore) CreateUserForTestingDeletion(ctx context.Context) (Create
 	})
 
 	return result, err
+}
+
+type CreateUserEmailTransactiontArgs struct {
+	Email      string
+	ChakraInfo string
+	Language   string
+	UniqueCode string
+	IP         string
+	Country    string
+}
+
+func (store *SQLStore) CreateUserEmailTransaction(ctx context.Context, args CreateUserEmailTransactiontArgs) error {
+	err := store.execTx(ctx, func(q *Queries) error {
+		params := CreateUserEmailParams{
+			UniqueID: uuid.New(),
+			Email:    args.Email,
+			ChakraInfo: sql.NullString{
+				String: args.ChakraInfo,
+				Valid:  args.ChakraInfo != "",
+			},
+			Language:   args.Language,
+			UniqueCode: args.UniqueCode,
+			Ip: sql.NullString{
+				String: args.IP,
+				Valid:  args.IP != "",
+			},
+			Country: sql.NullString{
+				String: args.Country,
+				Valid:  args.Country != "",
+			},
+		}
+		_, err := q.CreateUserEmail(ctx, params)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
+	return err
 }

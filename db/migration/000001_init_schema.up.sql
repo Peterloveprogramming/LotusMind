@@ -62,6 +62,49 @@ CREATE TABLE "tummo_breathing_mr" (
   "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
 );
 
+CREATE TABLE "email_registrations" (
+  "unique_id" UUID PRIMARY KEY NOT NULL,
+  "email" VARCHAR(50) NOT NULL,
+  "language" VARCHAR(20) NOT NULL,
+  "chakra_info" VARCHAR(3000),
+  "unique_code" VARCHAR(20) NOT NULL,
+  "ip" VARCHAR(20),
+  "country" VARCHAR(100),
+  "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
+);
+
+CREATE TABLE "chakra_test_results" (
+    "unique_id" UUID PRIMARY KEY NOT NULL,
+    "email" VARCHAR(50) NOT NULL,
+    "chakra_name" VARCHAR(50) NOT NULL,
+    "chakra_score" INTEGER NOT NULL DEFAULT 0,
+    "chakra_status" VARCHAR(20) NOT NULL DEFAULT 'inactive',
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
+);
+
+CREATE TABLE "chakra_bracelet" (
+    "unique_id" UUID PRIMARY KEY NOT NULL,
+    "chakra" VARCHAR(50),
+    "name" VARCHAR(50) NOT NULL,
+    "image_url" VARCHAR(250) NOT NULL,
+    "product_link" VARCHAR(250) NOT NULL,
+    "type" INTEGER NOT NULL DEFAULT 0,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
+);
+
+CREATE TABLE "chakra_test_option_answers" (
+  "unique_id" UUID PRIMARY KEY NOT NULL,
+  "email" VARCHAR(50) NOT NULL,
+  "unique_code" VARCHAR(20) NOT NULL,
+  "question" VARCHAR(500) NOT NULL,
+  "answer" VARCHAR(20) NOT NULL,
+  "created_at" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  "deleted_at" timestamptz NOT NULL DEFAULT '0001-01-01 00:00:00Z'
+);
+
 CREATE INDEX ON "users" ("email");
 
 CREATE INDEX ON "users" ("country");
@@ -148,32 +191,32 @@ BEGIN
     UPDATE users SET deleted_at = NOW() WHERE id = OLD.id AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     -- Soft delete session logs linked to the user
-    UPDATE session_logs 
-    SET deleted_at = NOW() 
+    UPDATE session_logs
+    SET deleted_at = NOW()
     WHERE user_id = OLD.id AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     -- Soft delete related users_profile_mr
-    UPDATE users_profile_mr 
-    SET deleted_at = NOW() 
-    WHERE user_id IN (SELECT user_id FROM users_profile_mr WHERE user_id = OLD.id) 
+    UPDATE users_profile_mr
+    SET deleted_at = NOW()
+    WHERE user_id IN (SELECT user_id FROM users_profile_mr WHERE user_id = OLD.id)
       AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     -- Soft delete related users_profile_mobile
     UPDATE users_profile_mobile
-    SET deleted_at = NOW() 
-    WHERE user_id IN (SELECT user_id FROM users_profile_mobile WHERE user_id = OLD.id) 
+    SET deleted_at = NOW()
+    WHERE user_id IN (SELECT user_id FROM users_profile_mobile WHERE user_id = OLD.id)
       AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     -- Soft delete related tibetan singing bowl entries
-    UPDATE tibetan_singing_bowl_mr 
-    SET deleted_at = NOW() 
-    WHERE uuid IN (SELECT uuid FROM session_logs WHERE user_id = OLD.id) 
+    UPDATE tibetan_singing_bowl_mr
+    SET deleted_at = NOW()
+    WHERE uuid IN (SELECT uuid FROM session_logs WHERE user_id = OLD.id)
       AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     -- Soft delete related tummo breathing entries
-    UPDATE tummo_breathing_mr 
-    SET deleted_at = NOW() 
-    WHERE uuid IN (SELECT uuid FROM session_logs WHERE user_id = OLD.id) 
+    UPDATE tummo_breathing_mr
+    SET deleted_at = NOW()
+    WHERE uuid IN (SELECT uuid FROM session_logs WHERE user_id = OLD.id)
       AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     RETURN NULL;  -- Indicate that the default action should not be taken
@@ -193,15 +236,15 @@ BEGIN
     -- Soft delete session_logs
     UPDATE session_logs SET deleted_at = NOW() WHERE uuid = OLD.uuid AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
     -- Soft delete related tibetan singing bowl entries
-    UPDATE tibetan_singing_bowl_mr 
-    SET deleted_at = NOW() 
-    WHERE uuid = OLD.uuid 
+    UPDATE tibetan_singing_bowl_mr
+    SET deleted_at = NOW()
+    WHERE uuid = OLD.uuid
       AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     -- Soft delete related tummo breathing entries
-    UPDATE tummo_breathing_mr 
-    SET deleted_at = NOW() 
-    WHERE uuid = OLD.uuid 
+    UPDATE tummo_breathing_mr
+    SET deleted_at = NOW()
+    WHERE uuid = OLD.uuid
       AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z');
 
     RETURN NULL;  -- Indicate that the default action should not be taken
@@ -218,16 +261,54 @@ FOR EACH ROW EXECUTE FUNCTION soft_delete_session_logs_and_related_sessions_data
 -- -- tibetan_singing_bowl_mr - Soft deletion for tibetan_singing_bowl_mr
 CREATE RULE tibetan_singing_bowl_mr_soft_deletion AS ON DELETE TO tibetan_singing_bowl_mr
 DO INSTEAD (
-  UPDATE tibetan_singing_bowl_mr 
-  SET deleted_at = NOW() 
+  UPDATE tibetan_singing_bowl_mr
+  SET deleted_at = NOW()
   WHERE unique_id = OLD.unique_id AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z')
 );
-
-
 -- -- tummo_breathing_mr - Soft deletion for tummo_breathing_mr
 CREATE RULE tummo_breathing_mr_soft_deletion AS ON DELETE TO tummo_breathing_mr
 DO INSTEAD (
-  UPDATE tummo_breathing_mr 
-  SET deleted_at = NOW() 
+  UPDATE tummo_breathing_mr
+  SET deleted_at = NOW()
   WHERE unique_id = OLD.unique_id AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z')
+);
+
+INSERT INTO chakra_bracelet (unique_id, chakra, name, image_url, product_link, type) VALUES
+(uuid_generate_v4(), 'Root Chakra', 'Obsidian Grounding & Protection Bracelet', '/images/bracelet/black obisidian.jpg', 'https://www.ommindshop.com/products/root-chakra-obsidian-bracelet', 0),
+(uuid_generate_v4(), 'Sacral Chakra', 'Carnelian Passion & Creativity Bracelet', '/images/bracelet/Carnelian.jpg', 'https://www.ommindshop.com/products/sacral-chakra-carnelian-bracelet', 0),
+(uuid_generate_v4(), 'Solar Plexus Chakra', 'Tiger’s Eye Courage & Confidence Bracelet', '/images/bracelet/Tiger’s Eye.jpg', 'https://www.ommindshop.com/products/solar-plexus-chakra-tigers-eye-bracelet', 0),
+(uuid_generate_v4(), 'Heart Chakra', 'Green Aventurine Love & Emotional Healing Bracelet', '/images/bracelet/Green Aventurine.jpg', 'https://www.ommindshop.com/products/heart-chakra-green-aventurine-bracelet', 0),
+(uuid_generate_v4(), 'Throat Chakra', 'Lapis Lazuli Truth & Communication Bracelet', '/images/bracelet/Lapis Lazuli.jpg', 'https://www.ommindshop.com/products/throat-chakra-lapis-lazuli-bracelet', 0),
+(uuid_generate_v4(), 'Third Eye Chakra', 'Sodalite Intuition & Mental Clarity Bracelet', '/images/bracelet/Sodalite.jpg', 'https://www.ommindshop.com/products/amethyst-intuition-spiritual-awakening-bracelet', 0),
+(uuid_generate_v4(), 'Crown Chakra', 'Amethyst Wisdom & Spiritual Awakening Bracelet', '/images/bracelet/Amethyst 3A.png', 'https://www.ommindshop.com/products/crown-chakra-clear-quartz-bracelet', 0);
+
+
+INSERT INTO chakra_bracelet (unique_id, name, image_url, product_link, type) VALUES
+(
+    uuid_generate_v4(),
+    'Energy Pathway Custom Chakra Bracelet',
+    '/images/bracelet/Energy Pathway.jpg',
+    'https://www.ommindshop.com/products/energy-pathway-custom-chakra-bracelet',
+    1
+),
+(
+    uuid_generate_v4(),
+    'Sacred Flow Custom Chakra Bracelet',
+    '/images/bracelet/Sacred Flow.jpg',
+    'https://www.ommindshop.com/products/sacred-flow-tibetan-chakra-bracelet',
+    1
+),
+(
+    uuid_generate_v4(),
+    'Crystal Force Custom Chakra Bracelet',
+    '/images/bracelet/Crystal Force.jpg',
+    'https://www.ommindshop.com/products/crystal-force-tailored-chakra-energy-bracelet',
+    1
+),
+(
+    uuid_generate_v4(),
+    'Blessed Weave Custom Chakra Bracelet',
+    '/images/bracelet/Blessed Weave.jpg',
+    'https://www.ommindshop.com/products/blessed-weave-tibetan-knotted-bracelet',
+    1
 );

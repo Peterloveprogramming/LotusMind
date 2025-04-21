@@ -101,5 +101,4 @@ func TestDeleteUser(t *testing.T) {
 	require.NotEmpty(t, deletedUser)
 
 	require.NotEmpty(t, deletedUser.DeletedAt)
-
 }

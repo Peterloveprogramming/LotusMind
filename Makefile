@@ -11,7 +11,7 @@ dropdb:
 	docker exec -it postgres17 dropdb meditation
 # create the tables in the database
 migrateup:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/meditation?sslmode=disable" -verbose up	
+	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/meditation?sslmode=disable" -verbose up
 migratedown:
 	migrate -path db/migration -database "postgresql://root:secret@localhost:5432/meditation?sslmode=disable" -verbose down
 sqlc:
@@ -28,5 +28,3 @@ mock:
 	mockgen -package mockdb -destination db/mock/store.go github.com/lotusMind/meditation/db/sqlc Store
 
 .PHONY: postgres createdb dropdb migrateup migratedown sqlc testV test server cleanCache mock
-
-

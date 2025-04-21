@@ -36,6 +36,36 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 	return m.recorder
 }
 
+// CreateChakraTestOptionAnswersBatch mocks base method.
+func (m *MockStore) CreateChakraTestOptionAnswersBatch(arg0 context.Context, arg1 db.CreateChakraTestOptionAnswersBatchParams) ([]db.ChakraTestOptionAnswer, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateChakraTestOptionAnswersBatch", arg0, arg1)
+	ret0, _ := ret[0].([]db.ChakraTestOptionAnswer)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateChakraTestOptionAnswersBatch indicates an expected call of CreateChakraTestOptionAnswersBatch.
+func (mr *MockStoreMockRecorder) CreateChakraTestOptionAnswersBatch(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateChakraTestOptionAnswersBatch", reflect.TypeOf((*MockStore)(nil).CreateChakraTestOptionAnswersBatch), arg0, arg1)
+}
+
+// CreateChakraTestResults mocks base method.
+func (m *MockStore) CreateChakraTestResults(arg0 context.Context, arg1 db.CreateChakraTestResultsParams) (db.ChakraTestResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateChakraTestResults", arg0, arg1)
+	ret0, _ := ret[0].(db.ChakraTestResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateChakraTestResults indicates an expected call of CreateChakraTestResults.
+func (mr *MockStoreMockRecorder) CreateChakraTestResults(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateChakraTestResults", reflect.TypeOf((*MockStore)(nil).CreateChakraTestResults), arg0, arg1)
+}
+
 // CreateSessionLog mocks base method.
 func (m *MockStore) CreateSessionLog(arg0 context.Context, arg1 db.CreateSessionLogParams) (db.SessionLog, error) {
 	m.ctrl.T.Helper()
@@ -109,6 +139,35 @@ func (m *MockStore) CreateUser(arg0 context.Context, arg1 db.CreateUserParams) (
 func (mr *MockStoreMockRecorder) CreateUser(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockStore)(nil).CreateUser), arg0, arg1)
+}
+
+// CreateUserEmail mocks base method.
+func (m *MockStore) CreateUserEmail(arg0 context.Context, arg1 db.CreateUserEmailParams) (db.CreateUserEmailRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateUserEmail", arg0, arg1)
+	ret0, _ := ret[0].(db.CreateUserEmailRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateUserEmail indicates an expected call of CreateUserEmail.
+func (mr *MockStoreMockRecorder) CreateUserEmail(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUserEmail", reflect.TypeOf((*MockStore)(nil).CreateUserEmail), arg0, arg1)
+}
+
+// CreateUserEmailTransaction mocks base method.
+func (m *MockStore) CreateUserEmailTransaction(arg0 context.Context, arg1 db.CreateUserEmailTransactiontArgs) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateUserEmailTransaction", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateUserEmailTransaction indicates an expected call of CreateUserEmailTransaction.
+func (mr *MockStoreMockRecorder) CreateUserEmailTransaction(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUserEmailTransaction", reflect.TypeOf((*MockStore)(nil).CreateUserEmailTransaction), arg0, arg1)
 }
 
 // CreateUserForTestingDeletion mocks base method.
@@ -195,6 +254,110 @@ func (m *MockStore) DeleteUser(arg0 context.Context, arg1 int64) error {
 func (mr *MockStoreMockRecorder) DeleteUser(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockStore)(nil).DeleteUser), arg0, arg1)
+}
+
+// ExecTx mocks base method.
+func (m *MockStore) ExecTx(arg0 context.Context, arg1 func(*db.Queries) error) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExecTx", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ExecTx indicates an expected call of ExecTx.
+func (mr *MockStoreMockRecorder) ExecTx(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecTx", reflect.TypeOf((*MockStore)(nil).ExecTx), arg0, arg1)
+}
+
+// GetByEmail mocks base method.
+func (m *MockStore) GetByEmail(arg0 context.Context, arg1 string) (db.GetByEmailRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByEmail", arg0, arg1)
+	ret0, _ := ret[0].(db.GetByEmailRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByEmail indicates an expected call of GetByEmail.
+func (mr *MockStoreMockRecorder) GetByEmail(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByEmail", reflect.TypeOf((*MockStore)(nil).GetByEmail), arg0, arg1)
+}
+
+// GetChakraBracelet mocks base method.
+func (m *MockStore) GetChakraBracelet(arg0 context.Context, arg1 []string) ([]db.GetChakraBraceletRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetChakraBracelet", arg0, arg1)
+	ret0, _ := ret[0].([]db.GetChakraBraceletRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetChakraBracelet indicates an expected call of GetChakraBracelet.
+func (mr *MockStoreMockRecorder) GetChakraBracelet(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChakraBracelet", reflect.TypeOf((*MockStore)(nil).GetChakraBracelet), arg0, arg1)
+}
+
+// GetChakraTestResults mocks base method.
+func (m *MockStore) GetChakraTestResults(arg0 context.Context, arg1 string) ([]db.GetChakraTestResultsRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetChakraTestResults", arg0, arg1)
+	ret0, _ := ret[0].([]db.GetChakraTestResultsRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetChakraTestResults indicates an expected call of GetChakraTestResults.
+func (mr *MockStoreMockRecorder) GetChakraTestResults(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChakraTestResults", reflect.TypeOf((*MockStore)(nil).GetChakraTestResults), arg0, arg1)
+}
+
+// GetEmailRegistrationByTestNum mocks base method.
+func (m *MockStore) GetEmailRegistrationByTestNum(arg0 context.Context, arg1 db.GetEmailRegistrationByTestNumParams) (db.GetEmailRegistrationByTestNumRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetEmailRegistrationByTestNum", arg0, arg1)
+	ret0, _ := ret[0].(db.GetEmailRegistrationByTestNumRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetEmailRegistrationByTestNum indicates an expected call of GetEmailRegistrationByTestNum.
+func (mr *MockStoreMockRecorder) GetEmailRegistrationByTestNum(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEmailRegistrationByTestNum", reflect.TypeOf((*MockStore)(nil).GetEmailRegistrationByTestNum), arg0, arg1)
+}
+
+// GetLatestEmailRegistration mocks base method.
+func (m *MockStore) GetLatestEmailRegistration(arg0 context.Context, arg1 string) (db.GetLatestEmailRegistrationRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLatestEmailRegistration", arg0, arg1)
+	ret0, _ := ret[0].(db.GetLatestEmailRegistrationRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLatestEmailRegistration indicates an expected call of GetLatestEmailRegistration.
+func (mr *MockStoreMockRecorder) GetLatestEmailRegistration(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLatestEmailRegistration", reflect.TypeOf((*MockStore)(nil).GetLatestEmailRegistration), arg0, arg1)
+}
+
+// GetReportByCode mocks base method.
+func (m *MockStore) GetReportByCode(arg0 context.Context, arg1 string) (db.GetReportByCodeRow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetReportByCode", arg0, arg1)
+	ret0, _ := ret[0].(db.GetReportByCodeRow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetReportByCode indicates an expected call of GetReportByCode.
+func (mr *MockStoreMockRecorder) GetReportByCode(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetReportByCode", reflect.TypeOf((*MockStore)(nil).GetReportByCode), arg0, arg1)
 }
 
 // GetSessionLogByUUID mocks base method.
