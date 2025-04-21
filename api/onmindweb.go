@@ -322,7 +322,7 @@ func (server *Server) getChakraTestResults(ctx *gin.Context) {
 	lowestChakras := []string{scores[0].name, scores[1].name}
 
 	// 获取推荐的手串
-	var bracelets []db.ChakraBracelet
+	var bracelets []db.GetChakraBraceletRow
 	bracelets, err = server.store.GetChakraBracelet(ctx, lowestChakras)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -369,14 +369,14 @@ func (server *Server) createChakraTestResults(ctx *gin.Context) {
 	var results []db.ChakraTestResult
 	err := server.store.ExecTx(ctx, func(q *db.Queries) error {
 		for _, chakra := range req.Chakras {
-			arg := db.CreateChakraTestResultParams{
-				UniqueId:     uuid.New(),
+			arg := db.CreateChakraTestResultsParams{
+				UniqueID:     uuid.New(),
 				Email:        req.Email,
 				ChakraName:   chakra.ChakraName,
 				ChakraScore:  chakra.ChakraScore,
 				ChakraStatus: chakra.ChakraStatus,
 			}
-			result, err := q.CreateChakraTestResult(ctx, arg)
+			result, err := q.CreateChakraTestResults(ctx, arg)
 			if err != nil {
 				return err
 			}
@@ -517,27 +517,31 @@ func (server *Server) getChakraReport(ctx *gin.Context) {
 
 }
 
-func (server *Server) getEmailRegistrationByTestNum(ctx *gin.Context, email string, testNum int) (db.EmailRegistrations, error) {
+func (server *Server) getEmailRegistrationByTestNum(ctx *gin.Context, email string, testNum int) (db.GetEmailRegistrationByTestNumRow, error) {
 	// OFFSET 从 0 开始，所以需要减去 1
-	registration, err := server.store.GetEmailRegistrationByTestNum(ctx, email, testNum-1)
+	arg := db.GetEmailRegistrationByTestNumParams{
+		Email:  email,
+		Offset: int32(testNum - 1), // Cast testNum-1 to int32 for the Offset field
+	}
+	registration, err := server.store.GetEmailRegistrationByTestNum(ctx, arg)
 	if err != nil {
-		return db.EmailRegistrations{}, err
+		return db.GetEmailRegistrationByTestNumRow{}, err
 	}
 	return registration, nil
 }
 
-func (server *Server) updateChakraReportByUniqueId(ctx *gin.Context, uniqueId uuid.UUID, report []byte) error {
-	err := server.store.UpdateChakraReportByUniqueId(ctx, string(report), uniqueId)
-	if err != nil {
-		return err
-	}
-	return nil
-}
+// func (server *Server) updateChakraReportByUniqueId(ctx *gin.Context, uniqueId uuid.UUID, report []byte) error {
+// 	err := server.store.UpdateChakraReportByUniqueId(ctx, string(report), uniqueId)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
 
-func (server *Server) getLatestEmailRegistration(ctx *gin.Context, email string) (db.EmailRegistrations, error) {
+func (server *Server) getLatestEmailRegistration(ctx *gin.Context, email string) (db.GetLatestEmailRegistrationRow, error) {
 	latestRegistration, err := server.store.GetLatestEmailRegistration(ctx, email)
 	if err != nil {
-		return db.EmailRegistrations{}, err
+		return db.GetLatestEmailRegistrationRow{}, err
 	}
 	return latestRegistration, nil
 }
@@ -594,7 +598,7 @@ func (server *Server) getReportByCode(ctx *gin.Context) {
 	lowestChakras := []string{scores[0].name, scores[1].name}
 
 	// 获取推荐的手串
-	var bracelets []db.ChakraBracelet
+	var bracelets []db.GetChakraBraceletRow
 	bracelets, err = server.store.GetChakraBracelet(ctx, lowestChakras)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

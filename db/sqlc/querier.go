@@ -12,6 +12,7 @@ import (
 
 type Querier interface {
 	CreateChakraTestOptionAnswersBatch(ctx context.Context, arg CreateChakraTestOptionAnswersBatchParams) ([]ChakraTestOptionAnswer, error)
+	CreateChakraTestResults(ctx context.Context, arg CreateChakraTestResultsParams) (ChakraTestResult, error)
 	CreateSessionLog(ctx context.Context, arg CreateSessionLogParams) (SessionLog, error)
 	CreateTibetanSingingBowlMr(ctx context.Context, arg CreateTibetanSingingBowlMrParams) (TibetanSingingBowlMr, error)
 	CreateTummoBreathingMr(ctx context.Context, arg CreateTummoBreathingMrParams) (TummoBreathingMr, error)

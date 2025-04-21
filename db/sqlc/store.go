@@ -19,6 +19,7 @@ type Store interface {
 	UpdateSessionFinishTransaction(ctx context.Context, args UpdateSessionFinishTransactionParams) error
 	CreateUserForTestingDeletion(ctx context.Context) (CreateUserForTestingDeletionResult, error)
 	CreateUserEmailTransaction(ctx context.Context, args CreateUserEmailTransactiontArgs) error
+	ExecTx(ctx context.Context, fn func(*Queries) error) error
 }
 
 // SQLStore talks to the real database
@@ -484,35 +485,3 @@ func (store *SQLStore) CreateUserEmailTransaction(ctx context.Context, args Crea
 
 	return err
 }
-
-// func (store *SQLStore) CreateChakraTestResult(ctx context.Context, arg CreateChakraTestResultParams) (ChakraTestResult, error) {
-// 	return store.Queries.CreateChakraTestResult(ctx, arg)
-// }
-
-// func (store *SQLStore) GetByEmail(ctx context.Context, email string) (EmailRegistrations, error) {
-// 	return store.Queries.GetByEmail(ctx, email)
-// }
-
-// func (store *SQLStore) GetLatestEmailRegistration(ctx context.Context, email string) (EmailRegistrations, error) {
-// 	return store.Queries.GetLatestEmailRegistration(ctx, email)
-// }
-
-// func (store *SQLStore) UpdateChakraReportByUniqueId(ctx context.Context, chakraReport string, uniqueId uuid.UUID) error {
-// 	return store.Queries.UpdateChakraReportByUniqueId(ctx, chakraReport, uniqueId)
-// }
-
-// func (store *SQLStore) GetEmailRegistrationByTestNum(ctx context.Context, email string, testNum int) (EmailRegistrations, error) {
-// 	return store.Queries.GetEmailRegistrationByTestNum(ctx, email, testNum)
-// }
-
-// func (store *SQLStore) GetChakraBracelet(ctx context.Context, chakras []string) ([]ChakraBracelet, error) {
-// 	return store.Queries.GetChakraBracelet(ctx, chakras)
-// }
-
-// func (store *SQLStore) GetReportByCode(ctx context.Context, code string) (EmailRegistrations, error) {
-// 	return store.Queries.GetReportByCode(ctx, code)
-// }
-
-// func (store *SQLStore) CreateChakraTestOptionAnswersBatch(ctx context.Context, arg CreateChakraTestOptionAnswersBatchParams) (ChakraTestOptionAnswers, error) {
-// 	return store.Queries.CreateChakraTestOptionAnswersBatch(ctx, arg)
-// }

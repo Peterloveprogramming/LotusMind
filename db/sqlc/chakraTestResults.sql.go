@@ -12,6 +12,48 @@ import (
 	"github.com/google/uuid"
 )
 
+const createChakraTestResults = `-- name: CreateChakraTestResults :one
+INSERT INTO chakra_test_results (
+    unique_id,
+    email,
+    chakra_name,
+    chakra_score,
+    chakra_status
+) VALUES (
+    $1, $2, $3, $4, $5
+)
+RETURNING unique_id, email, chakra_name, chakra_score, chakra_status, created_at, deleted_at
+`
+
+type CreateChakraTestResultsParams struct {
+	UniqueID     uuid.UUID `json:"unique_id"`
+	Email        string    `json:"email"`
+	ChakraName   string    `json:"chakra_name"`
+	ChakraScore  int32     `json:"chakra_score"`
+	ChakraStatus string    `json:"chakra_status"`
+}
+
+func (q *Queries) CreateChakraTestResults(ctx context.Context, arg CreateChakraTestResultsParams) (ChakraTestResult, error) {
+	row := q.db.QueryRowContext(ctx, createChakraTestResults,
+		arg.UniqueID,
+		arg.Email,
+		arg.ChakraName,
+		arg.ChakraScore,
+		arg.ChakraStatus,
+	)
+	var i ChakraTestResult
+	err := row.Scan(
+		&i.UniqueID,
+		&i.Email,
+		&i.ChakraName,
+		&i.ChakraScore,
+		&i.ChakraStatus,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getChakraTestResults = `-- name: GetChakraTestResults :many
 SELECT unique_id, email, chakra_name, chakra_score, chakra_status, created_at
 FROM chakra_test_results

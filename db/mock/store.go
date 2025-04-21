@@ -51,6 +51,21 @@ func (mr *MockStoreMockRecorder) CreateChakraTestOptionAnswersBatch(arg0, arg1 i
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateChakraTestOptionAnswersBatch", reflect.TypeOf((*MockStore)(nil).CreateChakraTestOptionAnswersBatch), arg0, arg1)
 }
 
+// CreateChakraTestResults mocks base method.
+func (m *MockStore) CreateChakraTestResults(arg0 context.Context, arg1 db.CreateChakraTestResultsParams) (db.ChakraTestResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateChakraTestResults", arg0, arg1)
+	ret0, _ := ret[0].(db.ChakraTestResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateChakraTestResults indicates an expected call of CreateChakraTestResults.
+func (mr *MockStoreMockRecorder) CreateChakraTestResults(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateChakraTestResults", reflect.TypeOf((*MockStore)(nil).CreateChakraTestResults), arg0, arg1)
+}
+
 // CreateSessionLog mocks base method.
 func (m *MockStore) CreateSessionLog(arg0 context.Context, arg1 db.CreateSessionLogParams) (db.SessionLog, error) {
 	m.ctrl.T.Helper()
@@ -239,6 +254,20 @@ func (m *MockStore) DeleteUser(arg0 context.Context, arg1 int64) error {
 func (mr *MockStoreMockRecorder) DeleteUser(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockStore)(nil).DeleteUser), arg0, arg1)
+}
+
+// ExecTx mocks base method.
+func (m *MockStore) ExecTx(arg0 context.Context, arg1 func(*db.Queries) error) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExecTx", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ExecTx indicates an expected call of ExecTx.
+func (mr *MockStoreMockRecorder) ExecTx(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecTx", reflect.TypeOf((*MockStore)(nil).ExecTx), arg0, arg1)
 }
 
 // GetByEmail mocks base method.

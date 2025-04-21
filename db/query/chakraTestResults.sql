@@ -5,7 +5,7 @@ WHERE email = $1 AND deleted_at = '0001-01-01 00:00:00Z'
 ORDER BY created_at DESC; 
 
 
- -- name: CreateChakraTestResult :one
+-- name: CreateChakraTestResults :one
 INSERT INTO chakra_test_results (
     unique_id,
     email,
@@ -15,4 +15,4 @@ INSERT INTO chakra_test_results (
 ) VALUES (
     $1, $2, $3, $4, $5
 )
-RETURNING *; 
+RETURNING *;
