@@ -97,25 +97,9 @@ func (server *Server) setupRouter() {
 
 	router.POST("/chakra/results/getChakraReport", server.getChakraReport)
 
-	router.GET("/test", func(c *gin.Context) {
-		err := server.storageMaker.SaveChakaraReportAsText("y.peter2223@gmail.com", "djj", "dj")
-		if err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
-			return
-		}
+	router.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"message": "success",
-		})
-	})
-
-	router.GET("/test1", func(c *gin.Context) {
-		report, err := server.storageMaker.GetChakaraReportByUniqueCode("y.peter2223@gmail.com", "djj")
-		if err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(200, gin.H{
-			"message": report,
+			"message": "app is healthy",
 		})
 	})
 
