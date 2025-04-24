@@ -1,0 +1,14 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "onmind的数据库",
+            "database": "meditation",
+            "username": "root",
+            "password": "secret"
+        }
+    ]
+}

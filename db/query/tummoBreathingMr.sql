@@ -40,7 +40,7 @@ SET
 WHERE uuid = $1
 RETURNING *;
 
--- name: UpdateTummoBreathingMrStartingMoodByUuid :exec
+-- name: UpdateTummoBreathingMrStartingMoodByUuid :one
 UPDATE tummo_breathing_mr
 SET
   start_mood_rating = COALESCE($2, start_mood_rating),
@@ -58,7 +58,7 @@ SET
 WHERE uuid = $1
 RETURNING *;
 
--- name: UpdateTummoBreathingMrQuitByUuid :exec
+-- name: UpdateTummoBreathingMrQuitByUuid :one
 UPDATE tummo_breathing_mr
 SET
   ends_at = COALESCE($2, ends_at)
@@ -85,7 +85,8 @@ JOIN
 WHERE 
   sl.user_id = $1;
 
--- name: DeleteTummoBreathingMrByUniqueID :one
-DELETE FROM tummo_breathing_mr 
-WHERE unique_id = $1
+-- name: SoftDeleteTummoBreathingMrByUniqueID :one
+UPDATE tummo_breathing_mr 
+SET deleted_at = NOW()
+WHERE unique_id = $1 AND (deleted_at IS NULL OR deleted_at = '0001-01-01 00:00:00Z')
 RETURNING *;

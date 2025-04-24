@@ -84,6 +84,30 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 	return err
 }
 
+const getByEmail = `-- name: GetByEmail :one
+SELECT id, email, created_at, deleted_at FROM users
+WHERE email = $1
+`
+
+type GetByEmailRow struct {
+	ID        int64     `json:"id"`
+	Email     string    `json:"email"`
+	CreatedAt time.Time `json:"created_at"`
+	DeletedAt time.Time `json:"deleted_at"`
+}
+
+func (q *Queries) GetByEmail(ctx context.Context, email string) (GetByEmailRow, error) {
+	row := q.db.QueryRowContext(ctx, getByEmail, email)
+	var i GetByEmailRow
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT id, email, first_name, last_name, gender, birth_date, country, is_mr_user, is_mobile_user, hashed_password, password_changed_at, goals, created_at, deleted_at FROM users
 WHERE email = $1
@@ -180,4 +204,69 @@ func (q *Queries) GetUsersByCountry(ctx context.Context, country string) ([]User
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateUser = `-- name: UpdateUser :one
+UPDATE users
+SET
+  email = COALESCE($2, email),
+  first_name = COALESCE($3, first_name),
+  last_name = COALESCE($4, last_name),
+  gender = COALESCE($5, gender),
+  birth_date = COALESCE($6, birth_date),
+  country = COALESCE($7, country),
+  hashed_password = COALESCE($8, hashed_password),
+  is_mr_user = COALESCE($9, is_mr_user),
+  is_mobile_user = COALESCE($10, is_mobile_user),
+  goals = COALESCE($11, goals)
+WHERE id = $1
+RETURNING id, email, first_name, last_name, gender, birth_date, country, is_mr_user, is_mobile_user, hashed_password, password_changed_at, goals, created_at, deleted_at
+`
+
+type UpdateUserParams struct {
+	ID             int64     `json:"id"`
+	Email          string    `json:"email"`
+	FirstName      string    `json:"first_name"`
+	LastName       string    `json:"last_name"`
+	Gender         string    `json:"gender"`
+	BirthDate      time.Time `json:"birth_date"`
+	Country        string    `json:"country"`
+	HashedPassword string    `json:"hashed_password"`
+	IsMrUser       int16     `json:"is_mr_user"`
+	IsMobileUser   int16     `json:"is_mobile_user"`
+	Goals          string    `json:"goals"`
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, updateUser,
+		arg.ID,
+		arg.Email,
+		arg.FirstName,
+		arg.LastName,
+		arg.Gender,
+		arg.BirthDate,
+		arg.Country,
+		arg.HashedPassword,
+		arg.IsMrUser,
+		arg.IsMobileUser,
+		arg.Goals,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.FirstName,
+		&i.LastName,
+		&i.Gender,
+		&i.BirthDate,
+		&i.Country,
+		&i.IsMrUser,
+		&i.IsMobileUser,
+		&i.HashedPassword,
+		&i.PasswordChangedAt,
+		&i.Goals,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }

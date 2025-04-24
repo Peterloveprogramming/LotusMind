@@ -7,7 +7,7 @@ packages:
     schema: "./db/migration"
     emit_json_tags: true
     emit_prepared_queries: false
-    emit_interface: false
-    # if false, this will be singular 
+    emit_interface: true
+    # if false, this will be singular
     emit_exact_table_names: false
     emit_empty_slices: true
