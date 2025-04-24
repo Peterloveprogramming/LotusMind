@@ -14,6 +14,7 @@ type ChakraInfo struct {
 // Maker is an interface for managing tokens
 type Maker interface {
 	GenerateChakaraReport(chakaraInfo []ChakraInfo, language string) ([]byte, error)
+	GetType() string
 }
 
 func ChakraMaker(appEnvironment string, apiUrl string) (Maker, error) {

@@ -31,3 +31,7 @@ func (maker *DummyChakaraReportMake) GenerateChakaraReport(chakaraInfo []ChakraI
 	// reportBytes now contains the JSON representation of the combined data
 	return reportBytes, nil
 }
+
+func (maker *DummyChakaraReportMake) GetType() string {
+	return DummyChakaraReportMakerType
+}
