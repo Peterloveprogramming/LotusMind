@@ -1,18 +1,11 @@
-package storage
+package chakareport
 
 import "fmt"
 
-const TimeStampFormat = "200601021504"
-const ReportFolderName = "chakara-report"
-const ReportFileExtension = ".txt"
+const ChakaraReportMakerType = "ChakaraReportMaker"
+const DummyChakaraReportMakerType = "DummyChakaraReportMaker"
 
-// 0755 provides standard permissions (rwxr-xr-x).
-const FilePermission = 0755
-
-const LocalStorageMakerType = "LocalStorageMaker"
-const S3StorageMakerType = "S3StorageMaker"
-
-func CreateStorageMakerForTesting(makerType string) (Maker, error) {
+func CreateChakraMakerForTesting(makerType string) (Maker, error) {
 	appUrl := "http://api:8080"
 	prod := "prod"
 	dev := "dev"

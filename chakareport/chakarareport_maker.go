@@ -54,3 +54,7 @@ func (maker *ChakaraReportMaker) GenerateChakaraReport(chakaraInfo []ChakraInfo,
 	// 直接返回响应内容
 	return body, nil
 }
+
+func (maker *ChakaraReportMaker) GetType() string {
+	return ChakaraReportMakerType
+}
