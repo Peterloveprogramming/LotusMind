@@ -278,8 +278,8 @@ INSERT INTO chakra_bracelet (unique_id, chakra, name, image_url, product_link, t
 (uuid_generate_v4(), 'Sacral Chakra', 'Carnelian Passion & Creativity Bracelet', '/images/bracelet/Carnelian.jpg', 'https://www.ommindshop.com/products/sacral-chakra-carnelian-bracelet', 0),
 (uuid_generate_v4(), 'Solar Plexus Chakra', 'Tiger’s Eye Courage & Confidence Bracelet', '/images/bracelet/Tiger’s Eye.jpg', 'https://www.ommindshop.com/products/solar-plexus-chakra-tigers-eye-bracelet', 0),
 (uuid_generate_v4(), 'Heart Chakra', 'Green Aventurine Love & Emotional Healing Bracelet', '/images/bracelet/Green Aventurine.jpg', 'https://www.ommindshop.com/products/heart-chakra-green-aventurine-bracelet', 0),
-(uuid_generate_v4(), 'Throat Chakra', 'Lapis Lazuli Truth & Communication Bracelet', '/images/bracelet/Lapis Lazuli.jpg', 'https://www.ommindshop.com/products/throat-chakra-lapis-lazuli-bracelet', 0),
-(uuid_generate_v4(), 'Third Eye Chakra', 'Sodalite Intuition & Mental Clarity Bracelet', '/images/bracelet/Sodalite.jpg', 'https://www.ommindshop.com/products/amethyst-intuition-spiritual-awakening-bracelet', 0),
+(uuid_generate_v4(), 'Throat Chakra', 'Blue Apatite Clarity & Communication Bracelet', '/images/bracelet/blue apatite.jpg', 'https://www.ommindshop.com/products/blue-apatite-chakra-bracelet', 0),
+(uuid_generate_v4(), 'Third Eye Chakra', 'Lapis Lazuli Intuition & Wisdom Bracelet', '/images/bracelet/Lapis Lazuli.jpg', 'https://www.ommindshop.com/products/lapis-lazuli-Intuition-Wisdom-bracelet', 0),
 (uuid_generate_v4(), 'Crown Chakra', 'Amethyst Wisdom & Spiritual Awakening Bracelet', '/images/bracelet/Amethyst 3A.png', 'https://www.ommindshop.com/products/crown-chakra-clear-quartz-bracelet', 0);
 
 
