@@ -13,24 +13,28 @@ const LocalStorageMakerType = "LocalStorageMaker"
 const S3StorageMakerType = "S3StorageMaker"
 
 func CreateStorageMakerForTesting(makerType string) (Maker, error) {
-	appUrl := "http://api:8080"
 	prod := "prod"
 	dev := "dev"
+	awsRegion := "test"
+	awsAccessKeydId := "test"
+	awsAccessKey := "test"
+	awsBucketName := "test"
 
 	switch makerType {
-	case ChakaraReportMakerType:
+	case LocalStorageMakerType:
 
-		ChakararReportMaker, err := ChakraMaker(prod, appUrl)
+		Localtorage, err := StorageMaker(dev, awsRegion, awsAccessKeydId, awsAccessKey, awsBucketName)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create ChakaraReportMaker for testing: %w", err)
+			return nil, fmt.Errorf("failed to create Localtorage for testing: %w", err)
 		}
-		return ChakararReportMaker, nil
-	case DummyChakaraReportMakerType:
-		DummyChakararReportMaker, err := ChakraMaker(dev, appUrl)
+		return Localtorage, nil
+	// do not use S3StorageMakerType. unless providing valid aws key and bucket name
+	case S3StorageMakerType:
+		S3Storage, err := StorageMaker(prod, awsRegion, awsAccessKeydId, awsAccessKey, awsBucketName)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create DummyChakararReportMaker for testing: %w", err)
+			return nil, fmt.Errorf("failed to create S3Storage for testing: %w", err)
 		}
-		return DummyChakararReportMaker, nil
+		return S3Storage, nil
 	default:
 		// Return an error if the provided type string is not recognized
 		return nil, fmt.Errorf("invalid maker type provided for testing: %s", makerType)
