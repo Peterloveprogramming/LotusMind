@@ -20,6 +20,12 @@ type Config struct {
 	AWSAccessKeyID         string        `mapstructure:"AWS_ACCESS_KEY_ID"`
 	AWSSecretAccessKey     string        `mapstructure:"AWS_SECRET_ACCESS_KEY"`
 	AWSBucketName          string        `mapstructure:"AWS_BUCKET_NAME"`
+	Email                  string        `mapstructure:"EMAIL"`
+	EmailPassword          string        `mapstructure:"EMAIL_PASSWORD"`
+	EmailSmtp              string        `mapstructure:"EMAIL_SMTP"`
+	EmailSmtpAddress       string        `mapstructure:"EMAIL_SMTP_ADDR"`
+	FrontEndUrlDev         string        `mapstructure:"FRONTEND_URL_DEV"`
+	FrontEndUrlProd        string        `mapstructure:"FRONTEND_URL_PROD"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

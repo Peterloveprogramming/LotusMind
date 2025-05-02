@@ -18,7 +18,7 @@ type Store interface {
 	CreateUserTransaction(ctx context.Context, args CreateUserTransactiontArgs) (CreateUserResult, error)
 	UpdateSessionFinishTransaction(ctx context.Context, args UpdateSessionFinishTransactionParams) error
 	CreateUserForTestingDeletion(ctx context.Context) (CreateUserForTestingDeletionResult, error)
-	CreateUserEmailTransaction(ctx context.Context, args CreateUserEmailTransactiontArgs) error
+	CreateUserEmailTransaction(ctx context.Context, args CreateUserEmailTransactiontArgs) (CreateUserEmailRow, error)
 	ExecTx(ctx context.Context, fn func(*Queries) error) error
 }
 
@@ -456,8 +456,10 @@ type CreateUserEmailTransactiontArgs struct {
 	Country    string
 }
 
-func (store *SQLStore) CreateUserEmailTransaction(ctx context.Context, args CreateUserEmailTransactiontArgs) error {
+func (store *SQLStore) CreateUserEmailTransaction(ctx context.Context, args CreateUserEmailTransactiontArgs) (CreateUserEmailRow, error) {
+	var result CreateUserEmailRow
 	err := store.execTx(ctx, func(q *Queries) error {
+		var err error // Declare err inside fn scope
 		params := CreateUserEmailParams{
 			UniqueID: uuid.New(),
 			Email:    args.Email,
@@ -476,12 +478,12 @@ func (store *SQLStore) CreateUserEmailTransaction(ctx context.Context, args Crea
 				Valid:  args.Country != "",
 			},
 		}
-		_, err := q.CreateUserEmail(ctx, params)
+		result, err = q.CreateUserEmail(ctx, params)
 		if err != nil {
 			return err
 		}
 		return nil
 	})
 
-	return err
+	return result, err
 }

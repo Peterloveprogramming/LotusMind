@@ -11,7 +11,6 @@ type ChakraInfo struct {
 	ChakraStatus string `json:"chakra_status" binding:"required"`
 }
 
-// Maker is an interface for managing tokens
 type Maker interface {
 	GenerateChakaraReport(chakaraInfo []ChakraInfo, language string) ([]byte, error)
 	GetType() string

@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -172,7 +173,7 @@ func (server *Server) registEmail(ctx *gin.Context) {
 		Country:    req.Country,
 	}
 
-	err = server.store.CreateUserEmailTransaction(ctx, args)
+	registration, err := server.store.CreateUserEmailTransaction(ctx, args)
 	if err != nil {
 		if strings.Contains(err.Error(), "unique_violation") {
 			ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("email exists already")))
@@ -206,6 +207,7 @@ func (server *Server) registEmail(ctx *gin.Context) {
 		}
 	}
 
+	fmt.Println(("wtf???"))
 	// 获取分数最低的两个脉轮
 	lowestChakras := []string{chakraScores[0].name, chakraScores[1].name}
 	fmt.Printf("分数最低的两个脉轮是: %v\n", lowestChakras)
@@ -216,6 +218,19 @@ func (server *Server) registEmail(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+
+	fmt.Println(("sending email "))
+	fmt.Println("email is", registration.Email)
+	fmt.Println("unique code is", registration.UniqueCode)
+
+	// 发送电子邮件
+	go func() {
+		err = server.sendEmailMaker.SendChakaraResult([]string{registration.Email}, registration.UniqueCode)
+		if err != nil {
+			println("error in sending email", err)
+		}
+	}()
+
 	// 添加返回结果
 	result := gin.H{
 		"email":          req.Email,
@@ -393,8 +408,23 @@ func (server *Server) createChakraTestResults(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+	// go func (){
+	// 	// 发送电子邮件
+	// 	fmt.Print("fuck you ")
+	// 	// a := 2
+	// 	// fmt.Println(a)
+	// }
 
 	ctx.JSON(http.StatusCreated, results)
+}
+
+func containsLetter(s string) bool {
+	for _, r := range s {
+		if unicode.IsLetter(r) {
+			return true
+		}
+	}
+	return false
 }
 
 type ChakraInfo struct {
@@ -420,18 +450,11 @@ func (server *Server) getChakraReport(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
-	// 如果 TestNum 是空字符串，设置默认值
-	if req.TestNum == "" {
-		req.TestNum = "0" // 设置默认值为 0
-	}
-
-	// 将 TestNum 从字符串转换为整数
+	fmt.Println("test num received is", req.TestNum)
+	// save a copy of testnum incase its 3J32J2J...
+	reportUniqueIdentifier := req.TestNum
 	testNum, err := strconv.Atoi(req.TestNum)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(fmt.Errorf("invalid test_num: %v", err)))
-		return
-	}
+	isNumericTestNum := err == nil
 
 	// 打印接收到的 email, testNum, language 和 Chakra Info 的值
 	fmt.Printf("Received Email: %s\n", req.Email)
@@ -442,7 +465,35 @@ func (server *Server) getChakraReport(ctx *gin.Context) {
 	var report []byte
 	var language string
 	var uniqueCode string
-	if testNum > 0 {
+	if !isNumericTestNum && req.TestNum != "" {
+		fmt.Println("testNum is alphanumeric")
+		registration, err := server.store.GetReportByCode(ctx, reportUniqueIdentifier)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				ctx.JSON(http.StatusNotFound, errorResponse(errors.New("report not found")))
+				return
+			}
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
+		fmt.Printf("Registration for email %s: %+v\n", req.Email, registration)
+		// 使用 chakra_report
+		var reportString string
+		reportString, err = server.storageMaker.GetChakaraReportByUniqueCode(req.Email, registration.UniqueCode)
+		if err != nil {
+			// Handle the error appropriately, maybe return or log
+			ctx.JSON(http.StatusInternalServerError, errorResponse(fmt.Errorf("failed to get report from storage: %w", err)))
+			return
+		}
+		// Convert the string report to a byte slice
+		report = []byte(reportString)
+
+		// 获取 language
+		language = registration.Language
+		uniqueCode = registration.UniqueCode
+
+	} else if testNum > 0 {
+		fmt.Println("testNum is numeric")
 		// 获取特定的 email_registrations 记录
 		registration, err := server.getEmailRegistrationByTestNum(ctx, req.Email, testNum)
 		if err != nil {

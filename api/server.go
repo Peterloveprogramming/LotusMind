@@ -9,6 +9,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/lotusMind/meditation/chakareport"
 	db "github.com/lotusMind/meditation/db/sqlc"
+	sendemail "github.com/lotusMind/meditation/email"
 	"github.com/lotusMind/meditation/storage"
 	"github.com/lotusMind/meditation/token"
 	"github.com/lotusMind/meditation/util"
@@ -29,6 +30,7 @@ type Server struct {
 	tokenMaker         token.Maker
 	chakaraReportMaker chakareport.Maker
 	storageMaker       storage.Maker
+	sendEmailMaker     sendemail.Maker
 }
 
 // set up api routes for that server
@@ -47,12 +49,24 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 		return nil, fmt.Errorf("can not create storageMaker: %w", err)
 	}
 
+	var frontEndUrl string
+	if config.APP_ENVIROMENT == "dev" {
+		frontEndUrl = config.FrontEndUrlDev
+	} else {
+		frontEndUrl = config.FrontEndUrlProd
+	}
+	sendEmailMaker, err := sendemail.EmailMaker(frontEndUrl, config.Email, config.EmailPassword, config.EmailSmtp, config.EmailSmtpAddress)
+	if err != nil {
+		return nil, fmt.Errorf("can not create sendEmailMaker: %w", err)
+	}
+
 	server := &Server{
 		store:              store,
 		tokenMaker:         tokenMaker,
 		config:             config,
 		chakaraReportMaker: chakaraReportMaker,
 		storageMaker:       storageMaker,
+		sendEmailMaker:     sendEmailMaker,
 	}
 
 	//register validator
@@ -92,7 +106,8 @@ func (server *Server) setupRouter() {
 	router.GET("/chakra/results/:email/:testNum", server.getChakraTestResults)
 	router.GET("/chakra/results/getByCode/:code", server.getReportByCode)
 	// 添加创建脉轮测试结果的路由
-	// router.POST("/chakra/results/create", server.createChakraTestResult)
+	// router.POST("/chakra/results/create",
+	//  server.createChakraTestResult)
 	router.POST("/chakra/results/create_batch", server.createChakraTestResults)
 
 	router.POST("/chakra/results/getChakraReport", server.getChakraReport)
@@ -102,7 +117,6 @@ func (server *Server) setupRouter() {
 			"message": "app is healthy",
 		})
 	})
-
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
 	// Route definition for User
 	authRoutes.GET("/user/get_info/:id", server.fetchUserInfoById)
