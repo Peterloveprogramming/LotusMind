@@ -225,7 +225,7 @@ func (server *Server) registEmail(ctx *gin.Context) {
 
 	// 发送电子邮件
 	go func() {
-		err = server.sendEmailMaker.SendChakaraResult([]string{registration.Email}, registration.UniqueCode)
+		err = server.sendEmailMaker.SendChakaraResult([]string{registration.Email}, registration.UniqueCode, registration.Language)
 		if err != nil {
 			println("error in sending email", err)
 		}

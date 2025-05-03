@@ -47,9 +47,23 @@ type SendChakaraResultParams struct {
 	FrontEndUrl   string
 }
 
-func (maker *SendEmailMaker) SendChakaraResult(to []string, uniqueCode string) error {
-	subject := Subject
-	tmpl, err := template.New("email").Parse(ChakaraReportTemplate)
+func (maker *SendEmailMaker) SendChakaraResult(to []string, uniqueCode string, language string) error {
+	// Declare variables outside the if/else blocks
+	var subject string
+	var tmpl *template.Template
+	var err error
+
+	if language == French {
+		subject = SubjectFrench
+		tmpl, err = template.New("email").Parse(ChakaraReportTemplateFrench)
+	} else if language == English {
+		subject = Subject
+		tmpl, err = template.New("email").Parse(ChakaraReportTemplate)
+
+	} else {
+		log.Printf("Error: Unsupported language: %s", language)
+		return fmt.Errorf("unsupported language: %s", language)
+	}
 	if err != nil {
 		log.Printf("Error parsing HTML template: %v", err)
 		return fmt.Errorf("failed to parse email template: %w", err)

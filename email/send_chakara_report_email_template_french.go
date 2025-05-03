@@ -1,6 +1,7 @@
 package sendemail
 
-const ChakaraReportTemplate = `
+const ChakaraReportTemplateFrench = `
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -33,8 +34,8 @@ const ChakaraReportTemplate = `
 					<tr>
 						<td align="center">
 							<p style="font-weight: 600px; font-size: 30px;">Hi Beautiful Soul,</p>
-							<p style="font-size: 14px;">Thank you for taking the OmMind Chakra Test! ✨</p>
-							<p style="font-size: 14px;">We’re honored to be part of your journey toward deeper balance, healing, and self-awareness.🧘‍♀️</p>
+							<p style="font-size: 14px;">Merci d’avoir passé le test des chakras OmMind ! ✨</p>
+							<p style="font-size: 14px;">Nous sommes honorés de faire partie de ton voyage vers un meilleur équilibre, une guérison intérieure et une plus grande conscience de toi-même. 🧘‍♀️</p>
 						</td>
 					</tr>
 					
@@ -53,10 +54,10 @@ const ChakaraReportTemplate = `
 										<table align="center" role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 500px;"> 
 											<tr>
 												<td align="center" style="padding: 20px 10px;"> 
-													<p style="font-weight: 600; font-size: 16px; color: #ffffff; margin-top: 0; margin-bottom: 10px; font-family: 'Inter', Arial, sans-serif;">Your Chakra Test Number</p>
+													<p style="font-weight: 600; font-size: 16px; color: #ffffff; margin-top: 0; margin-bottom: 10px; font-family: 'Inter', Arial, sans-serif;">Ton Numéro de Test Chakra</p>
 													<p style="font-size: 14px; color: #ffffff; margin-top: 0; margin-bottom: 10px; font-family: 'Inter', Arial, sans-serif;">{{.ChakaraNumber}}</p>
 													<a href="{{.FrontEndUrl}}" style="text-decoration: none; font-size: 14px; color: white; font-family: 'Inter', Arial, sans-serif; padding: 8px 15px; /* Added horizontal padding for better look */ font-weight: 800; background-color: #F8C63E; border-radius: 15px; /* Added border-radius */ margin-top: 10px; /* Added margin-top */ display: inline-block; /* Helps margin-top work reliably */">
-														Click to view your chakra results 
+														Clique ici pour voir tes résultats
 														<img src="https://ommind-public.s3.eu-west-2.amazonaws.com/chakara-report-email-tempalte-images/arrow.png" alt="arrow" width="16" height="15" style="width: 16px; height: 15px; vertical-align: middle; margin-left: 5px; display: inline-block;"> 
 													</a>
 													
@@ -79,13 +80,13 @@ const ChakaraReportTemplate = `
 				<table align="center" role="presentation" width="100%" style="max-width: 500px; ">
 					<tr>
 						<td align="center">
-							<p style="font-size: 14px;">Your results reveal a unique chakra alignment profile—your personal energy blueprint. Based on your results, we recommend exploring our <strong>customized handmade chakra bracelets</strong>, designed to support your specific energy centers.</p>
-							<p style="margin-bottom: 0; font-size: 18px;">To help you get started, </p>
-							<p style="margin-top: 0px; font-size: 18px;">here’s a <strong>15% discount</strong> code just for you:</p>
+							<p style="font-size: 14px;">Tes résultats révèlent un profil unique d’alignement des chakras – ton véritable plan énergétique.  En fonction de tes réponses, nous te recommandons de découvrir nos <strong>bracelets chakra faits main</strong>, spécialement conçus pour soutenir tes centres énergétiques spécifiques.</p>
+							<p style="margin-bottom: 0; font-size: 18px;">Pour t’aider à démarrer, </p>
+							<p style="margin-top: 0px; font-size: 18px;">voici un <strong>code de réduction de 15%</strong> rien que pour toi :</p>
 							<p  style="text-decoration: none;margin-top: 0px; font-size: 14px; color: white; font-family: 'Inter', Arial, sans-serif; padding: 8px 15px; /* Added horizontal padding for better look */ font-weight: 800; background-color: #72513C; border-radius: 15px; /* Added border-radius */ margin-top: 10px; /* Added margin-top */ display: inline-block; /* Helps margin-top work reliably */">
 								{{.DiscountCode}}
 							</p>
-							<p style="font-size: 14px;">Use it at checkout on any bracelet—including our personalized creations.💫</p>
+							<p style="font-size: 14px;">Utilise-le lors du paiement sur n’importe quel bracelet – y compris nos créations personnalisées. 💫</p>
 						</td>
 					</tr>
 					
@@ -98,7 +99,7 @@ const ChakaraReportTemplate = `
 			  <table width="100%" style="margin-top: 20px;">
 				<tr>
 				  <td>
-					<p style="font-weight: 600; color: #FFFFFF; font-size: 24px; font-family: Inter, Arial, Helvetica, sans-serif; margin: 0; text-align: center;">Discover Your Customized Chakra Bracelet</p>
+					<p style="font-weight: 600; color: #FFFFFF; font-size: 24px; font-family: Inter, Arial, Helvetica, sans-serif; margin: 0; text-align: center;">Découvre Ton Bracelet Chakra Personnalisé</p>
 				  </td>
 				</tr>
 				<tr>
@@ -114,7 +115,7 @@ const ChakaraReportTemplate = `
 							</tr>
 							<tr>
 							  <td style="padding: 3px 0 3px;">
-								<a href="https://www.ommindshop.com/products/blessed-weave-tibetan-knotted-bracelet" target="_blank" style="text-decoration: none;"><p style="color: #F8C63E; font-size: 14px; font-family: Afacad, Arial, Helvetica, sans-serif; margin-top: 5px;">Blessed Weave – Tibetan Knotted Bracelet</p></a>
+								<a href="https://www.ommindshop.com/products/blessed-weave-tibetan-knotted-bracelet" target="_blank" style="text-decoration: none;"><p style="color: #F8C63E; font-size: 14px; font-family: Afacad, Arial, Helvetica, sans-serif; margin-top: 5px;">Blessed Weave – Bracelet Tibétain Noué</p></a>
 							  </td>
 							</tr>
 						  </table>
@@ -133,7 +134,7 @@ const ChakaraReportTemplate = `
 							</tr>
 							<tr>
 							  <td style="padding: 3px 0 3px;">
-								<a href="https://www.ommindshop.com/products/sacred-flow-tibetan-chakra-bracelet" target="_blank style="text-decoration: none;"><p style="color: #F8C63E; font-size: 14px; font-family: Afacad, Arial, Helvetica, sans-serif; margin-top: 5px;">Sacred Flow – Tibetan Customized Chakra Bracelet</p></a>
+								<a href="https://www.ommindshop.com/products/sacred-flow-tibetan-chakra-bracelet" target="_blank style="text-decoration: none;"><p style="color: #F8C63E; font-size: 14px; font-family: Afacad, Arial, Helvetica, sans-serif; margin-top: 5px;">Sacred Flow – Bracelet Chakra Tibétain Personnalisé</p></a>
 							  </td>
 							</tr>
 						  </table>
@@ -152,7 +153,7 @@ const ChakaraReportTemplate = `
 							</tr>
 							<tr>
 							  <td style="padding: 3px 0 3px;">
-								<a href="https://www.ommindshop.com/products/crystal-force-tailored-chakra-energy-bracelet" target="_blank" style="text-decoration: none;"><p style="color: #F8C63E; font-size: 14px; font-family: Afacad, Arial, Helvetica, sans-serif; margin-top: 5px;">Crystal Force – Tailored Chakra Energy Bracelet</p></a>
+								<a href="https://www.ommindshop.com/products/crystal-force-tailored-chakra-energy-bracelet" target="_blank" style="text-decoration: none;"><p style="color: #F8C63E; font-size: 14px; font-family: Afacad, Arial, Helvetica, sans-serif; margin-top: 5px;">Crystal Force – Bracelet Énergétique Chakra sur Mesure</p></a>
 							  </td>
 							</tr>
 						  </table>
@@ -171,7 +172,7 @@ const ChakaraReportTemplate = `
 							</tr>
 							<tr>
 							  <td style="padding: 3px 0 3px;">
-								<a href="https://www.ommindshop.com/products/energy-pathway-custom-chakra-bracelet" target="_blank" style="text-decoration: none;"><p style="color: #F8C63E; font-size: 14px; font-family: Afacad, Arial, Helvetica, sans-serif; margin-top: 5px;">Energy Pathway – Customized Chakra Healing Bracelet</p></a>
+								<a href="https://www.ommindshop.com/products/energy-pathway-custom-chakra-bracelet" target="_blank" style="text-decoration: none;"><p style="color: #F8C63E; font-size: 14px; font-family: Afacad, Arial, Helvetica, sans-serif; margin-top: 5px;">Energy Pathway – Bracelet de Guérison Chakra Personnalisé</p></a>
 							  </td>
 							</tr>
 						  </table>
