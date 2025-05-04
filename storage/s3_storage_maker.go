@@ -179,3 +179,7 @@ func (maker *S3StorageMaker) GetChakaraReportByUniqueCode(email string, uniqueCo
 	log.Printf("Successfully retrieved file '%s' from bucket '%s'\n", *targetKey, maker.awsBucketName)
 	return string(bodyBytes), nil
 }
+
+func (maker *S3StorageMaker) SaveChakaraReportAnswersAsText(email string, uniqueId string, answers map[string]string) error {
+	return nil
+}
