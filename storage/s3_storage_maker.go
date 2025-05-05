@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -180,6 +181,52 @@ func (maker *S3StorageMaker) GetChakaraReportByUniqueCode(email string, uniqueCo
 	return string(bodyBytes), nil
 }
 
+// SaveChakaraReportAnswersAsText saves the chakra report answers map as a JSON file
+// in the specified S3 bucket under the "chakara-report-answers" folder.
+// The filename includes the uniqueId and a timestamp (YYYYMMDDHHMM).
 func (maker *S3StorageMaker) SaveChakaraReportAnswersAsText(email string, uniqueId string, answers map[string]string) error {
+	if email == "" {
+		return fmt.Errorf("email cannot be empty")
+	}
+	if uniqueId == "" {
+		return fmt.Errorf("uniqueId cannot be empty")
+	}
+	if len(answers) == 0 {
+		log.Printf("Warning: Attempting to save empty answers map for email '%s', uniqueId '%s' to S3. Skipping.\n", email, uniqueId)
+		return nil // Or return an error if empty answers are invalid
+	}
+
+	ctx := context.TODO() // Use context.TODO() for now
+
+	// Get the current time and format it
+	currentTime := time.Now()
+	timestamp := currentTime.Format(TimeStampFormat) // Go's reference time format
+
+	// Define the folder structure and file name within the bucket for answers
+	userAnswersFolder := ReportAnswerFolderName + "/" + email + "/"
+	// Construct the answers filename with uniqueId and timestamp
+	answersFilename := fmt.Sprintf("%s-%s%s", uniqueId, timestamp, ReportFileExtension)
+	objectKey := userAnswersFolder + answersFilename
+
+	// Marshal the answers map into JSON format
+	jsonData, err := json.MarshalIndent(answers, "", "  ") // Use MarshalIndent for readability
+	if err != nil {
+		return fmt.Errorf("failed to marshal answers map to JSON for S3 object '%s': %w", objectKey, err)
+	}
+
+	// Upload the JSON data to S3
+	_, err = maker.s3Client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket:      aws.String(maker.awsBucketName),
+		Key:         aws.String(objectKey),
+		Body:        strings.NewReader(string(jsonData)), // Upload the JSON string
+		ContentType: aws.String("application/json"),      // Set content type to JSON
+	})
+
+	if err != nil {
+		log.Printf("ERROR: Couldn't upload answers file '%s' to bucket '%s'. Reason: %v\n", objectKey, maker.awsBucketName, err)
+		return fmt.Errorf("failed to upload answers to S3 bucket '%s': %w", maker.awsBucketName, err)
+	}
+
+	log.Printf("Successfully uploaded answers file '%s' to bucket '%s'\n", objectKey, maker.awsBucketName)
 	return nil
 }
