@@ -39,32 +39,40 @@ func (server *Server) registEmail(ctx *gin.Context) {
 	fmt.Printf("req.Answers: %+v\n", req.Answers)
 	questionAnswers := make(map[string]string)
 
-	// 准备批量插入的参数
-	var uniqueIds []uuid.UUID
-	var emails []string
-	var uniqueCodes []string
-	var questions []string
-	var answers []string
+	// // 准备批量插入的参数
+	// var uniqueIds []uuid.UUID
+	// var emails []string
+	// var uniqueCodes []string
+	// var questions []string
+	// var answers []string
 	uniqueCode := generateUniqueCode()
 
 	for question, answer := range req.Answers {
 		questionAnswers[question] = answer
-		uniqueIds = append(uniqueIds, uuid.New())
-		emails = append(emails, req.Email)
-		uniqueCodes = append(uniqueCodes, uniqueCode)
-		questions = append(questions, question)
-		answers = append(answers, answer)
+		// uniqueIds = append(uniqueIds, uuid.New())
+		// emails = append(emails, req.Email)
+		// uniqueCodes = append(uniqueCodes, uniqueCode)
+		// questions = append(questions, question)
+		// answers = append(answers, answer)
 	}
 
 	// 批量插入选项答案
-	_, err := server.store.CreateChakraTestOptionAnswersBatch(ctx, db.CreateChakraTestOptionAnswersBatchParams{
-		Column1: uniqueIds,
-		Column2: emails,
-		Column3: uniqueCodes,
-		Column4: questions,
-		Column5: answers, // Use Column5 instead of Answers
-	})
+	// _, err := server.store.CreateChakraTestOptionAnswersBatch(ctx, db.CreateChakraTestOptionAnswersBatchParams{
+	// 	Column1: uniqueIds,
+	// 	Column2: emails,
+	// 	Column3: uniqueCodes,
+	// 	Column4: questions,
+	// 	Column5: answers, // Use Column5 instead of Answers
+	// })
+	// if err != nil {
+	// 	ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	// 	return
+	// }
+
+	// save answers
+	err := server.storageMaker.SaveChakaraReportAnswersAsText(req.Email, uniqueCode, req.Answers)
 	if err != nil {
+		fmt.Println("error in saving answers", err)
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}

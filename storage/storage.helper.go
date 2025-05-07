@@ -4,6 +4,8 @@ import "fmt"
 
 const TimeStampFormat = "200601021504"
 const ReportFolderName = "chakara-report"
+const ReportAnswerFolderName = "chakara-report-answers"
+
 const ReportFileExtension = ".txt"
 
 // 0755 provides standard permissions (rwxr-xr-x).

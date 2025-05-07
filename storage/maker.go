@@ -7,6 +7,7 @@ import (
 
 type Maker interface {
 	SaveChakaraReportAsText(email string, uniqueId string, content string) error
+	SaveChakaraReportAnswersAsText(email string, uniqueId string, Answers map[string]string) error
 	GetChakaraReportByUniqueCode(email string, uniqueCode string) (string, error)
 }
 

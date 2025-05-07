@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"            // Import os package
 	"path/filepath" // Use filepath for OS-independent paths
@@ -12,7 +13,9 @@ import (
 // LocalStorageMaker implements the Maker interface for saving reports to the local filesystem.
 type LocalStorageMaker struct {
 	// baseReportDir stores the absolute path to the "chakara-report" folder within the project root.
-	baseReportDir string
+	baseReportDir  string
+	baseAnswersDir string // Added field for answers directory
+
 }
 
 // NewLocalStorageMaker creates a new local storage maker instance.
@@ -26,12 +29,15 @@ func NewLocalStorageMaker() (Maker, error) {
 
 	// Construct the base path for reports: <working_directory>/chakara-report
 	baseReportDir := filepath.Join(wd, ReportFolderName)
+	// Construct the base path for reports answers: <working_directory>/chakara-report-answers
+	baseAnswersDir := filepath.Join(wd, ReportAnswerFolderName)
 
 	// Optional: Log the determined path for verification
 	fmt.Printf("Initialized LocalStorageMaker. Reports will be saved under: %s\n", baseReportDir)
 
 	maker := &LocalStorageMaker{
-		baseReportDir: baseReportDir,
+		baseReportDir:  baseReportDir,
+		baseAnswersDir: baseAnswersDir,
 	}
 	return maker, nil
 }
@@ -130,4 +136,58 @@ func (maker *LocalStorageMaker) GetChakaraReportByUniqueCode(email string, uniqu
 
 	fmt.Printf("Successfully retrieved report locally from '%s'\n", filePath) // Log success
 	return string(contentBytes), nil
+}
+
+// SaveChakaraReportAnswersAsText saves the chakra report answers map as a JSON file
+// in the local filesystem under the base answers directory.
+// Path: <project_root>/chakara-report-answers/email/uniqueId.txt
+func (maker *LocalStorageMaker) SaveChakaraReportAnswersAsText(email string, uniqueId string, answers map[string]string) error {
+	if email == "" {
+		return fmt.Errorf("email cannot be empty")
+	}
+	if uniqueId == "" {
+		return fmt.Errorf("uniqueId cannot be empty")
+	}
+	if len(answers) == 0 {
+		// Decide if saving an empty map is an error or should just do nothing
+		// return fmt.Errorf("answers map cannot be empty")
+		fmt.Printf("Warning: Attempting to save empty answers map for email '%s', uniqueId '%s'. Skipping.\n", email, uniqueId)
+		return nil // Or return an error if empty answers are invalid
+	}
+
+	// Get the current time and format it using the constant
+	currentTime := time.Now()
+	timestamp := currentTime.Format(TimeStampFormat) // Added timestamp generation
+
+	// Construct the specific user's directory path within the answers folder
+	// This creates: <project_root>/chakara-report-answers/email
+	dirPath := filepath.Join(maker.baseAnswersDir, email)
+
+	// Create the directory structure (including parent dirs) if it doesn't exist.
+	err := os.MkdirAll(dirPath, FilePermission) // Use the same permission constant
+	if err != nil {
+		return fmt.Errorf("failed to create answers directory '%s': %w", dirPath, err)
+	}
+
+	// Construct the full file path for the answers file
+	// Creates: uniqueId.txt
+	answersFilename := fmt.Sprintf("%s-%s%s", uniqueId, timestamp, ReportFileExtension) // Updated filename format
+	// Creates: <project_root>/chakara-report-answers/email/uniqueId.txt
+	filePath := filepath.Join(dirPath, answersFilename)
+
+	// Marshal the answers map into JSON format
+	jsonData, err := json.MarshalIndent(answers, "", "  ") // Use MarshalIndent for readability
+	if err != nil {
+		return fmt.Errorf("failed to marshal answers map to JSON for file '%s': %w", filePath, err)
+	}
+
+	// Write the JSON data to the file.
+	// 0644 provides standard permissions (rw-r--r--).
+	err = os.WriteFile(filePath, jsonData, 0644)
+	if err != nil {
+		return fmt.Errorf("failed to write answers file '%s': %w", filePath, err)
+	}
+
+	fmt.Printf("Successfully saved answers locally to '%s'\n", filePath) // Log success
+	return nil
 }
