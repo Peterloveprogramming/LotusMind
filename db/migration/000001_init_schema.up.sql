@@ -293,9 +293,9 @@ INSERT INTO chakra_bracelet (unique_id, name, image_url, product_link, type) VAL
 ),
 (
     uuid_generate_v4(),
-    'Sacred Flow Custom Chakra Bracelet',
-    '/images/bracelet/Sacred Flow.jpg',
-    'https://www.ommindshop.com/products/sacred-flow-tibetan-chakra-bracelet',
+    'Monk Shield Customized Chakra Bracelet',
+    '/images/bracelet/Monk Shield.jpg',
+    'https://www.ommindshop.com/products/monk-shield-chakra-bracelet-men',
     1
 ),
 (
