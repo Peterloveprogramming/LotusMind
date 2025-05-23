@@ -80,13 +80,17 @@ const ChakaraReportTemplateFrench = `
 				<table align="center" role="presentation" width="100%" style="max-width: 500px; ">
 					<tr>
 						<td align="center">
-							<p style="font-size: 14px;">Tes résultats révèlent un profil unique d’alignement des chakras – ton véritable plan énergétique.  En fonction de tes réponses, nous te recommandons de découvrir nos <strong>bracelets chakra faits main</strong>, spécialement conçus pour soutenir tes centres énergétiques spécifiques.</p>
+							<p style="font-size: 14px;">Tes résultats révèlent un profil unique d’alignement des chakras – ton véritable plan énergétique.  En fonction de tes réponses, nous te recommandons de découvrir nos <strong>bracelets chakra faits main </strong>, spécialement conçus pour soutenir tes centres énergétiques spécifiques.</p>
+							<p style="font-size: 14px;">Tu es bien inscrit(e) à notre <strong>tirage au sort de bracelet des chakras !</strong>  Le ou la gagnant(e) sera annoncé(e) le <strong>31 mai à 20h (heure de Londres)</strong> dans nos stories sur les réseaux sociaux — reste connecté(e) !</p>
+
 							<p style="margin-bottom: 0; font-size: 18px;">Pour t’aider à démarrer, </p>
-							<p style="margin-top: 0px; font-size: 18px;">voici un <strong>code de réduction de 15%</strong> rien que pour toi :</p>
+							<p style="margin-top: 0px; font-size: 18px;">En cadeau, voici ton code promo exclusif de <strong>-50%</strong></p>
 							<p  style="text-decoration: none;margin-top: 0px; font-size: 14px; color: white; font-family: 'Inter', Arial, sans-serif; padding: 8px 15px; /* Added horizontal padding for better look */ font-weight: 800; background-color: #72513C; border-radius: 15px; /* Added border-radius */ margin-top: 10px; /* Added margin-top */ display: inline-block; /* Helps margin-top work reliably */">
 								{{.DiscountCode}}
 							</p>
-							<p style="font-size: 14px;">Utilise-le lors du paiement sur n’importe quel bracelet – y compris nos créations personnalisées. 💫</p>
+							<p style="font-size: 14px;">(valable sur un seul article jusqu’au 8 juin 2025 à 23h59)</p>
+							<p style="font-size: 14px;">Utilise-le pour trouver le bracelet qui vibre avec ton énergie et t’accompagne sur ton chemin.</p>
+
 						</td>
 					</tr>
 					
@@ -129,12 +133,12 @@ const ChakaraReportTemplateFrench = `
 						  <table>
 							<tr>
 							  <td>
-								<a href="https://www.ommindshop.com/products/sacred-flow-tibetan-chakra-bracelet" target="_blank"><img src="https://ommind-public.s3.eu-west-2.amazonaws.com/chakara-report-email-tempalte-images/product-2.png" alt="" width="125"  style="border: 0;"></a>
+								<a href="https://www.ommindshop.com/products/monk-shield-chakra-bracelet-men" target="_blank"><img src="https://ommind-public.s3.eu-west-2.amazonaws.com/chakara-report-email-tempalte-images/product-2.png" alt="" width="125"  style="border: 0;"></a>
 							  </td>
 							</tr>
 							<tr>
 							  <td style="padding: 3px 0 3px;">
-								<a href="https://www.ommindshop.com/products/sacred-flow-tibetan-chakra-bracelet" target="_blank style="text-decoration: none;"><p style="color: #F8C63E; font-size: 14px; font-family: Afacad, Arial, Helvetica, sans-serif; margin-top: 5px;">Sacred Flow – Bracelet Chakra Tibétain Personnalisé</p></a>
+								<a href="https://www.ommindshop.com/products/monk-shield-chakra-bracelet-men" target="_blank style="text-decoration: none;"><p style="color: #F8C63E; font-size: 14px; font-family: Afacad, Arial, Helvetica, sans-serif; margin-top: 5px;">Monk Shield – Bracelet Chakra Tibétain Personnalisé</p></a>
 							  </td>
 							</tr>
 						  </table>
@@ -229,4 +233,5 @@ const ChakaraReportTemplateFrench = `
 	</center> 
 </body>
 </html>
+
 `

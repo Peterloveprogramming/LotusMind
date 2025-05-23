@@ -80,12 +80,14 @@ const ChakaraReportTemplate = `
 					<tr>
 						<td align="center">
 							<p style="font-size: 14px;">Your results reveal a unique chakra alignment profile—your personal energy blueprint. Based on your results, we recommend exploring our <strong>customized handmade chakra bracelets</strong>, designed to support your specific energy centers.</p>
-							<p style="margin-bottom: 0; font-size: 18px;">To help you get started, </p>
-							<p style="margin-top: 0px; font-size: 18px;">here’s a <strong>15% discount</strong> code just for you:</p>
+                            <p style="font-size: 14px;">You’ve successfully joined our <strong>Chakra Bracelet Giveaway!</strong>  The winner will be revealed on <strong>May 31 at 8 PM (London time)</strong> in our social media stories — stay tuned!</p>
+							<p style="margin-top: 0px; font-size: 18px;">As a gift, here’s your exclusive <strong>50% OFF</strong> code:</p>
 							<p  style="text-decoration: none;margin-top: 0px; font-size: 14px; color: white; font-family: 'Inter', Arial, sans-serif; padding: 8px 15px; /* Added horizontal padding for better look */ font-weight: 800; background-color: #72513C; border-radius: 15px; /* Added border-radius */ margin-top: 10px; /* Added margin-top */ display: inline-block; /* Helps margin-top work reliably */">
 								{{.DiscountCode}}
 							</p>
-							<p style="font-size: 14px;">Use it at checkout on any bracelet—including our personalized creations.💫</p>
+							<p style="font-size: 14px; margin-bottom: 0px;">(valid on one item until June 8, 2025 at 11:59 PM)</p>
+                            <p style="font-size: 14px;">Use it to find a bracelet that resonates with your energy and supports your journey.</p>
+
 						</td>
 					</tr>
 					
@@ -128,12 +130,12 @@ const ChakaraReportTemplate = `
 						  <table>
 							<tr>
 							  <td>
-								<a href="https://www.ommindshop.com/products/sacred-flow-tibetan-chakra-bracelet" target="_blank"><img src="https://ommind-public.s3.eu-west-2.amazonaws.com/chakara-report-email-tempalte-images/product-2.png" alt="" width="125"  style="border: 0;"></a>
+								<a href="https://www.ommindshop.com/products/monk-shield-chakra-bracelet-men" target="_blank"><img src="https://ommind-public.s3.eu-west-2.amazonaws.com/chakara-report-email-tempalte-images/product-2.png" alt="" width="125"  style="border: 0;"></a>
 							  </td>
 							</tr>
 							<tr>
 							  <td style="padding: 3px 0 3px;">
-								<a href="https://www.ommindshop.com/products/sacred-flow-tibetan-chakra-bracelet" target="_blank style="text-decoration: none;"><p style="color: #F8C63E; font-size: 14px; font-family: Afacad, Arial, Helvetica, sans-serif; margin-top: 5px;">Sacred Flow – Tibetan Customized Chakra Bracelet</p></a>
+								<a href="https://www.ommindshop.com/products/monk-shield-chakra-bracelet-men" target="_blank style="text-decoration: none;"><p style="color: #F8C63E; font-size: 14px; font-family: Afacad, Arial, Helvetica, sans-serif; margin-top: 5px;">Monk Shield - Customized Chakra Bracelet</p></a>
 							  </td>
 							</tr>
 						  </table>

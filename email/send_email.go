@@ -77,7 +77,7 @@ func (maker *SendEmailMaker) SendChakaraResult(to []string, uniqueCode string, l
 	data := SendChakaraResultParams{
 		Subject:       Subject,
 		ChakaraNumber: uniqueCode,
-		DiscountCode:  "CHAKRATEST15OFF",
+		DiscountCode:  "VD50R7V0BXZH",
 		FrontEndUrl:   reportUrl,
 	}
 
