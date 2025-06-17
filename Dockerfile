@@ -21,11 +21,13 @@
 
 # EXPOSE 8080
 # ENTRYPOINT ["/app/start.sh"]
-
 FROM golang:1.23 AS builder
-COPY . /go/src/app
-WORKDIR /go/src/app
-RUN go build -o main .
-FROM public.ecr.aws/lambda/provided:al2
-COPY --from=builder /go/src/app/main /main
+
+WORKDIR /app
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main .
+
+FROM public.ecr.aws/lambda/provided:al2023
+COPY --from=builder /app/main /main
 ENTRYPOINT [ "/main" ]

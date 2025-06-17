@@ -24,39 +24,33 @@
 // 		log.Fatal("Cannot connect", err)
 // 	}
 
-// 	store := db.NewStore(conn)
-// 	server, err := api.NewServer(config, store)
-// 	if err != nil {
-// 		log.Fatal("can not create server", err)
-// 	}
-// 	err = server.Start(config.ServerAddress)
-// 	if err != nil {
-// 		log.Fatal("can not start the server", err)
-// 	}
-// }
-
+//		store := db.NewStore(conn)
+//		server, err := api.NewServer(config, store)
+//		if err != nil {
+//			log.Fatal("can not create server", err)
+//		}
+//		err = server.Start(config.ServerAddress)
+//		if err != nil {
+//			log.Fatal("can not start the server", err)
+//		}
+//	}
 package main
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-type Request struct {
-	Name string `json:"name"`
-}
-
-type Response struct {
-	Message string `json:"message"`
-}
-
-func HandleRequest(ctx context.Context, request Request) (Response, error) {
-	message := fmt.Sprintf("Hello, %s!", request.Name)
-	return Response{Message: message}, nil
+func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	response := events.APIGatewayProxyResponse{
+		StatusCode: 200,
+		Body:       "\"Hello from Lambda!\"",
+	}
+	return response, nil
 }
 
 func main() {
-	lambda.Start(HandleRequest)
+	lambda.Start(handler)
 }
