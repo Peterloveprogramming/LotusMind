@@ -2,7 +2,7 @@ name: Deploy to production
 
 on:
   push:
-    branches: ["main", "develop"]
+    branches: ["main", "develop", "lambda-c"]
 
 jobs:
   build:
