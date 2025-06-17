@@ -22,7 +22,7 @@
 # EXPOSE 8080
 # ENTRYPOINT ["/app/start.sh"]
 
-FROM golang:1.20 AS builder
+FROM golang:1.23 AS builder
 COPY . /go/src/app
 WORKDIR /go/src/app
 RUN go build -o main .
