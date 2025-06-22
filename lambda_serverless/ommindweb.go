@@ -1,0 +1,470 @@
+package lambdaServerless
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/mail"
+	"sort"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/aws/aws-lambda-go/events"
+	db "github.com/lotusMind/meditation/db/sqlc"
+)
+
+func (lambdaServerless *Lambda) Test(ctx context.Context, event events.APIGatewayProxyRequest) events.APIGatewayProxyResponse {
+	fmt.Println("context", ctx)
+	fmt.Println("event", event)
+	response := events.APIGatewayProxyResponse{
+		StatusCode: 200,
+		Body:       "Test is working!",
+	}
+	return response
+}
+
+type createUserEmailRequestBody struct {
+	Email    string            `json:"email"`
+	Answers  map[string]string `json:"answers"`
+	Language string            `json:"language"`
+	IP       string            `json:"ip"`
+	Country  string            `json:"country"`
+}
+
+// type registEmailResponse struct {
+// }
+
+func (lambdaServerless *Lambda) RegisterEmail(ctx context.Context, event events.APIGatewayProxyRequest) events.APIGatewayProxyResponse {
+	// resp := registEmailResponse{}
+	var req createUserEmailRequestBody
+
+	// Parse JSON body
+	if err := json.Unmarshal([]byte(event.Body), &req); err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "invalid JSON",
+		}
+	}
+
+	// Manual Validation
+	if req.Email == "" || len(req.Email) > 30 {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "email is required and must be <= 30 characters",
+		}
+	}
+	if _, err := mail.ParseAddress(req.Email); err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "invalid email format",
+		}
+	}
+	if len(req.Answers) == 0 {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "answers are required",
+		}
+	}
+	for key, val := range req.Answers {
+		if val == "" {
+			return events.APIGatewayProxyResponse{
+				StatusCode: 400,
+				Body:       fmt.Sprintf("answer for '%s' cannot be empty", key),
+			}
+		}
+	}
+	if len(req.Language) == 0 {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "language is required",
+		}
+	}
+	if len(req.IP) == 0 {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "ip is required",
+		}
+	}
+	if len(req.Country) == 0 {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "country is required",
+		}
+	}
+	// 创建问题分数映射
+	fmt.Printf("req.Answers: %+v\n", req.Answers)
+	questionAnswers := make(map[string]string)
+
+	uniqueCode := generateUniqueCode()
+
+	for question, answer := range req.Answers {
+		questionAnswers[question] = answer
+	}
+	// save answers
+	err := lambdaServerless.storageMaker.SaveChakaraReportAnswersAsText(req.Email, uniqueCode, req.Answers)
+	if err != nil {
+		fmt.Println("error in saving answers", err)
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       "error in saving answers",
+		}
+	}
+
+	// 创建一个切片用于存放所有 value
+	values := make([]string, 0, len(questionAnswers))
+
+	// 遍历 map，将每个 value 添加到切片中
+	for _, value := range questionAnswers {
+		values = append(values, value)
+	}
+	// 打印结果
+	fmt.Println("Values:", values)
+	fmt.Printf("Email: %s\n", req.Email)
+	// fmt.Println("Question Scores Map:")
+
+	var rootScores, sacralScores, solarPlexusScores, heartScores, throatScores, thirdEyeScores, crownScores float32
+
+	for _, answer := range values {
+
+		// fmt.Printf("index: %d,answer: %s\n", i, answer)
+
+		parts := strings.Split(answer, "||")
+
+		setIndex, err := strconv.Atoi(parts[0])
+		if err != nil {
+			fmt.Println("转换失败:", err)
+			return events.APIGatewayProxyResponse{
+				StatusCode: 500,
+				Body:       fmt.Sprintf("转换失败: %v", err),
+			}
+		}
+		score, err := strconv.Atoi(parts[2])
+		if err != nil {
+			fmt.Println("转换失败:", err)
+			return events.APIGatewayProxyResponse{
+				StatusCode: 500,
+				Body:       fmt.Sprintf("转换失败: %v", err),
+			}
+		}
+
+		switch setIndex {
+		case 1:
+			rootScores += float32(score)
+		case 2:
+			sacralScores += float32(score)
+		case 3:
+			solarPlexusScores += float32(score)
+		case 4:
+			heartScores += float32(score)
+		case 5:
+			throatScores += float32(score)
+		case 6:
+			thirdEyeScores += float32(score)
+		case 7:
+			crownScores += float32(score)
+		}
+	}
+	rootScores = rootScores * 100 / (9 * 2)
+	sacralScores = sacralScores * 100 / (8 * 2)
+	solarPlexusScores = solarPlexusScores * 100 / (9 * 2)
+	heartScores = heartScores * 100 / (9 * 2)
+	throatScores = throatScores * 100 / (8 * 2)
+	thirdEyeScores = thirdEyeScores * 100 / (9 * 2)
+	crownScores = crownScores * 100 / (7 * 2)
+
+	fmt.Printf("scoreRootScores: %f\n", rootScores)
+	fmt.Printf("sacralScores : %f\n", sacralScores)
+	fmt.Printf("solarPlexusScores: %f\n", solarPlexusScores)
+	fmt.Printf("heartScores: %f\n", heartScores)
+	fmt.Printf("throatScores: %f\n", throatScores)
+	fmt.Printf("thirdEyeScores: %f\n", thirdEyeScores)
+	fmt.Printf("CrownChakra Score: %f\n", crownScores)
+
+	// 定义脉轮数据
+	chakras := []struct {
+		ChakraName   string `json:"chakra_name"`
+		ChakraScore  int32  `json:"chakra_score"`
+		ChakraStatus string `json:"chakra_status"`
+	}{
+		{"Root Chakra", int32(rootScores), getChakraStatus(rootScores)},
+		{"Sacral Chakra", int32(sacralScores), getChakraStatus(sacralScores)},
+		{"Solar Plexus Chakra", int32(solarPlexusScores), getChakraStatus(solarPlexusScores)},
+		{"Heart Chakra", int32(heartScores), getChakraStatus(heartScores)},
+		{"Throat Chakra", int32(throatScores), getChakraStatus(throatScores)},
+		{"Third Eye Chakra", int32(thirdEyeScores), getChakraStatus(thirdEyeScores)},
+		{"Crown Chakra", int32(crownScores), getChakraStatus(crownScores)},
+	}
+
+	// 将脉轮数据转换为 JSON
+	chakraInfoJSON, err := json.Marshal(chakras)
+	if err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       fmt.Sprintf("将脉轮数据转换为 JSON 失败: %v", err),
+		}
+	}
+
+	// 创建用户注册邮箱
+	args := db.CreateUserEmailTransactiontArgs{
+		Email:      req.Email,
+		ChakraInfo: string(chakraInfoJSON),
+		Language:   req.Language,
+		UniqueCode: uniqueCode,
+		IP:         req.IP,
+		Country:    req.Country,
+	}
+
+	registration, err := lambdaServerless.store.CreateUserEmailTransaction(ctx, args)
+	if err != nil {
+		if strings.Contains(err.Error(), "unique_violation") {
+			return events.APIGatewayProxyResponse{
+				StatusCode: 400,
+				Body:       "email exists already",
+			}
+		}
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       "something went wrong while attempting registering email",
+		}
+	}
+
+	//获取推荐的手串
+	// 创建一个包含脉轮分数的切片
+	chakraScores := []struct {
+		name  string
+		score float32
+	}{
+		{"Root Chakra", rootScores},
+		{"Sacral Chakra", sacralScores},
+		{"Solar Plexus Chakra", solarPlexusScores},
+		{"Heart Chakra", heartScores},
+		{"Throat Chakra", throatScores},
+		{"Third Eye Chakra", thirdEyeScores},
+		{"Crown Chakra", crownScores},
+	}
+
+	// 根据分数排序（从低到高）
+	for i := 0; i < len(chakraScores)-1; i++ {
+		for j := i + 1; j < len(chakraScores); j++ {
+			if chakraScores[i].score > chakraScores[j].score {
+				chakraScores[i], chakraScores[j] = chakraScores[j], chakraScores[i]
+			}
+		}
+	}
+	fmt.Println(("wtf???"))
+	// 获取分数最低的两个脉轮
+	lowestChakras := []string{chakraScores[0].name, chakraScores[1].name}
+	fmt.Printf("分数最低的两个脉轮是: %v\n", lowestChakras)
+
+	// 获取推荐的手串
+	bracelets, err := lambdaServerless.store.GetChakraBracelet(ctx, lowestChakras)
+	if err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       "something went wrong while attempting getting bracelets",
+		}
+	}
+
+	// 发送电子邮件
+	go func() {
+		err = lambdaServerless.sendEmailMaker.SendChakaraResult([]string{registration.Email}, registration.UniqueCode, registration.Language)
+		if err != nil {
+			println("error in sending email", err)
+		}
+	}()
+
+	fmt.Println(("sending email "))
+	fmt.Println("email is", registration.Email)
+	fmt.Println("unique code is", registration.UniqueCode)
+
+	response := map[string]interface{}{
+		"email":          req.Email,
+		"message":        "Email registered successfully",
+		"chakra_results": chakras,
+		"bracelets":      bracelets,
+	}
+	responseJSON, err := json.Marshal(response)
+	if err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       "Failed to marshal response JSON",
+		}
+	}
+	return events.APIGatewayProxyResponse{
+		StatusCode: 200,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: string(responseJSON),
+	}
+}
+
+func (lambdaServerless *Lambda) getEmailRegistrationByTestNum(ctx context.Context, email string, testNum int) (db.GetEmailRegistrationByTestNumRow, error) {
+	// OFFSET 从 0 开始，所以需要减去 1
+	arg := db.GetEmailRegistrationByTestNumParams{
+		Email:  email,
+		Offset: int32(testNum - 1), // Cast testNum-1 to int32 for the Offset field
+	}
+	registration, err := lambdaServerless.store.GetEmailRegistrationByTestNum(ctx, arg)
+	if err != nil {
+		return db.GetEmailRegistrationByTestNumRow{}, err
+	}
+	return registration, nil
+}
+
+type ChakraInfo struct {
+	ChakraName   string `json:"chakra_name" binding:"required"`
+	ChakraScore  int32  `json:"chakra_score" binding:"required"`
+	ChakraStatus string `json:"chakra_status" binding:"required"`
+}
+
+type chakraTestResult struct {
+	UniqueID     string    `json:"unique_id"`
+	ChakraName   string    `json:"chakra_name"`
+	ChakraScore  int32     `json:"chakra_score"`
+	ChakraStatus string    `json:"chakra_status"`
+	CreatedAt    time.Time `json:"created_at"`
+}
+
+type getChakraTestResultsRequest struct {
+	Email   string `uri:"email" binding:"required,email"`
+	TestNum string `uri:"testNum" binding:"required"`
+}
+
+func (lambdaServerless *Lambda) getChakraTestResults(ctx context.Context, event events.APIGatewayProxyRequest) events.APIGatewayProxyResponse {
+	var req getChakraTestResultsRequest
+
+	// Parse JSON body
+	if err := json.Unmarshal([]byte(event.Body), &req); err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "invalid JSON",
+		}
+	}
+
+	// Manual Validation
+	if req.Email == "" || len(req.Email) <= 5 {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "email is empty or less than 5 characters",
+		}
+	}
+	if len(req.TestNum) == 0 {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "test_num is required",
+		}
+	}
+
+	// 将 TestNum 从字符串转换为整数
+	testNum, err := strconv.Atoi(req.TestNum)
+	if err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       fmt.Sprintf("invalid test_num: %v", err),
+		}
+	}
+	// 获取特定的 email_registrations 记录
+	registration, err := lambdaServerless.getEmailRegistrationByTestNum(ctx, req.Email, testNum)
+	if err != nil {
+		println("error occured while attempting getEmailRegistrationByTestNum ", err)
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       fmt.Sprintf("something went wrong while attempting getEmailRegistrationByTestNum: %v", err),
+		}
+
+	}
+
+	var reportData []ChakraInfo
+	if registration.ChakraInfo.Valid {
+		if err := json.Unmarshal([]byte(registration.ChakraInfo.String), &reportData); err != nil {
+			return events.APIGatewayProxyResponse{
+				StatusCode: 500,
+				Body:       fmt.Sprintf("something went wrong while attempting unmarshalling chakra info: %v", err),
+			}
+		}
+	} else {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 404,
+			Body:       "No report available",
+		}
+	}
+
+	// 获取手串
+	// 创建一个切片存储分数最低的两个脉轮名称
+	type chakraScore struct {
+		name  string
+		score int32
+	}
+	scores := make([]chakraScore, len(reportData))
+	for i, r := range reportData {
+		scores[i] = chakraScore{
+			name:  r.ChakraName,
+			score: r.ChakraScore,
+		}
+	}
+
+	// 根据分数排序（从低到高）
+	sort.Slice(scores, func(i, j int) bool {
+		return scores[i].score < scores[j].score
+	})
+
+	// 获取分数最低的两个脉轮
+	lowestChakras := []string{scores[0].name, scores[1].name}
+
+	// 获取推荐的手串
+	var bracelets []db.GetChakraBraceletRow
+	bracelets, err = lambdaServerless.store.GetChakraBracelet(ctx, lowestChakras)
+	if err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       fmt.Sprintf("something went wrong while attempting getting bracelets: %v", err),
+		}
+	}
+
+	var response []chakraTestResult
+	for _, r := range reportData {
+		response = append(response, chakraTestResult{
+			ChakraName:   r.ChakraName,
+			ChakraScore:  r.ChakraScore,
+			ChakraStatus: r.ChakraStatus,
+		})
+	}
+
+	//is Go's way of saying: "I’m creating a map where the keys are strings,
+	//and the values can be anything — string, int, struct, slice, bool, whatever."
+
+	result := map[string]interface{}{
+		"chakra_results": response,
+		"language":       registration.Language,
+		"bracelets":      bracelets,
+	}
+
+	jsonBody, err := json.Marshal(result)
+	if err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       "Failed to marshal JSON response",
+		}
+	}
+
+	return events.APIGatewayProxyResponse{
+		StatusCode: 200,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: string(jsonBody),
+	}
+}
+
+func (lambdaServerless *Lambda) RequestNotFound(ctx context.Context, event events.APIGatewayProxyRequest) events.APIGatewayProxyResponse {
+	fmt.Println("context", ctx)
+	fmt.Println("event", event)
+	response := events.APIGatewayProxyResponse{
+		StatusCode: http.StatusNotFound,
+		Body:       "Not found!",
+	}
+	return response
+}

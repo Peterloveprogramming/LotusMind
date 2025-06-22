@@ -20,9 +20,9 @@
 // 	// create a new database connection
 // 	conn, err := sql.Open(config.DBDriver, config.DBSource)
 
-// 	if err != nil {
-// 		log.Fatal("Cannot connect", err)
-// 	}
+// if err != nil {
+// 	log.Fatal("Cannot connect", err)
+// }
 
 //		store := db.NewStore(conn)
 //		server, err := api.NewServer(config, store)
@@ -38,19 +38,50 @@ package main
 
 import (
 	"context"
+	"database/sql"
+	"log"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	db "github.com/lotusMind/meditation/db/sqlc"
+	lambdaServerless "github.com/lotusMind/meditation/lambda_serverless"
+	"github.com/lotusMind/meditation/util"
 )
 
-func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	response := events.APIGatewayProxyResponse{
-		StatusCode: 200,
-		Body:       "\"Hello from Lambda!\"",
+var lambdaWrapper *lambdaServerless.Lambda
+
+// how to establish database connection in lambda?
+func handler(ctx context.Context, event events.APIGatewayProxyRequest) events.APIGatewayProxyResponse {
+	switch {
+	case event.HTTPMethod == "GET" && event.Path == "/test":
+		return lambdaWrapper.Test(ctx, event)
+	case event.HTTPMethod == "POST" && event.Path == "/register_email":
+		return lambdaWrapper.RegisterEmail(ctx, event)
+	case event.HTTPMethod == "GET" && event.Path == "/chakra/results/:email":
+		return lambdaWrapper.RegisterEmail(ctx, event)
+	default:
+		return lambdaWrapper.RequestNotFound(ctx, event)
 	}
-	return response, nil
 }
 
 func main() {
+	//Load configuration, use "." because main.go is in the same directory
+	config, err := util.LoadConfig(".")
+	if err != nil {
+		log.Fatal("can not load configuration")
+	}
+
+	// 	// create a new database connection
+	conn, err := sql.Open(config.DBDriver, config.DBSource)
+	if err != nil {
+		log.Fatal("Cannot connect", err)
+	}
+
+	store := db.NewStore(conn)
+	lambdaWrapper, err = lambdaServerless.NewLambda(config, store)
+	if err != nil {
+		log.Fatal("can not create server", err)
+	}
+
 	lambda.Start(handler)
 }
