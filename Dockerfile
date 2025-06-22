@@ -30,5 +30,5 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main .
 
 FROM public.ecr.aws/lambda/provided:al2023
 COPY --from=builder /app/main /main
-COPY app.env / #load app.env from ubuntu image (when running deploy.yml) to the contianer running the image
+COPY app.env /var/task/
 ENTRYPOINT [ "/main" ]
