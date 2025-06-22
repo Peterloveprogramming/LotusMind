@@ -51,16 +51,16 @@ import (
 var lambdaWrapper *lambdaServerless.Lambda
 
 // how to establish database connection in lambda?
-func handler(ctx context.Context, event events.APIGatewayProxyRequest) events.APIGatewayProxyResponse {
+func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	switch {
 	case event.HTTPMethod == "GET" && event.Path == "/test":
-		return lambdaWrapper.Test(ctx, event)
+		return lambdaWrapper.Test(ctx, event), nil
 	case event.HTTPMethod == "POST" && event.Path == "/register_email":
-		return lambdaWrapper.RegisterEmail(ctx, event)
+		return lambdaWrapper.RegisterEmail(ctx, event), nil
 	case event.HTTPMethod == "GET" && event.Path == "/chakra/results/:email":
-		return lambdaWrapper.RegisterEmail(ctx, event)
+		return lambdaWrapper.RegisterEmail(ctx, event), nil
 	default:
-		return lambdaWrapper.RequestNotFound(ctx, event)
+		return lambdaWrapper.RequestNotFound(ctx, event), nil
 	}
 }
 
