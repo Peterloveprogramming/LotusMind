@@ -40,6 +40,7 @@ import (
 	"context"
 	"database/sql"
 	"log"
+	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -54,11 +55,27 @@ var lambdaWrapper *lambdaServerless.Lambda
 func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	switch {
 	case event.HTTPMethod == "GET" && event.Path == "/test":
+		// {
+		//   "httpMethod": "GET",
+		//   "path": "/test"
+		// }
 		return lambdaWrapper.Test(ctx, event), nil
 	case event.HTTPMethod == "POST" && event.Path == "/register_email":
 		return lambdaWrapper.RegisterEmail(ctx, event), nil
-	case event.HTTPMethod == "GET" && event.Path == "/chakra/results/:email":
-		return lambdaWrapper.RegisterEmail(ctx, event), nil
+	case event.HTTPMethod == "GET" && strings.HasPrefix(event.Path, "/chakra/results/"):
+		// expects path like /chakra/results/{email}/{testNum}
+		email := event.PathParameters["email"]
+		testNum := event.PathParameters["testNum"]
+
+		if email == "" || testNum == "" {
+			return events.APIGatewayProxyResponse{
+				StatusCode: 400,
+				Body:       "Missing required path parameters: email or testNum",
+			}, nil
+		}
+
+		// Pass along to actual handler
+		return lambdaWrapper.GetChakraTestResults(ctx, event), nil
 	default:
 		return lambdaWrapper.RequestNotFound(ctx, event), nil
 	}

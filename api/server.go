@@ -102,9 +102,9 @@ func (server *Server) setupRouter() {
 	router.POST("/user/create", server.createUser)
 	router.POST("/user/register_email", server.registEmail)
 	// 添加获取脉轮测试结果的路由
-	router.GET("/chakra/results/:email", server.getChakraTestResults)
+	// router.GET("/chakra/results/:email", server.getChakraTestResults)
 	router.GET("/chakra/results/:email/:testNum", server.getChakraTestResults)
-	router.GET("/chakra/results/getByCode/:code", server.getReportByCode)
+	// router.GET("/chakra/results/getByCode/:code", server.getReportByCode)
 	// 添加创建脉轮测试结果的路由
 	// router.POST("/chakra/results/create",
 	//  server.createChakraTestResult)

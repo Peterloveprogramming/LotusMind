@@ -333,7 +333,7 @@ type getChakraTestResultsRequest struct {
 	TestNum string `uri:"testNum" binding:"required"`
 }
 
-func (lambdaServerless *Lambda) getChakraTestResults(ctx context.Context, event events.APIGatewayProxyRequest) events.APIGatewayProxyResponse {
+func (lambdaServerless *Lambda) GetChakraTestResults(ctx context.Context, event events.APIGatewayProxyRequest) events.APIGatewayProxyResponse {
 	var req getChakraTestResultsRequest
 
 	// Parse JSON body
