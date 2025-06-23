@@ -333,25 +333,16 @@ type getChakraTestResultsRequest struct {
 	TestNum string `uri:"testNum" binding:"required"`
 }
 
-func (lambdaServerless *Lambda) GetChakraTestResults(ctx context.Context, event events.APIGatewayProxyRequest) events.APIGatewayProxyResponse {
-	var req getChakraTestResultsRequest
-
-	// Parse JSON body
-	if err := json.Unmarshal([]byte(event.Body), &req); err != nil {
-		return events.APIGatewayProxyResponse{
-			StatusCode: 400,
-			Body:       "invalid JSON",
-		}
-	}
+func (lambdaServerless *Lambda) GetChakraTestResults(ctx context.Context, event events.APIGatewayProxyRequest, inputEmail string, inputTestNum string) events.APIGatewayProxyResponse {
 
 	// Manual Validation
-	if req.Email == "" || len(req.Email) <= 5 {
+	if inputEmail == "" || len(inputEmail) <= 5 {
 		return events.APIGatewayProxyResponse{
 			StatusCode: 400,
 			Body:       "email is empty or less than 5 characters",
 		}
 	}
-	if len(req.TestNum) == 0 {
+	if len(inputTestNum) == 0 {
 		return events.APIGatewayProxyResponse{
 			StatusCode: 400,
 			Body:       "test_num is required",
@@ -359,7 +350,7 @@ func (lambdaServerless *Lambda) GetChakraTestResults(ctx context.Context, event 
 	}
 
 	// 将 TestNum 从字符串转换为整数
-	testNum, err := strconv.Atoi(req.TestNum)
+	testNum, err := strconv.Atoi(inputTestNum)
 	if err != nil {
 		return events.APIGatewayProxyResponse{
 			StatusCode: 400,
@@ -367,7 +358,7 @@ func (lambdaServerless *Lambda) GetChakraTestResults(ctx context.Context, event 
 		}
 	}
 	// 获取特定的 email_registrations 记录
-	registration, err := lambdaServerless.getEmailRegistrationByTestNum(ctx, req.Email, testNum)
+	registration, err := lambdaServerless.getEmailRegistrationByTestNum(ctx, inputEmail, testNum)
 	if err != nil {
 		println("error occured while attempting getEmailRegistrationByTestNum ", err)
 		return events.APIGatewayProxyResponse{

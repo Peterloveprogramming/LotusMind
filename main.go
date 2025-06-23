@@ -39,8 +39,8 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
-	"strings"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -62,11 +62,12 @@ func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.A
 		return lambdaWrapper.Test(ctx, event), nil
 	case event.HTTPMethod == "POST" && event.Path == "/register_email":
 		return lambdaWrapper.RegisterEmail(ctx, event), nil
-	case event.HTTPMethod == "GET" && strings.HasPrefix(event.Path, "/chakra/results/"):
+	case event.HTTPMethod == "POST" && event.Path == "/chakra/results/":
 		// expects path like /chakra/results/{email}/{testNum}
 		email := event.PathParameters["email"]
 		testNum := event.PathParameters["testNum"]
-
+		fmt.Println("email", email)
+		fmt.Println("testNum", testNum)
 		if email == "" || testNum == "" {
 			return events.APIGatewayProxyResponse{
 				StatusCode: 400,
@@ -75,7 +76,7 @@ func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.A
 		}
 
 		// Pass along to actual handler
-		return lambdaWrapper.GetChakraTestResults(ctx, event), nil
+		return lambdaWrapper.GetChakraTestResults(ctx, event, email, testNum), nil
 	default:
 		return lambdaWrapper.RequestNotFound(ctx, event), nil
 	}
