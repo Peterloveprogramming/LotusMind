@@ -334,7 +334,7 @@ type GetChakraReportRequest struct {
 	Email      string                   `json:"email" binding:"required,email"`
 	TestNum    string                   `json:"test_num"`
 	Language   string                   `json:"language"`
-	ChakraInfo []chakareport.ChakraInfo `json:"chakra_info" binding:"required"` // Use chakareport.ChakraInfo
+	ChakraInfo []chakareport.ChakraInfo `json:"chakra_info"` // Use chakareport.ChakraInfo
 }
 
 type GetChakraReportResponse struct {
