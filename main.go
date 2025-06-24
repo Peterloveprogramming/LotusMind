@@ -39,7 +39,7 @@ package main
 import (
 	"context"
 	"database/sql"
-	"fmt"
+	"encoding/json"
 	"log"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -63,20 +63,32 @@ func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.A
 	case event.HTTPMethod == "POST" && event.Path == "/register_email":
 		return lambdaWrapper.RegisterEmail(ctx, event), nil
 	case event.HTTPMethod == "POST" && event.Path == "/chakra/results/":
-		// expects path like /chakra/results/{email}/{testNum}
-		email := event.PathParameters["email"]
-		testNum := event.PathParameters["testNum"]
-		fmt.Println("email", email)
-		fmt.Println("testNum", testNum)
-		if email == "" || testNum == "" {
+		// {
+		// "httpMethod": "POST",
+		// "path": "/chakra/results/",
+		// "body": "{\"email\":\"test@example.com\", \"testNum\":\"ABC123XYZ\"}"
+		// }
+		type ChakraRequest struct {
+			Email   string `json:"email"`
+			TestNum string `json:"testNum"`
+		}
+		var req ChakraRequest
+		err := json.Unmarshal([]byte(event.Body), &req)
+		if err != nil {
 			return events.APIGatewayProxyResponse{
 				StatusCode: 400,
-				Body:       "Missing required path parameters: email or testNum",
+				Body:       "Invalid JSON body",
 			}, nil
 		}
 
-		// Pass along to actual handler
-		return lambdaWrapper.GetChakraTestResults(ctx, event, email, testNum), nil
+		if req.Email == "" || req.TestNum == "" {
+			return events.APIGatewayProxyResponse{
+				StatusCode: 400,
+				Body:       "Missing email or testNum",
+			}, nil
+		}
+
+		return lambdaWrapper.GetChakraTestResults(ctx, event, req.Email, req.TestNum), nil
 	default:
 		return lambdaWrapper.RequestNotFound(ctx, event), nil
 	}
