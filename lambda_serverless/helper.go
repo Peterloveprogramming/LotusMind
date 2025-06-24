@@ -1,6 +1,10 @@
 package lambdaServerless
 
-import "golang.org/x/exp/rand"
+import (
+	"unicode"
+
+	"golang.org/x/exp/rand"
+)
 
 const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
@@ -25,4 +29,13 @@ func getChakraStatus(score float32) string {
 	} else {
 		return "Severely Blocked"
 	}
+}
+
+func containsLetter(s string) bool {
+	for _, r := range s {
+		if unicode.IsLetter(r) {
+			return true
+		}
+	}
+	return false
 }

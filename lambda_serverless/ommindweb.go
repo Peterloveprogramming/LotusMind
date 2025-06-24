@@ -2,6 +2,7 @@ package lambdaServerless
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/lotusMind/meditation/chakareport"
 	db "github.com/lotusMind/meditation/db/sqlc"
 )
 
@@ -314,10 +316,178 @@ func (lambdaServerless *Lambda) getEmailRegistrationByTestNum(ctx context.Contex
 	return registration, nil
 }
 
+func (lambdaServerless *Lambda) getLatestEmailRegistration(ctx context.Context, email string) (db.GetLatestEmailRegistrationRow, error) {
+	latestRegistration, err := lambdaServerless.store.GetLatestEmailRegistration(ctx, email)
+	if err != nil {
+		return db.GetLatestEmailRegistrationRow{}, err
+	}
+	return latestRegistration, nil
+}
+
 type ChakraInfo struct {
 	ChakraName   string `json:"chakra_name" binding:"required"`
 	ChakraScore  int32  `json:"chakra_score" binding:"required"`
 	ChakraStatus string `json:"chakra_status" binding:"required"`
+}
+
+type GetChakraReportRequest struct {
+	Email      string                   `json:"email" binding:"required,email"`
+	TestNum    string                   `json:"test_num"`
+	Language   string                   `json:"language"`
+	ChakraInfo []chakareport.ChakraInfo `json:"chakra_info" binding:"required"` // Use chakareport.ChakraInfo
+}
+
+type GetChakraReportResponse struct {
+	Report string `json:"report"`
+}
+
+func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event events.APIGatewayProxyRequest) events.APIGatewayProxyResponse {
+	var req GetChakraReportRequest
+	err := json.Unmarshal([]byte(event.Body), &req)
+	if err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "Invalid JSON body",
+		}
+	}
+	fmt.Println("test num received is", req.TestNum)
+	// save a copy of testnum incase its 3J32J2J...
+	reportUniqueIdentifier := req.TestNum
+	testNum, err := strconv.Atoi(req.TestNum)
+	isNumericTestNum := err == nil
+
+	// 打印接收到的 email, testNum, language 和 Chakra Info 的值
+	fmt.Printf("Received Email: %s\n", req.Email)
+	fmt.Printf("Received Test Number: %d\n", testNum)
+	fmt.Printf("Received Language: %s\n", req.Language)
+	fmt.Printf("Received Chakra Info: %+v\n", req.ChakraInfo)
+
+	var report []byte
+	var language string
+	var uniqueCode string
+	if !isNumericTestNum && req.TestNum != "" {
+		fmt.Println("testNum is alphanumeric")
+		registration, err := lambdaServerless.store.GetReportByCode(ctx, reportUniqueIdentifier)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return events.APIGatewayProxyResponse{
+					StatusCode: http.StatusNotFound,
+					Body:       "no reports found",
+				}
+			}
+
+			return events.APIGatewayProxyResponse{
+				StatusCode: http.StatusInternalServerError,
+				Body:       fmt.Sprintf("something went wrong in getting report by code: %v", err),
+			}
+		}
+		fmt.Printf("Registration for email %s: %+v\n", req.Email, registration)
+		// 使用 chakra_report
+		var reportString string
+		reportString, err = lambdaServerless.storageMaker.GetChakaraReportByUniqueCode(req.Email, registration.UniqueCode)
+		if err != nil {
+
+			return events.APIGatewayProxyResponse{
+				StatusCode: http.StatusInternalServerError,
+				Body:       fmt.Sprintf("failed to get report from storage: %v", err),
+			}
+		}
+		// Convert the string report to a byte slice
+		report = []byte(reportString)
+
+		// 获取 language
+		language = registration.Language
+		uniqueCode = registration.UniqueCode
+
+	} else if testNum > 0 {
+		fmt.Println("testNum is numeric")
+		// 获取特定的 email_registrations 记录
+		registration, err := lambdaServerless.getEmailRegistrationByTestNum(ctx, req.Email, testNum)
+		return events.APIGatewayProxyResponse{
+			StatusCode: http.StatusInternalServerError,
+			Body:       fmt.Sprintf("something went wrong while checking test num: %v", err),
+		}
+		// 使用 chakra_report
+		var reportString string
+		reportString, err = lambdaServerless.storageMaker.GetChakaraReportByUniqueCode(req.Email, registration.UniqueCode)
+		if err != nil {
+
+			return events.APIGatewayProxyResponse{
+				StatusCode: http.StatusInternalServerError,
+				Body:       fmt.Sprintf("failed to get report from storage: %v", err),
+			}
+		}
+		// Convert the string report to a byte slice
+		report = []byte(reportString)
+
+		// 获取 language
+		language = registration.Language
+		uniqueCode = registration.UniqueCode
+	} else {
+		// 使用请求中的 language
+		language = req.Language
+
+		// 生成报告的逻辑
+		report, err = lambdaServerless.chakaraReportMaker.GenerateChakaraReport(req.ChakraInfo, language)
+		if err != nil {
+			println("there is error in the server", err)
+			return events.APIGatewayProxyResponse{
+				StatusCode: http.StatusInternalServerError,
+				Body:       fmt.Sprintf("error occurred while calling GenerateChakaraReport: %v", err),
+			}
+		}
+		// 获取最新的 email_registrations 记录
+		latestRegistration, err := lambdaServerless.getLatestEmailRegistration(ctx, req.Email)
+		if err != nil {
+			println("error occurred while attempting getLatestEmailRegistration", err)
+			return events.APIGatewayProxyResponse{
+				StatusCode: http.StatusInternalServerError,
+				Body:       fmt.Sprintf("error occurred while attempting getLatestEmailRegistration: %v", err),
+			}
+		}
+		fmt.Printf("Latest registration for email %s: %+v\n", req.Email, latestRegistration)
+		println("the report is ", string(report))
+		// 更新 chakra_report 字段
+		if err := lambdaServerless.storageMaker.SaveChakaraReportAsText(req.Email, latestRegistration.UniqueCode, string(report)); err != nil {
+			return events.APIGatewayProxyResponse{
+				StatusCode: http.StatusInternalServerError,
+				Body:       fmt.Sprintf("error occurred while attempting SaveChakaraReportAsText: %v", err),
+			}
+		}
+		uniqueCode = latestRegistration.UniqueCode
+	}
+
+	// 直接返回报告
+	// ctx.Data(http.StatusOK, "application/json", report)
+
+	var data map[string]interface{}
+	if err := json.Unmarshal(report, &data); err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: http.StatusInternalServerError,
+			Body:       fmt.Sprintf("Invalid report data: %v", err),
+		}
+	}
+
+	// 添加 uniqueCode
+	data["uniqueCode"] = uniqueCode
+
+	// 重新编码
+	newReport, err := json.Marshal(data)
+	if err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: http.StatusInternalServerError,
+			Body:       fmt.Sprintf("Failed to encode data: %v", err),
+		}
+	}
+	fmt.Println("newReport111:", string(newReport))
+	return events.APIGatewayProxyResponse{
+		StatusCode: http.StatusOK,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
+		Body: string(newReport), // make sure it's string, not []byte
+	}
+
 }
 
 type chakraTestResult struct {
@@ -334,7 +504,6 @@ type getChakraTestResultsRequest struct {
 }
 
 func (lambdaServerless *Lambda) GetChakraTestResults(ctx context.Context, event events.APIGatewayProxyRequest, inputEmail string, inputTestNum string) events.APIGatewayProxyResponse {
-
 	// Manual Validation
 	if inputEmail == "" || len(inputEmail) <= 5 {
 		return events.APIGatewayProxyResponse{
