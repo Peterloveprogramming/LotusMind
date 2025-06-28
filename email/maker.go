@@ -6,6 +6,7 @@ import (
 
 type Maker interface {
 	SendChakaraResult(to []string, uniqueCode string, language string) error
+	SendAppReviewSurvey(to []string, language string) error
 }
 
 func EmailMaker(frontendUrl string, sendEmail string, emailPassword string, emailSmtp string, emailSmtpAddress string) (Maker, error) {

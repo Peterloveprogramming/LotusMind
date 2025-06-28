@@ -112,3 +112,64 @@ func (maker *SendEmailMaker) SendChakaraResult(to []string, uniqueCode string, l
 
 	return nil
 }
+
+type SendAppSurveyParams struct {
+	Subject string
+}
+
+func (maker *SendEmailMaker) SendAppReviewSurvey(to []string, language string) error {
+	// Declare variables outside the if/else blocks
+	var subject string
+	var tmpl *template.Template
+	var err error
+
+	if language == French {
+		subject = AppReviewSubjectFrench
+		tmpl, err = template.New("email").Parse(AppSurveyTemplateFrench)
+	} else if language == English {
+		subject = AppReviewSubject
+		tmpl, err = template.New("email").Parse(AppSurveyTemplate)
+	} else {
+		log.Printf("Error: Unsupported language: %s", language)
+		return fmt.Errorf("unsupported language: %s", language)
+	}
+	if err != nil {
+		log.Printf("Error parsing HTML template: %v", err)
+		return fmt.Errorf("failed to parse email template: %w", err)
+	}
+
+	data := SendChakaraResultParams{
+		Subject: Subject,
+	}
+
+	// 4. Execute the template into a buffer
+	var body bytes.Buffer
+	// Set headers first, including Content-Type
+	body.WriteString(fmt.Sprintf("From: %s\n", maker.fromEmail))
+	body.WriteString(fmt.Sprintf("To: %s\n", strings.Join(to, ",")))
+	body.WriteString(fmt.Sprintf("Subject: %s\n", subject))
+	body.WriteString("MIME-version: 1.0;\n")                          // Specify MIME version
+	body.WriteString("Content-Type: text/html; charset=\"UTF-8\";\n") // Set Content-Type to HTML
+	body.WriteString("\n")
+
+	// Execute template and write HTML body
+	if err := tmpl.Execute(&body, data); err != nil {
+		log.Printf("failed to parse email template: %v", err)
+		return fmt.Errorf("failed to parse email template: %w", err)
+	}
+	for _, recipient := range to {
+		err := smtp.SendMail(
+			maker.fromEmailSmtpAddress,
+			maker.smtpPlanAuth,
+			maker.fromEmail,
+			[]string{recipient},
+			body.Bytes(),
+		)
+		if err != nil {
+			log.Printf("Error sending to %s: %v", recipient, err)
+			// optionally collect/report individual failures
+		}
+	}
+
+	return nil
+}
