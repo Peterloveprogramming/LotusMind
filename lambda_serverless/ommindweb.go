@@ -386,7 +386,6 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 		var reportString string
 		reportString, err = lambdaServerless.storageMaker.GetChakaraReportByUniqueCode(req.Email, registration.UniqueCode)
 		if err != nil {
-
 			return events.APIGatewayProxyResponse{
 				StatusCode: http.StatusInternalServerError,
 				Body:       fmt.Sprintf("failed to get report from storage: %v", err),
@@ -394,6 +393,7 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 		}
 		// Convert the string report to a byte slice
 		report = []byte(reportString)
+		fmt.Println("report is", string(report))
 
 		// 获取 language
 		language = registration.Language
@@ -460,6 +460,7 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 	// 直接返回报告
 	// ctx.Data(http.StatusOK, "application/json", report)
 
+	fmt.Println("getting ready to return report")
 	var data map[string]interface{}
 	if err := json.Unmarshal(report, &data); err != nil {
 		return events.APIGatewayProxyResponse{
@@ -468,6 +469,7 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 		}
 	}
 
+	fmt.Println("data:", data)
 	// 添加 uniqueCode
 	data["uniqueCode"] = uniqueCode
 
