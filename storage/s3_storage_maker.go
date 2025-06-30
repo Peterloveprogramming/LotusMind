@@ -115,6 +115,19 @@ func (maker *S3StorageMaker) GetChakaraReportByUniqueCode(email string, uniqueCo
 		Prefix: aws.String(prefix),
 	}
 
+	log.Println("[DEBUG] Attempting basic list on root of bucket:", maker.awsBucketName)
+	basicListInput := &s3.ListObjectsV2Input{
+		Bucket:  aws.String(maker.awsBucketName),
+		MaxKeys: 1, // Limit output to test access
+	}
+
+	_, err := maker.s3Client.ListObjectsV2(ctx, basicListInput)
+	if err != nil {
+		log.Printf("[ERROR] Basic bucket list failed: %v\n", err)
+	} else {
+		log.Println("[DEBUG] Basic bucket list succeeded.")
+	}
+	log.Printf("[DEBUG] Listing objects in S3 bucket '%s' with prefix '%s'\n", maker.awsBucketName, prefix)
 	var matchingObjects []types.Object
 	paginator := s3.NewListObjectsV2Paginator(maker.s3Client, listInput)
 
