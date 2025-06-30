@@ -118,7 +118,7 @@ func (maker *S3StorageMaker) GetChakaraReportByUniqueCode(email string, uniqueCo
 	log.Println("[DEBUG] Attempting basic list on root of bucket:", maker.awsBucketName)
 	basicListInput := &s3.ListObjectsV2Input{
 		Bucket:  aws.String(maker.awsBucketName),
-		MaxKeys: 1, // Limit output to test access
+		MaxKeys: aws.Int32(1), // Limit output to test access
 	}
 
 	_, err := maker.s3Client.ListObjectsV2(ctx, basicListInput)
