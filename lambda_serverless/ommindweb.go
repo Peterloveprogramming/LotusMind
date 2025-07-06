@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/mail"
 	"sort"
@@ -13,6 +14,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/google/uuid"
 	"github.com/lotusMind/meditation/chakareport"
 	db "github.com/lotusMind/meditation/db/sqlc"
 )
@@ -341,6 +343,20 @@ type GetChakraReportResponse struct {
 	Report string `json:"report"`
 }
 
+type GetEmailRegistrationByTestNumRow struct {
+	UniqueID   uuid.UUID `json:"unique_id"`
+	Email      string    `json:"email"`
+	Language   string    `json:"language"`
+	ChakraInfo string    `json:"chakra_info"`
+	UniqueCode string    `json:"unique_code"`
+	CreatedAt  string    `json:"created_at"` // <- string instead of time.Time
+	DeletedAt  string    `json:"deleted_at"` // <- string instead of time.Time
+}
+
+type EmailRegistrationResponse struct {
+	Data GetEmailRegistrationByTestNumRow `json:"data"`
+}
+
 func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event events.APIGatewayProxyRequest) events.APIGatewayProxyResponse {
 	var req GetChakraReportRequest
 	err := json.Unmarshal([]byte(event.Body), &req)
@@ -352,7 +368,7 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 	}
 	fmt.Println("test num received is", req.TestNum)
 	// save a copy of testnum incase its 3J32J2J...
-	reportUniqueIdentifier := req.TestNum
+	// reportUniqueIdentifier := req.TestNum
 	testNum, err := strconv.Atoi(req.TestNum)
 	isNumericTestNum := err == nil
 
@@ -367,7 +383,32 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 	var uniqueCode string
 	if !isNumericTestNum && req.TestNum != "" {
 		fmt.Println("testNum is alphanumeric")
-		registration, err := lambdaServerless.store.GetReportByCode(ctx, reportUniqueIdentifier)
+		// registration, err := lambdaServerless.store.GetReportByCode(ctx, reportUniqueIdentifier)
+
+		// use http to get email registration
+		url := lambdaServerless.config.ApiGateWayEndpoint + "/email-registration?unique_code=" + req.TestNum
+
+		req, _ := http.NewRequest("GET", url, nil)
+		req.Header.Add("x-api-key", lambdaServerless.config.ApiGateWayApiKey)
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			panic(err)
+		}
+		defer resp.Body.Close()
+
+		body, _ := io.ReadAll(resp.Body)
+
+		var parsed EmailRegistrationResponse
+		if err := json.Unmarshal(body, &parsed); err != nil {
+			panic(err)
+		}
+
+		// ✅ Now you can access:
+		fmt.Println("UniqueCode:", parsed.Data.UniqueCode)
+		fmt.Println("Language:", parsed.Data.Language)
+		fmt.Println("Email:", parsed.Data.Email)
+
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return events.APIGatewayProxyResponse{
@@ -381,10 +422,9 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 				Body:       fmt.Sprintf("something went wrong in getting report by code: %v", err),
 			}
 		}
-		fmt.Printf("Registration for email %s: %+v\n", req.Email, registration)
 		// 使用 chakra_report
 		var reportString string
-		reportString, err = lambdaServerless.storageMaker.GetChakaraReportByUniqueCode(req.Email, registration.UniqueCode)
+		reportString, err = lambdaServerless.storageMaker.GetChakaraReportByUniqueCode(parsed.Data.Email, parsed.Data.UniqueCode)
 		if err != nil {
 			return events.APIGatewayProxyResponse{
 				StatusCode: http.StatusInternalServerError,
@@ -396,8 +436,8 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 		fmt.Println("report is", string(report))
 
 		// 获取 language
-		language = registration.Language
-		uniqueCode = registration.UniqueCode
+		language = parsed.Data.Language
+		uniqueCode = parsed.Data.UniqueCode
 
 	} else if testNum > 0 {
 		fmt.Println("testNum is numeric")

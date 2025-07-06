@@ -26,6 +26,8 @@ type Config struct {
 	EmailSmtpAddress       string        `mapstructure:"EMAIL_SMTP_ADDR"`
 	FrontEndUrlDev         string        `mapstructure:"FRONTEND_URL_DEV"`
 	FrontEndUrlProd        string        `mapstructure:"FRONTEND_URL_PROD"`
+	ApiGateWayEndpoint     string        `mapstructure:"API_GATE_WAY_ENDPOINT"`
+	ApiGateWayApiKey       string        `mapstructure:"API_GATE_WAY_API_KEY`
 }
 
 func LoadConfig(path string) (config Config, err error) {
