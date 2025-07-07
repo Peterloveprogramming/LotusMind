@@ -100,68 +100,46 @@ func (maker *S3StorageMaker) GetChakaraReportByUniqueCode(email string, uniqueCo
 		return "", fmt.Errorf("email cannot be empty")
 	}
 
-	log.Println("[DEBUG] Starting GetChakaraReportByUniqueCode")
-	log.Printf("[DEBUG] Inputs - Email: %s, UniqueCode: %s\n", email, uniqueCode)
+	ctx := context.TODO() // Use context.TODO() for now
 
-	ctx := context.TODO() // Consider replacing with real context
-
+	// Define the prefix for listing objects in the user's "folder"
 	prefix := ReportFolderName + "/" + email + "/"
+	// Define the specific prefix for the unique code within the user's folder
 	filePrefix := prefix + uniqueCode + "-"
 
-	log.Printf("[DEBUG] S3 bucket: %s | Prefix: %s | FilePrefix: %s\n", maker.awsBucketName, prefix, filePrefix)
-
+	// List objects in the bucket with the user's folder prefix
 	listInput := &s3.ListObjectsV2Input{
 		Bucket: aws.String(maker.awsBucketName),
-		Prefix: aws.String(prefix),
+		Prefix: aws.String(prefix), // List the whole user folder first
 	}
 
-	log.Println("[DEBUG] Attempting basic list on root of bucket:", maker.awsBucketName)
-	basicListInput := &s3.ListObjectsV2Input{
-		Bucket:  aws.String(maker.awsBucketName),
-		MaxKeys: aws.Int32(1), // Limit output to test access
-	}
-
-	_, err := maker.s3Client.ListObjectsV2(ctx, basicListInput)
-	if err != nil {
-		log.Printf("[ERROR] Basic bucket list failed: %v\n", err)
-	} else {
-		log.Println("[DEBUG] Basic bucket list succeeded.")
-	}
-	log.Printf("[DEBUG] Listing objects in S3 bucket '%s' with prefix '%s'\n", maker.awsBucketName, prefix)
-	var matchingObjects []types.Object
+	var matchingObjects []types.Object // Store objects matching the uniqueCode
+	fmt.Println("aws access id is", maker.awsAccessKeyId)
+	// Paginate through results
 	paginator := s3.NewListObjectsV2Paginator(maker.s3Client, listInput)
-
-	log.Println("[DEBUG] Beginning S3 pagination...")
-
-	pageCount := 0
 	for paginator.HasMorePages() {
-		log.Printf("[DEBUG] Fetching page #%d\n", pageCount+1)
 		page, err := paginator.NextPage(ctx)
 		if err != nil {
-			log.Printf("[ERROR] Failed fetching S3 page: %v\n", err)
 			return "", fmt.Errorf("failed to list objects in S3 bucket '%s' with prefix '%s': %w", maker.awsBucketName, prefix, err)
 		}
-		log.Printf("[DEBUG] Page #%d contains %d objects\n", pageCount+1, len(page.Contents))
 
+		// Filter for files matching the specific uniqueCode prefix and extension
 		for _, obj := range page.Contents {
 			if obj.Key != nil && strings.HasPrefix(*obj.Key, filePrefix) && strings.HasSuffix(*obj.Key, ReportFileExtension) {
-				log.Printf("[DEBUG] Matching object found: %s\n", *obj.Key)
 				matchingObjects = append(matchingObjects, obj)
 			}
 		}
-		pageCount++
 	}
 
+	// Check if any matching objects were found
 	if len(matchingObjects) == 0 {
-		log.Println("[WARN] No matching objects found.")
 		return "", fmt.Errorf("report with unique code '%s' not found for email '%s' in S3 bucket '%s'", uniqueCode, email, maker.awsBucketName)
 	}
 
-	log.Printf("[DEBUG] %d matching object(s) found\n", len(matchingObjects))
-
+	// If multiple matches, sort descending by key (filename) to get the latest timestamp
 	if len(matchingObjects) > 1 {
-		log.Println("[DEBUG] Sorting matching objects by key (descending)...")
 		sort.Slice(matchingObjects, func(i, j int) bool {
+			// Dereference pointers safely
 			keyI := ""
 			if matchingObjects[i].Key != nil {
 				keyI = *matchingObjects[i].Key
@@ -170,17 +148,18 @@ func (maker *S3StorageMaker) GetChakaraReportByUniqueCode(email string, uniqueCo
 			if matchingObjects[j].Key != nil {
 				keyJ = *matchingObjects[j].Key
 			}
+			// Sort descending
 			return keyI > keyJ
 		})
 	}
 
+	// Get the key of the target object (the first one after sorting, which is the latest)
 	targetKey := matchingObjects[0].Key
 	if targetKey == nil {
-		log.Println("[ERROR] Target key is nil after sorting")
 		return "", fmt.Errorf("internal error: found object for unique code '%s' has nil key", uniqueCode)
 	}
 
-	log.Printf("[DEBUG] Getting object from S3: %s\n", *targetKey)
+	// Get the object content from S3
 	getObjectInput := &s3.GetObjectInput{
 		Bucket: aws.String(maker.awsBucketName),
 		Key:    targetKey,
@@ -188,19 +167,17 @@ func (maker *S3StorageMaker) GetChakaraReportByUniqueCode(email string, uniqueCo
 
 	resp, err := maker.s3Client.GetObject(ctx, getObjectInput)
 	if err != nil {
-		log.Printf("[ERROR] Failed to get object: %v\n", err)
 		return "", fmt.Errorf("failed to get object '%s' from S3 bucket '%s': %w", *targetKey, maker.awsBucketName, err)
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() // Ensure the response body is closed
 
-	log.Println("[DEBUG] Successfully got object, starting to read body...")
+	// Read the content
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("[ERROR] Failed to read S3 object body: %v\n", err)
 		return "", fmt.Errorf("failed to read content of object '%s' from S3: %w", *targetKey, err)
 	}
 
-	log.Printf("[INFO] Successfully retrieved file '%s' from bucket '%s'\n", *targetKey, maker.awsBucketName)
+	log.Printf("Successfully retrieved file '%s' from bucket '%s'\n", *targetKey, maker.awsBucketName)
 	return string(bodyBytes), nil
 }
 
