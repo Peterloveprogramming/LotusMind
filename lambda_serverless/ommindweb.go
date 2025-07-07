@@ -387,9 +387,11 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 
 		// use http to get email registration
 		url := lambdaServerless.config.ApiGateWayEndpoint + "/email-registration?unique_code=" + req.TestNum
+		fmt.Println("url is", url)
 
 		req, _ := http.NewRequest("GET", url, nil)
 		req.Header.Add("x-api-key", lambdaServerless.config.ApiGateWayApiKey)
+		fmt.Println("api key is", lambdaServerless.config.ApiGateWayApiKey)
 
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
