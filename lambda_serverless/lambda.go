@@ -26,7 +26,10 @@ func NewLambda(config util.Config, store db.Store) (*Lambda, error) {
 	}
 
 	storageMaker, err := storage.StorageMaker(config.APP_ENVIROMENT, config.AWSRegion, config.AWSAccessKeyID, config.AWSSecretAccessKey, config.AWSBucketName)
+	fmt.Println("aws access id is", config.AWSAccessKeyID)
+	fmt.Println("aws secret access key is", config.AWSSecretAccessKey)
 	if err != nil {
+		fmt.Println("cann ot create storage maker")
 		return nil, fmt.Errorf("can not create storageMaker: %w", err)
 	}
 
