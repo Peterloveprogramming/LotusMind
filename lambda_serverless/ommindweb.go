@@ -424,17 +424,29 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 				Body:       fmt.Sprintf("something went wrong in getting report by code: %v", err),
 			}
 		}
+
 		// 使用 chakra_report
-		var reportString string
-		reportString, err = lambdaServerless.storageMaker.GetChakaraReportByUniqueCode(parsed.Data.Email, parsed.Data.UniqueCode)
+		// var reportString string
+		// reportString, err = lambdaServerless.storageMaker.GetChakaraReportByUniqueCode(parsed.Data.Email, parsed.Data.UniqueCode)
+
+		// use http to get the report
+		reportEndPoint := lambdaServerless.config.ApiGateWayEndpoint + "/chat?unique_code=" + parsed.Data.UniqueCode + "&email=" + parsed.Data.Email
+		fmt.Println("reportEndPoint ", reportEndPoint)
+
+		fetchReportreq, _ := http.NewRequest("POST", reportEndPoint, nil)
+		fetchReportreq.Header.Add("x-api-key", lambdaServerless.config.ApiGateWayApiKey)
+		fmt.Println("api key is", lambdaServerless.config.ApiGateWayApiKey)
+
+		fetchReportResp, err := http.DefaultClient.Do(fetchReportreq)
 		if err != nil {
-			return events.APIGatewayProxyResponse{
-				StatusCode: http.StatusInternalServerError,
-				Body:       fmt.Sprintf("failed to get report from storage: %v", err),
-			}
+			panic(err)
 		}
+		defer resp.Body.Close()
+
+		report, _ = io.ReadAll(fetchReportResp.Body)
+
 		// Convert the string report to a byte slice
-		report = []byte(reportString)
+		// report = []byte(reportString)
 		fmt.Println("report is", string(report))
 
 		// 获取 language
