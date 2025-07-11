@@ -1,11 +1,13 @@
 package lambdaServerless
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/mail"
 	"sort"
@@ -107,7 +109,41 @@ func (lambdaServerless *Lambda) RegisterEmail(ctx context.Context, event events.
 		questionAnswers[question] = answer
 	}
 	// save answers
-	err := lambdaServerless.storageMaker.SaveChakaraReportAnswersAsText(req.Email, uniqueCode, req.Answers)
+	// err := lambdaServerless.storageMaker.SaveChakaraReportAnswersAsText(req.Email, uniqueCode, req.Answers)
+
+	saveAnswersUrl := lambdaServerless.config.ApiGateWayEndpoint + "/save-chakra-report-answers"
+	fmt.Println("url is", saveAnswersUrl)
+
+	data := map[string]interface{}{
+		"email":    req.Email,
+		"uniqueId": uniqueCode,
+		"answers":  req.Answers, // assign map[string]string here
+	}
+
+	// Marshal to JSON
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		log.Fatalf("Failed to marshal JSON: %v", err)
+	}
+
+	// Create request with body
+	_, err = http.NewRequest("POST", saveAnswersUrl, bytes.NewReader(jsonData))
+	if err != nil {
+		log.Fatalf("Failed to create request: %v", err)
+	}
+
+	saveAnsweReq, _ := http.NewRequest("POST", saveAnswersUrl, nil)
+	saveAnsweReq.Header.Add("x-api-key", lambdaServerless.config.ApiGateWayApiKey)
+	fmt.Println("api key is", lambdaServerless.config.ApiGateWayApiKey)
+
+	_, err = http.DefaultClient.Do(saveAnsweReq)
+	if err != nil {
+		panic(err)
+	}
+	// defer resp.Body.Close()
+
+	// body, _ := io.ReadAll(resp.Body)
+
 	if err != nil {
 		fmt.Println("error in saving answers", err)
 		return events.APIGatewayProxyResponse{

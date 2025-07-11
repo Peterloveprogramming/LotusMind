@@ -20,7 +20,7 @@ import (
 type S3StorageMaker struct {
 	awsRegion          string
 	awsAccessKeyId     string
-	awsSecretAccessKey string // Renamed for clarity and consistency with AWS SDK
+	awsSecretAccessKey string
 	awsBucketName      string
 	s3Client           *s3.Client // Store the S3 client
 }
