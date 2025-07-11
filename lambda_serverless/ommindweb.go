@@ -430,10 +430,10 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 		// reportString, err = lambdaServerless.storageMaker.GetChakaraReportByUniqueCode(parsed.Data.Email, parsed.Data.UniqueCode)
 
 		// use http to get the report
-		reportEndPoint := lambdaServerless.config.ApiGateWayEndpoint + "/chat?unique_code=" + parsed.Data.UniqueCode + "&email=" + parsed.Data.Email
+		reportEndPoint := lambdaServerless.config.ApiGateWayEndpoint + "/chakra-report?unique_code=" + parsed.Data.UniqueCode + "&email=" + parsed.Data.Email
 		fmt.Println("reportEndPoint ", reportEndPoint)
 
-		fetchReportreq, _ := http.NewRequest("POST", reportEndPoint, nil)
+		fetchReportreq, _ := http.NewRequest("GET", reportEndPoint, nil)
 		fetchReportreq.Header.Add("x-api-key", lambdaServerless.config.ApiGateWayApiKey)
 		fmt.Println("api key is", lambdaServerless.config.ApiGateWayApiKey)
 
