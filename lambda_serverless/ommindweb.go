@@ -333,15 +333,15 @@ func (lambdaServerless *Lambda) RegisterEmail(ctx context.Context, event events.
 
 	// 发送电子邮件
 	go func() {
-		err = lambdaServerless.sendEmailMaker.SendChakaraResult([]string{registration.Email}, registration.UniqueCode, registration.Language)
+		err = lambdaServerless.sendEmailMaker.SendChakaraResult([]string{req.Email}, uniqueCode, req.Language)
 		if err != nil {
 			println("error in sending email", err)
 		}
 	}()
 
 	fmt.Println(("sending email "))
-	fmt.Println("email is", registration.Email)
-	fmt.Println("unique code is", registration.UniqueCode)
+	fmt.Println("email is", req.Email)
+	fmt.Println("unique code is", uniqueCode)
 
 	response := map[string]interface{}{
 		"email":          req.Email,
