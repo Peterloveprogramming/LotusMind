@@ -26,7 +26,7 @@ func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.A
 		return lambdaWrapper.Test(ctx, event), nil
 	case event.HTTPMethod == "POST" && event.Path == "/register_email":
 		return lambdaWrapper.RegisterEmail(ctx, event), nil
-	case event.HTTPMethod == "POST" && event.Path == "/chakra/results/getChakraReport":
+	case event.HTTPMethod == "GET" && event.Path == "/chakra/results/getChakraReport":
 		// {
 		// 	"httpMethod": "POST",
 		// 	"path": "/chakra/results/getChakraReport",

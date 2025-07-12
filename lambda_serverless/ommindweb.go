@@ -242,6 +242,34 @@ func (lambdaServerless *Lambda) RegisterEmail(ctx context.Context, event events.
 		}
 	}
 
+	emailRegistrationData := map[string]interface{}{
+		"email":       req.Email,
+		"chakra_info": chakraInfoJSON,
+		"language":    req.Language,
+		"unique_code": uniqueCode,
+		"ip":          req.IP,
+		"country":     req.Country,
+	}
+
+	// Marshal to JSON
+	emailRegistrationjsonData, err := json.Marshal(emailRegistrationData)
+	if err != nil {
+		log.Fatalf("Failed to marshal JSON: %v", err)
+	}
+
+	// save email registration
+	url := lambdaServerless.config.ApiGateWayEndpoint + "/email-registration"
+	fmt.Println("url is", url)
+
+	emailRegistrationReq, _ := http.NewRequest("POST", url, bytes.NewReader(emailRegistrationjsonData))
+	emailRegistrationReq.Header.Add("x-api-key", lambdaServerless.config.ApiGateWayApiKey)
+	fmt.Println("api key is", lambdaServerless.config.ApiGateWayApiKey)
+
+	_, err = http.DefaultClient.Do(emailRegistrationReq)
+	if err != nil {
+		panic(err)
+	}
+
 	// 创建用户注册邮箱
 	args := db.CreateUserEmailTransactiontArgs{
 		Email:      req.Email,
