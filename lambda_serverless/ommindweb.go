@@ -127,12 +127,11 @@ func (lambdaServerless *Lambda) RegisterEmail(ctx context.Context, event events.
 	}
 
 	// Create request with body
-	_, err = http.NewRequest("POST", saveAnswersUrl, bytes.NewReader(jsonData))
+	saveAnsweReq, err := http.NewRequest("POST", saveAnswersUrl, bytes.NewReader(jsonData))
 	if err != nil {
 		log.Fatalf("Failed to create request: %v", err)
 	}
 
-	saveAnsweReq, _ := http.NewRequest("POST", saveAnswersUrl, nil)
 	saveAnsweReq.Header.Add("x-api-key", lambdaServerless.config.ApiGateWayApiKey)
 	fmt.Println("api key is", lambdaServerless.config.ApiGateWayApiKey)
 
@@ -140,9 +139,6 @@ func (lambdaServerless *Lambda) RegisterEmail(ctx context.Context, event events.
 	if err != nil {
 		panic(err)
 	}
-	// defer resp.Body.Close()
-
-	// body, _ := io.ReadAll(resp.Body)
 
 	if err != nil {
 		fmt.Println("error in saving answers", err)
