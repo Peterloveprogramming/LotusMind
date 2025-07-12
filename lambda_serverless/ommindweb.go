@@ -271,28 +271,28 @@ func (lambdaServerless *Lambda) RegisterEmail(ctx context.Context, event events.
 	}
 
 	// 创建用户注册邮箱
-	args := db.CreateUserEmailTransactiontArgs{
-		Email:      req.Email,
-		ChakraInfo: string(chakraInfoJSON),
-		Language:   req.Language,
-		UniqueCode: uniqueCode,
-		IP:         req.IP,
-		Country:    req.Country,
-	}
+	// args := db.CreateUserEmailTransactiontArgs{
+	// 	Email:      req.Email,
+	// 	ChakraInfo: string(chakraInfoJSON),
+	// 	Language:   req.Language,
+	// 	UniqueCode: uniqueCode,
+	// 	IP:         req.IP,
+	// 	Country:    req.Country,
+	// }
 
-	registration, err := lambdaServerless.store.CreateUserEmailTransaction(ctx, args)
-	if err != nil {
-		if strings.Contains(err.Error(), "unique_violation") {
-			return events.APIGatewayProxyResponse{
-				StatusCode: 400,
-				Body:       "email exists already",
-			}
-		}
-		return events.APIGatewayProxyResponse{
-			StatusCode: 500,
-			Body:       "something went wrong while attempting registering email",
-		}
-	}
+	// registration, err := lambdaServerless.store.CreateUserEmailTransaction(ctx, args)
+	// if err != nil {
+	// 	if strings.Contains(err.Error(), "unique_violation") {
+	// 		return events.APIGatewayProxyResponse{
+	// 			StatusCode: 400,
+	// 			Body:       "email exists already",
+	// 		}
+	// 	}
+	// 	return events.APIGatewayProxyResponse{
+	// 		StatusCode: 500,
+	// 		Body:       "something went wrong while attempting registering email",
+	// 	}
+	// }
 
 	//获取推荐的手串
 	// 创建一个包含脉轮分数的切片
