@@ -8,6 +8,7 @@ import (
 	"net/smtp"
 	"strings"
 	"text/template"
+	"time"
 )
 
 type SendEmailMaker struct {
@@ -100,7 +101,7 @@ func (maker *SendEmailMaker) SendChakaraResult(to []string, uniqueCode string, l
 	log.Printf("Email body prepared. Sending email...")
 
 	//testing SMTP connection
-	conn, err := net.Dial("tcp", maker.fromEmailSmtpAddress)
+	conn, err := net.DialTimeout("tcp", maker.fromEmailSmtpAddress, 5*time.Second)
 	if err != nil {
 		log.Printf("❌ Failed to connect to SMTP server: %v", err)
 	} else {
@@ -108,22 +109,22 @@ func (maker *SendEmailMaker) SendChakaraResult(to []string, uniqueCode string, l
 		conn.Close()
 	}
 
-	err = smtp.SendMail(
-		maker.fromEmailSmtpAddress,
-		maker.smtpPlanAuth,
-		maker.fromEmail,
-		to,
-		body.Bytes(),
-	)
+	// err = smtp.SendMail(
+	// 	maker.fromEmailSmtpAddress,
+	// 	maker.smtpPlanAuth,
+	// 	maker.fromEmail,
+	// 	to,
+	// 	body.Bytes(),
+	// )
 
-	if err != nil {
-		log.Printf("Error sending email: %v", err)
-		log.Printf("SMTP server: %s", maker.fromEmailSmtpAddress)
-		log.Printf("SMTP sender: %s", maker.fromEmail)
-		log.Printf("SMTP recipients: %v", to)
-		return fmt.Errorf("error sending email: %w", err)
-	}
+	// if err != nil {
+	// 	log.Printf("Error sending email: %v", err)
+	// 	log.Printf("SMTP server: %s", maker.fromEmailSmtpAddress)
+	// 	log.Printf("SMTP sender: %s", maker.fromEmail)
+	// 	log.Printf("SMTP recipients: %v", to)
+	// 	return fmt.Errorf("error sending email: %w", err)
+	// }
 
-	log.Printf("Email sent successfully to: %v", to)
+	// log.Printf("Email sent successfully to: %v", to)
 	return nil
 }
