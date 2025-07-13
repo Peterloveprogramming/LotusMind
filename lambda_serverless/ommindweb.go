@@ -589,7 +589,32 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 			}
 		}
 		// 获取最新的 email_registrations 记录
-		latestRegistration, err := lambdaServerless.getLatestEmailRegistration(ctx, req.Email)
+		// latestRegistration, err := lambdaServerless.getLatestEmailRegistration(ctx, req.Email)
+		LatestRegistrationurl := lambdaServerless.config.ApiGateWayEndpoint + "/latest-registration?email=" + req.Email
+		fmt.Println("uLatestRegistrationurlrl is", LatestRegistrationurl)
+
+		req, _ := http.NewRequest("GET", LatestRegistrationurl, nil)
+		req.Header.Add("x-api-key", lambdaServerless.config.ApiGateWayApiKey)
+		fmt.Println("api key is", lambdaServerless.config.ApiGateWayApiKey)
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			panic(err)
+		}
+		defer resp.Body.Close()
+
+		body, _ := io.ReadAll(resp.Body)
+
+		var parsed EmailRegistrationResponse
+		if err := json.Unmarshal(body, &parsed); err != nil {
+			panic(err)
+		}
+
+		// ✅ Now you can access:
+		fmt.Println("UniqueCode:", parsed.Data.UniqueCode)
+		fmt.Println("Language:", parsed.Data.Language)
+		fmt.Println("Email:", parsed.Data.Email)
+
 		if err != nil {
 			println("error occurred while attempting getLatestEmailRegistration", err)
 			return events.APIGatewayProxyResponse{
@@ -597,16 +622,54 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 				Body:       fmt.Sprintf("error occurred while attempting getLatestEmailRegistration: %v", err),
 			}
 		}
-		fmt.Printf("Latest registration for email %s: %+v\n", req.Email, latestRegistration)
+		fmt.Printf("Latest registration for email %s: %+v\n", parsed.Data.Email)
 		println("the report is ", string(report))
-		// 更新 chakra_report 字段
-		if err := lambdaServerless.storageMaker.SaveChakaraReportAsText(req.Email, latestRegistration.UniqueCode, string(report)); err != nil {
+
+		saveReportUrl := lambdaServerless.config.ApiGateWayEndpoint + "/save-report"
+		fmt.Println("saveReportUrl is", saveReportUrl)
+
+		saveReportdata := map[string]interface{}{
+			"email":    parsed.Data.Email,
+			"uniqueId": parsed.Data,
+			"content":  string(report), // assign map[string]string here
+		}
+
+		// // Marshal to JSON
+		saveReportJsonData, err := json.Marshal(saveReportdata)
+		if err != nil {
+			log.Fatalf("Failed to marshal JSON: %v", err)
+		}
+
+		// // Create request with body
+		saveReportReq, err := http.NewRequest("POST", saveReportUrl, bytes.NewReader(saveReportJsonData))
+		if err != nil {
+			log.Fatalf("Failed to create request: %v", err)
+		}
+
+		saveReportReq.Header.Add("x-api-key", lambdaServerless.config.ApiGateWayApiKey)
+		fmt.Println("api key is", lambdaServerless.config.ApiGateWayApiKey)
+
+		_, err = http.DefaultClient.Do(saveReportReq)
+		// if err != nil {
+		// 	panic(err)
+		// }
+
+		if err != nil {
+			fmt.Println("error in saving answers", err)
 			return events.APIGatewayProxyResponse{
-				StatusCode: http.StatusInternalServerError,
-				Body:       fmt.Sprintf("error occurred while attempting SaveChakaraReportAsText: %v", err),
+				StatusCode: 500,
+				Body:       "error in saving chakra report",
 			}
 		}
-		uniqueCode = latestRegistration.UniqueCode
+
+		// 更新 chakra_report 字段
+		// if err := lambdaServerless.storageMaker.SaveChakaraReportAsText(parsed.Data.Email, parsed.Data.UniqueCode, string(report)); err != nil {
+		// 	return events.APIGatewayProxyResponse{
+		// 		StatusCode: http.StatusInternalServerError,
+		// 		Body:       fmt.Sprintf("error occurred while attempting SaveChakaraReportAsText: %v", err),
+		// 	}
+		// }
+		uniqueCode = parsed.Data.UniqueCode
 	}
 
 	// 直接返回报告
