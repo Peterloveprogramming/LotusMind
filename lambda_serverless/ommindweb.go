@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"net/mail"
+	"net/url"
 	"sort"
 	"strconv"
 	"strings"
@@ -41,6 +42,14 @@ type createUserEmailRequestBody struct {
 
 // type registEmailResponse struct {
 // }
+func buildBraceletURL(baseURL string, chakras []string) string {
+	// Join chakras with comma
+	chakraQuery := strings.Join(chakras, ",")
+	// Escape query string
+	escapedChakras := url.QueryEscape(chakraQuery)
+	// Format final URL
+	return fmt.Sprintf("%s?chakras=%s", baseURL, escapedChakras)
+}
 
 func (lambdaServerless *Lambda) RegisterEmail(ctx context.Context, event events.APIGatewayProxyRequest) events.APIGatewayProxyResponse {
 	// resp := registEmailResponse{}
@@ -321,8 +330,9 @@ func (lambdaServerless *Lambda) RegisterEmail(ctx context.Context, event events.
 	// 获取分数最低的两个脉轮
 	lowestChakras := []string{chakraScores[0].name, chakraScores[1].name}
 	fmt.Printf("分数最低的两个脉轮是: %v\n", lowestChakras)
-	joined := strings.Join(lowestChakras, ",")
-	braceletApiUrl := lambdaServerless.config.ApiGateWayEndpoint + "/bracelets?chakras=" + joined
+	braceletApiUrl := buildBraceletURL(lambdaServerless.config.ApiGateWayEndpoint+"/bracelets", lowestChakras)
+	fmt.Println(braceletApiUrl)
+
 	fmt.Println("braceletApiUrl is", braceletApiUrl)
 	bracetletGetRequest, _ := http.NewRequest("GET", braceletApiUrl, nil)
 	bracetletGetRequest.Header.Add("x-api-key", lambdaServerless.config.ApiGateWayApiKey)
