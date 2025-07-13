@@ -321,9 +321,42 @@ func (lambdaServerless *Lambda) RegisterEmail(ctx context.Context, event events.
 	// 获取分数最低的两个脉轮
 	lowestChakras := []string{chakraScores[0].name, chakraScores[1].name}
 	fmt.Printf("分数最低的两个脉轮是: %v\n", lowestChakras)
+	joined := strings.Join(lowestChakras, ",")
 
 	// 获取推荐的手串
-	bracelets, err := lambdaServerless.store.GetChakraBracelet(ctx, lowestChakras)
+	// bracelets, err := lambdaServerless.store.GetChakraBracelet(ctx, lowestChakras)
+	// Call new API to get bracelets
+
+	braceletApiUrl := "https://mc5swvldb0.execute-api.eu-west-2.amazonaws.com/version1/bracelets?chakras=" + joined
+
+	resp, err := http.Get(braceletApiUrl)
+	if err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       fmt.Sprintf("error calling bracelet API: %v", err),
+		}
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       fmt.Sprintf("bracelet API returned status %d: %s", resp.StatusCode, string(bodyBytes)),
+		}
+	}
+
+	var braceletAPIResponse struct {
+		Data []map[string]interface{} `json:"data"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&braceletAPIResponse); err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       fmt.Sprintf("failed to decode bracelet API response: %v", err),
+		}
+	}
+	bracelets := braceletAPIResponse.Data
+
 	if err != nil {
 		return events.APIGatewayProxyResponse{
 			StatusCode: 500,
