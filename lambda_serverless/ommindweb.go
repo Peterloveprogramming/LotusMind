@@ -322,14 +322,11 @@ func (lambdaServerless *Lambda) RegisterEmail(ctx context.Context, event events.
 	lowestChakras := []string{chakraScores[0].name, chakraScores[1].name}
 	fmt.Printf("分数最低的两个脉轮是: %v\n", lowestChakras)
 	joined := strings.Join(lowestChakras, ",")
-
-	// 获取推荐的手串
-	// bracelets, err := lambdaServerless.store.GetChakraBracelet(ctx, lowestChakras)
-	// Call new API to get bracelets
-
-	braceletApiUrl := "https://mc5swvldb0.execute-api.eu-west-2.amazonaws.com/version1/bracelets?chakras=" + joined
-
-	resp, err := http.Get(braceletApiUrl)
+	braceletApiUrl := lambdaServerless.config.ApiGateWayEndpoint + "/bracelets?chakras=" + joined
+	fmt.Println("braceletApiUrl is", braceletApiUrl)
+	bracetletGetRequest, _ := http.NewRequest("GET", braceletApiUrl, nil)
+	bracetletGetRequest.Header.Add("x-api-key", lambdaServerless.config.ApiGateWayApiKey)
+	resp, err := http.DefaultClient.Do(bracetletGetRequest)
 	if err != nil {
 		return events.APIGatewayProxyResponse{
 			StatusCode: 500,
