@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"net"
 	"net/smtp"
 	"strings"
 	"text/template"
@@ -49,14 +48,14 @@ type SendChakaraResultParams struct {
 }
 
 func (maker *SendEmailMaker) SendChakaraResult(to []string, uniqueCode string, language string) error {
-	//testing SMTP connection
-	conn, connErr := net.Dial("tcp", maker.fromEmailSmtpAddress)
-	if connErr != nil {
-		log.Printf("❌ Failed to connect to SMTP server: %v", connErr)
-	} else {
-		log.Printf("✅ Connected to SMTP server: %s", maker.fromEmailSmtpAddress)
-		conn.Close()
-	}
+	// //testing SMTP connection
+	// conn, connErr := net.Dial("tcp", maker.fromEmailSmtpAddress)
+	// if connErr != nil {
+	// 	log.Printf("❌ Failed to connect to SMTP server: %v", connErr)
+	// } else {
+	// 	log.Printf("✅ Connected to SMTP server: %s", maker.fromEmailSmtpAddress)
+	// 	conn.Close()
+	// }
 	var subject string
 	var tmpl *template.Template
 	var err error

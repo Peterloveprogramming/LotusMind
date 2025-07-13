@@ -372,12 +372,10 @@ func (lambdaServerless *Lambda) RegisterEmail(ctx context.Context, event events.
 	}
 
 	// 发送电子邮件
-	go func() {
-		err = lambdaServerless.sendEmailMaker.SendChakaraResult([]string{req.Email}, uniqueCode, req.Language)
-		if err != nil {
-			println("error in sending email", err)
-		}
-	}()
+	err = lambdaServerless.sendEmailMaker.SendChakaraResult([]string{req.Email}, uniqueCode, req.Language)
+	if err != nil {
+		println("error in sending email", err)
+	}
 
 	fmt.Println(("sending email "))
 	fmt.Println("email is", req.Email)
