@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"net"
 	"net/smtp"
 	"strings"
 	"text/template"
@@ -97,6 +98,15 @@ func (maker *SendEmailMaker) SendChakaraResult(to []string, uniqueCode string, l
 	}
 
 	log.Printf("Email body prepared. Sending email...")
+
+	//testing SMTP connection
+	conn, err := net.Dial("tcp", maker.fromEmailSmtpAddress)
+	if err != nil {
+		log.Printf("❌ Failed to connect to SMTP server: %v", err)
+	} else {
+		log.Printf("✅ Connected to SMTP server: %s", maker.fromEmailSmtpAddress)
+		conn.Close()
+	}
 
 	err = smtp.SendMail(
 		maker.fromEmailSmtpAddress,
