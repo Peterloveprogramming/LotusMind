@@ -580,7 +580,39 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 		language = req.Language
 
 		// 生成报告的逻辑
-		report, err = lambdaServerless.chakaraReportMaker.GenerateChakaraReport(req.ChakraInfo, language)
+		// report, err = lambdaServerless.chakaraReportMaker.GenerateChakaraReport(req.ChakraInfo, language)
+		generateReportUrl := lambdaServerless.config.ApiGateWayEndpoint + "/chakra-report"
+		fmt.Println("saveReportUrl is", generateReportUrl)
+
+		generateReportData := map[string]interface{}{
+			"language":    language,
+			"chakra_info": req.ChakraInfo, // assign map[string]string here
+		}
+
+		// // Marshal to JSON
+		generateReportDataJson, err := json.Marshal(generateReportData)
+		if err != nil {
+			log.Fatalf("Failed to marshal JSON: %v", err)
+		}
+
+		// // Create request with body
+		generateReportReq, err := http.NewRequest("POST", generateReportUrl, bytes.NewReader(generateReportDataJson))
+		if err != nil {
+			log.Fatalf("Failed to create request: %v", err)
+		}
+
+		generateReportReq.Header.Add("x-api-key", lambdaServerless.config.ApiGateWayApiKey)
+		fmt.Println("api key is", lambdaServerless.config.ApiGateWayApiKey)
+
+		rep, err := http.DefaultClient.Do(generateReportReq)
+		// if err != nil {
+		// 	panic(err)
+		// }
+
+		defer rep.Body.Close()
+
+		report, err = io.ReadAll(rep.Body)
+
 		if err != nil {
 			println("there is error in the server", err)
 			return events.APIGatewayProxyResponse{
