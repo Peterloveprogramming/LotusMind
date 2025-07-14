@@ -661,9 +661,9 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 		fmt.Println("saveReportUrl is", saveReportUrl)
 
 		saveReportdata := map[string]interface{}{
-			"email":    parsed.Data.Email,
-			"uniqueId": parsed.Data.UniqueCode,
-			"content":  string(report), // assign map[string]string here
+			"email":       parsed.Data.Email,
+			"unique_code": parsed.Data.UniqueCode,
+			"content":     string(report), // assign map[string]string here
 		}
 		fmt.Println("saveReportdata is", saveReportdata)
 		fmt.Println("saving report...")
