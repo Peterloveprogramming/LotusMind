@@ -582,7 +582,7 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 		// 生成报告的逻辑
 		// report, err = lambdaServerless.chakaraReportMaker.GenerateChakaraReport(req.ChakraInfo, language)
 		generateReportUrl := lambdaServerless.config.ApiGateWayEndpoint + "/chakra-report"
-		fmt.Println("saveReportUrl is", generateReportUrl)
+		fmt.Println("generate report url is", generateReportUrl)
 
 		generateReportData := map[string]interface{}{
 			"language":    language,
@@ -662,9 +662,10 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 
 		saveReportdata := map[string]interface{}{
 			"email":    parsed.Data.Email,
-			"uniqueId": parsed.Data,
+			"uniqueId": parsed.Data.UniqueCode,
 			"content":  string(report), // assign map[string]string here
 		}
+		fmt.Println("saving report...")
 
 		// // Marshal to JSON
 		saveReportJsonData, err := json.Marshal(saveReportdata)
@@ -687,7 +688,7 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 		// }
 
 		if err != nil {
-			fmt.Println("error in saving answers", err)
+			fmt.Println("error in saving report", err)
 			return events.APIGatewayProxyResponse{
 				StatusCode: 500,
 				Body:       "error in saving chakra report",
