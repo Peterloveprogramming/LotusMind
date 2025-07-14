@@ -665,6 +665,7 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 			"uniqueId": parsed.Data.UniqueCode,
 			"content":  string(report), // assign map[string]string here
 		}
+		fmt.Println("saveReportdata is", saveReportdata)
 		fmt.Println("saving report...")
 
 		// // Marshal to JSON
@@ -680,7 +681,7 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 		}
 
 		saveReportReq.Header.Add("x-api-key", lambdaServerless.config.ApiGateWayApiKey)
-		fmt.Println("api key is", lambdaServerless.config.ApiGateWayApiKey)
+		// fmt.Println("api key is", lambdaServerless.config.ApiGateWayApiKey)
 
 		_, err = http.DefaultClient.Do(saveReportReq)
 		// if err != nil {
@@ -694,6 +695,8 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 				Body:       "error in saving chakra report",
 			}
 		}
+
+		fmt.Print("report saved successfully")
 
 		// 更新 chakra_report 字段
 		// if err := lambdaServerless.storageMaker.SaveChakaraReportAsText(parsed.Data.Email, parsed.Data.UniqueCode, string(report)); err != nil {
