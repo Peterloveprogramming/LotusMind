@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"log"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -34,7 +33,7 @@ func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.A
 		// }
 		return lambdaWrapper.GetChakraReport(ctx, event), nil
 
-	case event.HTTPMethod == "POST" && event.Path == "/chakra/results/":
+		// case event.HTTPMethod == "POST" && event.Path == "/chakra/results/":
 		// {
 		// "httpMethod": "POST",
 		// "path": "/chakra/results/",
@@ -44,23 +43,23 @@ func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.A
 			Email   string `json:"email"`
 			TestNum string `json:"testNum"`
 		}
-		var req ChakraRequest
-		err := json.Unmarshal([]byte(event.Body), &req)
-		if err != nil {
-			return events.APIGatewayProxyResponse{
-				StatusCode: 400,
-				Body:       "Invalid JSON body",
-			}, nil
-		}
+		// var req ChakraRequest
+		// err := json.Unmarshal([]byte(event.Body), &req)
+		// if err != nil {
+		// 	return events.APIGatewayProxyResponse{
+		// 		StatusCode: 400,
+		// 		Body:       "Invalid JSON body",
+		// 	}, nil
+		// }
 
-		if req.Email == "" || req.TestNum == "" {
-			return events.APIGatewayProxyResponse{
-				StatusCode: 400,
-				Body:       "Missing email or testNum",
-			}, nil
-		}
+		// if req.Email == "" || req.TestNum == "" {
+		// 	return events.APIGatewayProxyResponse{
+		// 		StatusCode: 400,
+		// 		Body:       "Missing email or testNum",
+		// 	}, nil
+		// }
 
-		return lambdaWrapper.GetChakraTestResults(ctx, event, req.Email, req.TestNum), nil
+		// return lambdaWrapper.GetChakraTestResults(ctx, event, req.Email, req.TestNum), nil
 	default:
 		return lambdaWrapper.RequestNotFound(ctx, event), nil
 	}
