@@ -715,12 +715,9 @@ func (lambdaServerless *Lambda) GetChakraReport(ctx context.Context, event event
 	// ctx.Data(http.StatusOK, "application/json", report)
 
 	fmt.Println("getting ready to return report")
-	var data map[string]interface{}
-	if err := json.Unmarshal(report, &data); err != nil {
-		return events.APIGatewayProxyResponse{
-			StatusCode: http.StatusInternalServerError,
-			Body:       fmt.Sprintf("Invalid report data: %v", err),
-		}
+	data := map[string]interface{}{
+		"report":     string(report),
+		"uniqueCode": uniqueCode,
 	}
 
 	fmt.Println("data:", data)
