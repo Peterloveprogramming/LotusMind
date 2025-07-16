@@ -39,10 +39,10 @@ func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.A
 		// "path": "/chakra/results/",
 		// "body": "{\"email\":\"test@example.com\", \"testNum\":\"ABC123XYZ\"}"
 		// }
-		type ChakraRequest struct {
-			Email   string `json:"email"`
-			TestNum string `json:"testNum"`
-		}
+		// type ChakraRequest struct {
+		// 	Email   string `json:"email"`
+		// 	TestNum string `json:"testNum"`
+		// }
 		// var req ChakraRequest
 		// err := json.Unmarshal([]byte(event.Body), &req)
 		// if err != nil {
