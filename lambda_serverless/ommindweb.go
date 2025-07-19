@@ -808,7 +808,7 @@ func (lambdaServerless *Lambda) GetChakraTestResults(ctx context.Context, event 
 			Body:       "No report available",
 		}
 	}
-
+	fmt.Println("retrieved chakra info is ", parsed.Data.ChakraInfo)
 	var reportData []ChakraInfo
 	if err := json.Unmarshal([]byte(parsed.Data.ChakraInfo), &reportData); err != nil {
 		return events.APIGatewayProxyResponse{
