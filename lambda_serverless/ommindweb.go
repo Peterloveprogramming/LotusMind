@@ -253,7 +253,7 @@ func (lambdaServerless *Lambda) RegisterEmail(ctx context.Context, event events.
 
 	emailRegistrationData := map[string]interface{}{
 		"email":       req.Email,
-		"chakra_info": chakraInfoJSON,
+		"chakra_info": string(chakraInfoJSON),
 		"language":    req.Language,
 		"unique_code": uniqueCode,
 		"ip":          req.IP,
