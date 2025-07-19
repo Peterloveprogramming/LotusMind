@@ -832,13 +832,49 @@ func (lambdaServerless *Lambda) GetChakraTestResults(ctx context.Context, event 
 	lowestChakras := []string{scores[0].name, scores[1].name}
 
 	// Get bracelet recommendations
-	bracelets, err := lambdaServerless.store.GetChakraBracelet(ctx, lowestChakras)
+	// bracelets, err := lambdaServerless.store.GetChakraBracelet(ctx, lowestChakras)
+	// if err != nil {
+	// 	return events.APIGatewayProxyResponse{
+	// 		StatusCode: 500,
+	// 		Body:       fmt.Sprintf("Failed to get bracelets: %v", err),
+	// 	}
+	// }
+	braceletApiUrl := buildBraceletURL(lambdaServerless.config.ApiGateWayEndpoint+"/bracelets", lowestChakras)
+	fmt.Println(braceletApiUrl)
+
+	fmt.Println("braceletApiUrl is", braceletApiUrl)
+	bracetletGetRequest, _ := http.NewRequest("GET", braceletApiUrl, nil)
+	bracetletGetRequest.Header.Add("x-api-key", lambdaServerless.config.ApiGateWayApiKey)
+	resp, err = http.DefaultClient.Do(bracetletGetRequest)
 	if err != nil {
 		return events.APIGatewayProxyResponse{
 			StatusCode: 500,
-			Body:       fmt.Sprintf("Failed to get bracelets: %v", err),
+			Body:       fmt.Sprintf("error calling bracelet API: %v", err),
 		}
 	}
+
+	defer resp.Body.Close()
+
+	fmt.Println("bracelet resp", resp)
+
+	if resp.StatusCode != http.StatusOK {
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       fmt.Sprintf("bracelet API returned status %d: %s", resp.StatusCode, string(bodyBytes)),
+		}
+	}
+
+	var braceletAPIResponse struct {
+		Data []map[string]interface{} `json:"data"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&braceletAPIResponse); err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       fmt.Sprintf("failed to decode bracelet API response: %v", err),
+		}
+	}
+	bracelets := braceletAPIResponse.Data
 
 	// Build chakra result list
 	var response []chakraTestResult
