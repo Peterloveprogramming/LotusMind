@@ -34,7 +34,7 @@ func handler(ctx context.Context, event events.APIGatewayProxyRequest) (events.A
 		// }
 		return lambdaWrapper.GetChakraReport(ctx, event), nil
 
-	case event.HTTPMethod == "POST" && event.Path == "/chakra/results/":
+	case event.HTTPMethod == "POST" && event.Path == "/chakra/results":
 		// {
 		// "httpMethod": "POST",
 		// "path": "/chakra/results/",
