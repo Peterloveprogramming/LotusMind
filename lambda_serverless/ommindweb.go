@@ -904,7 +904,10 @@ func (lambdaServerless *Lambda) GetChakraTestResults(ctx context.Context, event 
 	return events.APIGatewayProxyResponse{
 		StatusCode: 200,
 		Headers: map[string]string{
-			"Content-Type": "application/json",
+			"Content-Type":                 "application/json",
+			"Access-Control-Allow-Origin":  "*",
+			"Access-Control-Allow-Headers": "Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token",
+			"Access-Control-Allow-Methods": "OPTIONS,POST",
 		},
 		Body: string(jsonBody),
 	}
