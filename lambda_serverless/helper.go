@@ -1,12 +1,17 @@
 package lambdaServerless
 
 import (
+	"time"
 	"unicode"
 
 	"golang.org/x/exp/rand"
 )
 
 const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func init() {
+	rand.Seed(uint64(time.Now().UnixNano()))
+}
 
 func generateUniqueCode() string {
 	result := make([]byte, 11)
