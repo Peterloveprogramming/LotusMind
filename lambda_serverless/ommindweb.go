@@ -770,79 +770,76 @@ func (lambdaServerless *Lambda) GetChakraTestResults(ctx context.Context, event 
 			Body:       "email is empty or less than 5 characters",
 		}
 	}
-	if len(inputTestNum) == 0 {
+	if inputTestNum == "" {
 		return events.APIGatewayProxyResponse{
 			StatusCode: 400,
 			Body:       "test_num is required",
 		}
 	}
 
-	// 将 TestNum 从字符串转换为整数
-	testNum, err := strconv.Atoi(inputTestNum)
+	// Call external API
+	url := lambdaServerless.config.ApiGateWayEndpoint + "/email-registration?unique_code=" + inputTestNum
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return events.APIGatewayProxyResponse{
-			StatusCode: 400,
-			Body:       fmt.Sprintf("invalid test_num: %v", err),
-		}
+		return events.APIGatewayProxyResponse{StatusCode: 500, Body: "Failed to create HTTP request"}
 	}
-	// 获取特定的 email_registrations 记录
-	registration, err := lambdaServerless.getEmailRegistrationByTestNum(ctx, inputEmail, testNum)
+	req.Header.Add("x-api-key", lambdaServerless.config.ApiGateWayApiKey)
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		println("error occured while attempting getEmailRegistrationByTestNum ", err)
-		return events.APIGatewayProxyResponse{
-			StatusCode: 500,
-			Body:       fmt.Sprintf("something went wrong while attempting getEmailRegistrationByTestNum: %v", err),
-		}
+		return events.APIGatewayProxyResponse{StatusCode: 500, Body: "Failed to contact email registration service"}
+	}
+	defer resp.Body.Close()
 
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return events.APIGatewayProxyResponse{StatusCode: 500, Body: "Failed to read response body"}
 	}
 
-	var reportData []ChakraInfo
-	if registration.ChakraInfo.Valid {
-		if err := json.Unmarshal([]byte(registration.ChakraInfo.String), &reportData); err != nil {
-			return events.APIGatewayProxyResponse{
-				StatusCode: 500,
-				Body:       fmt.Sprintf("something went wrong while attempting unmarshalling chakra info: %v", err),
-			}
-		}
-	} else {
+	var parsed EmailRegistrationResponse
+	if err := json.Unmarshal(body, &parsed); err != nil {
+		return events.APIGatewayProxyResponse{StatusCode: 500, Body: "Failed to parse JSON response"}
+	}
+
+	if parsed.Data.ChakraInfo == "" {
 		return events.APIGatewayProxyResponse{
 			StatusCode: 404,
 			Body:       "No report available",
 		}
 	}
 
-	// 获取手串
-	// 创建一个切片存储分数最低的两个脉轮名称
+	var reportData []ChakraInfo
+	if err := json.Unmarshal([]byte(parsed.Data.ChakraInfo), &reportData); err != nil {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 500,
+			Body:       fmt.Sprintf("Failed to unmarshal chakra info: %v", err),
+		}
+	}
+
+	// Determine the two lowest scoring chakras
 	type chakraScore struct {
 		name  string
 		score int32
 	}
 	scores := make([]chakraScore, len(reportData))
 	for i, r := range reportData {
-		scores[i] = chakraScore{
-			name:  r.ChakraName,
-			score: r.ChakraScore,
-		}
+		scores[i] = chakraScore{name: r.ChakraName, score: r.ChakraScore}
 	}
-
-	// 根据分数排序（从低到高）
 	sort.Slice(scores, func(i, j int) bool {
 		return scores[i].score < scores[j].score
 	})
-
-	// 获取分数最低的两个脉轮
 	lowestChakras := []string{scores[0].name, scores[1].name}
 
-	// 获取推荐的手串
-	var bracelets []db.GetChakraBraceletRow
-	bracelets, err = lambdaServerless.store.GetChakraBracelet(ctx, lowestChakras)
+	// Get bracelet recommendations
+	bracelets, err := lambdaServerless.store.GetChakraBracelet(ctx, lowestChakras)
 	if err != nil {
 		return events.APIGatewayProxyResponse{
 			StatusCode: 500,
-			Body:       fmt.Sprintf("something went wrong while attempting getting bracelets: %v", err),
+			Body:       fmt.Sprintf("Failed to get bracelets: %v", err),
 		}
 	}
 
+	// Build chakra result list
 	var response []chakraTestResult
 	for _, r := range reportData {
 		response = append(response, chakraTestResult{
@@ -852,12 +849,10 @@ func (lambdaServerless *Lambda) GetChakraTestResults(ctx context.Context, event 
 		})
 	}
 
-	//is Go's way of saying: "I’m creating a map where the keys are strings,
-	//and the values can be anything — string, int, struct, slice, bool, whatever."
-
+	// Compose final result map
 	result := map[string]interface{}{
 		"chakra_results": response,
-		"language":       registration.Language,
+		"language":       parsed.Data.Language,
 		"bracelets":      bracelets,
 	}
 
