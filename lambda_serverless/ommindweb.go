@@ -789,6 +789,7 @@ func (lambdaServerless *Lambda) GetChakraTestResults(ctx context.Context, event 
 	if err != nil {
 		return events.APIGatewayProxyResponse{StatusCode: 500, Body: "Failed to contact email registration service"}
 	}
+	fmt.Println("resp is", resp)
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
