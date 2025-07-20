@@ -53,8 +53,8 @@ const ChakaraReportTemplate = `
 										<table align="center" role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 500px;"> 
 											<tr>
 												<td align="center" style="padding: 20px 10px;"> 
-													<p style="font-weight: 600; font-size: 16px; color: #ffffff; margin-top: 0; margin-bottom: 10px; font-family: 'Inter', Arial, sans-serif;">Your Chakra Test Number</p>
-													<p style="font-size: 14px; color: #ffffff; margin-top: 0; margin-bottom: 10px; font-family: 'Inter', Arial, sans-serif;">{{.ChakaraNumber}}</p>
+													<!-- <p style="font-weight: 600; font-size: 16px; color: #ffffff; margin-top: 0; margin-bottom: 10px; font-family: 'Inter', Arial, sans-serif;">Your Chakra Test Number</p> -->
+													<!-- <p style="font-size: 14px; color: #ffffff; margin-top: 0; margin-bottom: 10px; font-family: 'Inter', Arial, sans-serif;">{{.ChakaraNumber}}</p> -->
 													<a href="{{.FrontEndUrl}}" style="text-decoration: none; font-size: 14px; color: white; font-family: 'Inter', Arial, sans-serif; padding: 8px 15px; /* Added horizontal padding for better look */ font-weight: 800; background-color: #F8C63E; border-radius: 15px; /* Added border-radius */ margin-top: 10px; /* Added margin-top */ display: inline-block; /* Helps margin-top work reliably */">
 														Click to view your chakra results 
 														<img src="https://ommind-public.s3.eu-west-2.amazonaws.com/chakara-report-email-tempalte-images/arrow.png" alt="arrow" width="16" height="15" style="width: 16px; height: 15px; vertical-align: middle; margin-left: 5px; display: inline-block;"> 
@@ -80,14 +80,12 @@ const ChakaraReportTemplate = `
 					<tr>
 						<td align="center">
 							<p style="font-size: 14px;">Your results reveal a unique chakra alignment profile—your personal energy blueprint. Based on your results, we recommend exploring our <strong>customized handmade chakra bracelets</strong>, designed to support your specific energy centers.</p>
-                            <p style="font-size: 14px;">You’ve successfully joined our <strong>Chakra Bracelet Giveaway!</strong>  The winner will be revealed on <strong>May 31 at 8 PM (London time)</strong> in our social media stories — stay tuned!</p>
-							<p style="margin-top: 0px; font-size: 18px;">As a gift, here’s your exclusive <strong>50% OFF</strong> code:</p>
+							<p style="margin-top: 0px; font-size: 18px;">As a gift, here’s your exclusive <strong>20% OFF</strong> code:</p>
 							<p  style="text-decoration: none;margin-top: 0px; font-size: 14px; color: white; font-family: 'Inter', Arial, sans-serif; padding: 8px 15px; /* Added horizontal padding for better look */ font-weight: 800; background-color: #72513C; border-radius: 15px; /* Added border-radius */ margin-top: 10px; /* Added margin-top */ display: inline-block; /* Helps margin-top work reliably */">
 								{{.DiscountCode}}
 							</p>
-							<p style="font-size: 14px; margin-bottom: 0px;">(valid on one item until June 8, 2025 at 11:59 PM)</p>
-                            <p style="font-size: 14px;">Use it to find a bracelet that resonates with your energy and supports your journey.</p>
-
+                            <a href="https://www.ommindshop.com/" target="_blank"><p style="font-size: 14px;">Get your free crystal match — just start a chat with us.</p></a>
+							<p>ommind.contact@gmail.com</p>
 						</td>
 					</tr>
 					
