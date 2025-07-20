@@ -14,8 +14,8 @@ func init() {
 }
 
 func generateUniqueCode() string {
-	result := make([]byte, 11)
-	for i := 0; i < 25; i++ {
+	result := make([]byte, 19)
+	for i := 0; i < 19; i++ {
 		num := rand.Intn(len(charset))
 		result[i] = charset[num]
 	}
